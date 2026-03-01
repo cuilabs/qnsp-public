@@ -1,0 +1,170 @@
+import { describe, expect, it, vi } from "vitest";
+import { TenantClient } from "./index.js";
+
+describe("TenantClient Security Tests", () => {
+	const mockFetch = vi.fn();
+	global.fetch = mockFetch;
+
+	describe("HTTPS Enforcement", () => {
+		it("should reject HTTP URLs in production", () => {
+			const originalEnv = process.env["NODE_ENV"];
+			process.env["NODE_ENV"] = "production";
+
+			expect(() => {
+				new TenantClient({
+					baseUrl: "http://example.com",
+					apiKey: "test-api-key",
+				});
+			}).toThrow("baseUrl must use HTTPS in production");
+
+			process.env["NODE_ENV"] = originalEnv;
+		});
+
+		it("should allow HTTP localhost in development", () => {
+			const originalEnv = process.env["NODE_ENV"];
+			process.env["NODE_ENV"] = "development";
+
+			expect(() => {
+				new TenantClient({
+					baseUrl: "http://localhost:3000",
+					apiKey: "test-api-key",
+				});
+			}).not.toThrow();
+
+			process.env["NODE_ENV"] = originalEnv;
+		});
+	});
+
+	describe("Input Validation", () => {
+		const client = new TenantClient({
+			baseUrl: "https://api.example.com",
+			apiKey: "test-api-key",
+		});
+
+		it("should reject invalid UUIDs", async () => {
+			await expect(client.getTenant("not-a-uuid")).rejects.toThrow("Invalid id");
+		});
+
+		it("should reject SQL injection in tenantId", async () => {
+			await expect(client.getTenant("'; DROP TABLE tenants; --")).rejects.toThrow("Invalid id");
+		});
+
+		it("should reject path traversal in tenantId", async () => {
+			await expect(client.getTenant("../../etc/passwd")).rejects.toThrow("Invalid id");
+		});
+
+		it("should reject XSS attempts in tenantId", async () => {
+			await expect(client.getTenant("<script>alert('xss')</script>")).rejects.toThrow("Invalid id");
+		});
+	});
+
+	describe("Error Message Sanitization", () => {
+		const client = new TenantClient({
+			baseUrl: "https://api.example.com",
+			apiKey: "test-api-key",
+		});
+
+		it("should not expose sensitive data in error messages", async () => {
+			mockFetch.mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				statusText: "Internal Server Error",
+				headers: new Headers(),
+				text: async () =>
+					JSON.stringify({
+						error: "Database connection failed",
+						stack: "at TenantService.getTenant()",
+						apiKey: "api_key_example_123",
+						password: "secret123",
+					}),
+			});
+
+			await expect(client.getTenant("123e4567-e89b-12d3-a456-426614174000")).rejects.toThrow(
+				"Tenant API error: 500 Internal Server Error",
+			);
+
+			const errorMessage = await (async () => {
+				try {
+					await client.getTenant("123e4567-e89b-12d3-a456-426614174000");
+					return "";
+				} catch (error) {
+					return error instanceof Error ? error.message : String(error);
+				}
+			})();
+
+			expect(errorMessage).not.toContain("api_key_example_123");
+			expect(errorMessage).not.toContain("secret123");
+			expect(errorMessage).not.toContain("Database connection failed");
+			expect(errorMessage).not.toContain("stack");
+		});
+	});
+
+	describe("Rate Limiting", () => {
+		const client = new TenantClient({
+			baseUrl: "https://api.example.com",
+			apiKey: "test-api-key",
+			maxRetries: 2,
+			retryDelayMs: 10,
+		});
+
+		it("should retry on 429 with Retry-After header", async () => {
+			let attemptCount = 0;
+			mockFetch.mockImplementation(async () => {
+				attemptCount++;
+				if (attemptCount === 1) {
+					return {
+						ok: false,
+						status: 429,
+						statusText: "Too Many Requests",
+						headers: new Headers({ "Retry-After": "1" }),
+						text: async () => "",
+					};
+				}
+				return {
+					ok: true,
+					status: 200,
+					headers: new Headers(),
+					json: async () => ({
+						id: "123e4567-e89b-12d3-a456-426614174000",
+						name: "test-tenant",
+						slug: "test-tenant",
+						status: "active",
+						plan: "basic",
+						region: "us-east-1",
+						complianceTags: [],
+						metadata: {},
+						security: {
+							controlPlaneTokenSha256: null,
+							pqcSignatures: [],
+							hardwareProvider: null,
+							attestationStatus: null,
+							attestationProof: null,
+						},
+						domains: [],
+						createdAt: "2024-01-01T00:00:00Z",
+						updatedAt: "2024-01-01T00:00:00Z",
+					}),
+				};
+			});
+
+			const result = await client.getTenant("123e4567-e89b-12d3-a456-426614174000");
+
+			expect(result.id).toBe("123e4567-e89b-12d3-a456-426614174000");
+			expect(attemptCount).toBe(2);
+		});
+
+		it("should fail after max retries", async () => {
+			mockFetch.mockResolvedValue({
+				ok: false,
+				status: 429,
+				statusText: "Too Many Requests",
+				headers: new Headers(),
+				text: async () => "",
+			});
+
+			await expect(client.getTenant("123e4567-e89b-12d3-a456-426614174000")).rejects.toThrow(
+				"Rate limit exceeded after 2 retries",
+			);
+		});
+	});
+});

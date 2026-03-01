@@ -1,0 +1,37 @@
+{
+	"name": "@qnsp/cli",
+	"version": "0.1.4",
+	"description": "Command-line interface for QNSP platform",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"license": "Apache-2.0",
+	"bin": {
+		"qnsp": "./dist/index.js"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"lint": "biome check .",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@qnsp/audit-sdk": "workspace:*",
+		"@qnsp/auth-sdk": "workspace:*",
+		"@qnsp/kms-client": "workspace:*",
+		"@qnsp/vault-sdk": "workspace:*",
+		"commander": "^14.0.2",
+		"dotenv": "^17.2.3"
+	},
+	"devDependencies": {
+		"@types/node": "^25.0.9",
+		"typescript": "^5.9.3",
+		"vitest": "4.0.17"
+	}
+}

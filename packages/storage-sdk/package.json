@@ -1,0 +1,40 @@
+{
+	"name": "@qnsp/storage-sdk",
+	"version": "0.3.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"license": "Apache-2.0",
+	"description": "TypeScript SDK client for the QNSP storage-service API.",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"dev": "tsx watch src/index.ts",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@opentelemetry/api": "^1.9.0",
+		"@opentelemetry/exporter-metrics-otlp-http": "^0.210.0",
+		"@opentelemetry/resources": "^2.4.0",
+		"@opentelemetry/sdk-metrics": "^2.4.0",
+		"undici": "^7.18.2",
+		"zod": "^4.3.5"
+	},
+	"devDependencies": {
+		"@types/node": "^25.0.9",
+		"tsx": "^4.21.0",
+		"vitest": "4.0.17"
+	},
+	"engines": {
+		"node": "24.12.0"
+	}
+}

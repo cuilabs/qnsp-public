@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"composite": true,
+		"tsBuildInfoFile": "tsconfig.tsbuildinfo",
+		"paths": {
+			"@qnsp/observability": ["packages/observability/dist/index.d.ts"],
+			"@qnsp/*": ["packages/*/src"],
+			"@qnsp/app/*": ["apps/*/src"]
+		}
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["dist", "build"]
+}

@@ -1,0 +1,53 @@
+{
+	"name": "@qnsp/browser-sdk",
+	"version": "0.1.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"license": "Apache-2.0",
+	"description": "Browser-compatible PQC encryption SDK for QNSP. Client-side encryption, signing, and key encapsulation using NIST FIPS 203/204/205 standards via @noble/post-quantum.",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@noble/hashes": "^2.0.1",
+		"@noble/post-quantum": "^0.5.4",
+		"@qnsp/kms-client": "workspace:*",
+		"@qnsp/storage-sdk": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^25.0.9",
+		"typescript": "^5.9.3",
+		"vitest": "4.0.17"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"keywords": [
+		"pqc",
+		"post-quantum",
+		"browser",
+		"encryption",
+		"ml-kem",
+		"ml-dsa",
+		"slh-dsa",
+		"fips-203",
+		"fips-204",
+		"fips-205",
+		"client-side-encryption",
+		"noble"
+	]
+}
