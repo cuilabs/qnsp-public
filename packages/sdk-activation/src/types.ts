@@ -28,6 +28,7 @@ export const SdkIdentifierSchema = z.enum([
 	"langchain-qnsp",
 	"llamaindex-qnsp",
 	"autogen-qnsp",
+	"mcp-server",
 ]);
 
 export type SdkIdentifier = z.infer<typeof SdkIdentifierSchema>;

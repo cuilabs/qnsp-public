@@ -1,6 +1,6 @@
 {
   "export": {
-    "fileCount": 598,
+    "fileCount": 607,
     "publicPackages": [
       "access-control-sdk",
       "ai-sdk",
@@ -16,6 +16,7 @@
       "kms-client",
       "langchain-qnsp",
       "llamaindex-qnsp",
+      "mcp-server",
       "observability",
       "resilience",
       "sdk-activation",
@@ -27,8 +28,8 @@
     ]
   },
   "source": {
-    "generatedAt": "2026-04-08T11:48:55.421156+00:00",
+    "generatedAt": "2026-04-08T15:15:03.285813+00:00",
     "repo": "cuilabs/qnsp",
-    "sha": "ad0e595894ef412511a9720469d82eb096b52742"
+    "sha": "d85ae0691f649281926812ed0d60867df07e25e9"
   }
 }

@@ -1,0 +1,75 @@
+{
+	"name": "@qnsp/mcp-server",
+	"version": "0.1.0",
+	"description": "QNSP MCP Server: post-quantum cryptography tools for AI assistants. Manage PQC keys, encrypted vault, crypto inventory, and compliance — all tier-gated via QNSP billing.",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"license": "Apache-2.0",
+	"engines": {
+		"node": ">=24.12.0"
+	},
+	"bin": {
+		"qnsp-mcp": "./dist/index.js"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"lint": "biome check .",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.12.1",
+		"@qnsp/sdk-activation": "workspace:*",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"typescript": "^6.0.2",
+		"vitest": "4.1.2"
+	},
+	"keywords": [
+		"qnsp",
+		"mcp",
+		"model-context-protocol",
+		"pqc",
+		"post-quantum",
+		"post-quantum-cryptography",
+		"ml-kem",
+		"ml-dsa",
+		"kyber",
+		"dilithium",
+		"sphincs",
+		"falcon",
+		"cryptography",
+		"kms",
+		"key-management",
+		"vault",
+		"secrets",
+		"audit",
+		"quantum-safe",
+		"zero-trust",
+		"fips-203",
+		"fips-204",
+		"fips-205",
+		"nist",
+		"compliance",
+		"ai-tools",
+		"smithery"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/mcp-server"
+	},
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp-public/issues"
+	}
+}

@@ -1,0 +1,204 @@
+#!/usr/bin/env node
+
+/**
+ * QNSP MCP Server
+ *
+ * Post-quantum cryptography tools for AI assistants.
+ * Connects to the QNSP platform via edge gateway, authenticates with an API key,
+ * and exposes tier-gated tools for KMS, Vault, Crypto Inventory, Audit, Search,
+ * and platform management.
+ *
+ * Usage (stdio):
+ *   QNSP_API_KEY=your-key qnsp-mcp
+ *
+ * Configuration:
+ *   QNSP_API_KEY          — Required. Get one at https://cloud.qnsp.cuilabs.io/api-keys
+ *   QNSP_PLATFORM_URL     — Optional. Defaults to https://api.qnsp.cuilabs.io
+ */
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+import { ApiClient } from "./api-client.js";
+import { SessionManager } from "./session.js";
+import type { ToolContext } from "./tools.js";
+import * as tools from "./tools.js";
+
+const PACKAGE_VERSION = "0.1.0";
+
+function getRequiredEnv(name: string): string {
+	const value = process.env[name];
+	if (!value || value.length === 0) {
+		process.stderr.write(
+			`Error: ${name} is required. Get your free API key at https://cloud.qnsp.cuilabs.io/api-keys\n`,
+		);
+		process.exit(1);
+	}
+	return value;
+}
+
+async function main(): Promise<void> {
+	const apiKey = getRequiredEnv("QNSP_API_KEY");
+	const platformUrl = process.env["QNSP_PLATFORM_URL"] ?? "https://api.qnsp.cuilabs.io";
+
+	// Activate SDK session — resolves API key → tenant ID → tier → limits
+	const session = new SessionManager({ apiKey, platformUrl });
+	const gate = await session.activate();
+
+	// Create API client for edge gateway calls
+	const api = new ApiClient({
+		baseUrl: platformUrl,
+		apiKey,
+		tenantId: gate.tenantId,
+	});
+
+	const ctx: ToolContext = { api, gate };
+
+	// Create MCP server
+	const server = new McpServer({
+		name: "qnsp",
+		version: PACKAGE_VERSION,
+	});
+
+	// ── KMS Tools (all tiers) ─────────────────────────────────────────────
+
+	server.tool(
+		"qnsp_kms_generate_key",
+		"Generate a new post-quantum cryptographic key pair. Supports ML-KEM (Kyber), ML-DSA (Dilithium), Falcon, SPHINCS+, and 80+ more PQC algorithms per NIST FIPS 203/204/205.",
+		{
+			algorithm: tools.kmsGenerateKeySchema.shape.algorithm,
+			label: tools.kmsGenerateKeySchema.shape.label,
+			metadata: tools.kmsGenerateKeySchema.shape.metadata,
+		},
+		async (input) => tools.kmsGenerateKey(ctx, tools.kmsGenerateKeySchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_kms_list_keys",
+		"List PQC keys in your tenant's key store.",
+		{ limit: tools.kmsListKeysSchema.shape.limit },
+		async (input) => tools.kmsListKeys(ctx, tools.kmsListKeysSchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_kms_get_key",
+		"Get details of a specific PQC key by ID.",
+		{ keyId: tools.kmsGetKeySchema.shape.keyId },
+		async (input) => tools.kmsGetKey(ctx, tools.kmsGetKeySchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_kms_rotate_key",
+		"Rotate a PQC key — generates a new version while preserving the key ID.",
+		{ keyId: tools.kmsRotateKeySchema.shape.keyId },
+		async (input) => tools.kmsRotateKey(ctx, tools.kmsRotateKeySchema.parse(input)),
+	);
+
+	// ── Vault Tools (tier-gated: vaultEnabled) ────────────────────────────
+
+	server.tool(
+		"qnsp_vault_create_secret",
+		"Store a secret in the quantum-safe encrypted vault. Requires dev-pro tier or higher.",
+		{
+			name: tools.vaultCreateSecretSchema.shape.name,
+			value: tools.vaultCreateSecretSchema.shape.value,
+			metadata: tools.vaultCreateSecretSchema.shape.metadata,
+		},
+		async (input) => tools.vaultCreateSecret(ctx, tools.vaultCreateSecretSchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_vault_get_secret",
+		"Retrieve a secret from the quantum-safe vault by ID.",
+		{ secretId: tools.vaultGetSecretSchema.shape.secretId },
+		async (input) => tools.vaultGetSecret(ctx, tools.vaultGetSecretSchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_vault_list_secrets",
+		"List secrets in the quantum-safe vault.",
+		{ limit: tools.vaultListSecretsSchema.shape.limit },
+		async (input) => tools.vaultListSecrets(ctx, tools.vaultListSecretsSchema.parse(input)),
+	);
+
+	// ── Crypto Inventory / CBOM Tools (all tiers) ─────────────────────────
+
+	server.tool(
+		"qnsp_crypto_scan",
+		"Run a cryptographic inventory scan (CBOM). Discovers all PQC and classical crypto assets.",
+		{ scope: tools.cryptoScanSchema.shape.scope },
+		async (input) => tools.cryptoScan(ctx, tools.cryptoScanSchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_crypto_inventory",
+		"List cryptographic assets in the inventory (Cryptographic Bill of Materials).",
+		{ limit: tools.cryptoInventorySchema.shape.limit },
+		async (input) => tools.cryptoInventory(ctx, tools.cryptoInventorySchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_crypto_readiness",
+		"Check post-quantum readiness status — identifies vulnerable algorithms and migration paths.",
+		{},
+		async (input) => tools.cryptoReadiness(ctx, tools.cryptoReadinessSchema.parse(input)),
+	);
+
+	// ── Audit Tools (all tiers) ───────────────────────────────────────────
+
+	server.tool(
+		"qnsp_audit_query",
+		"Query the immutable audit trail. Filter by topic, source service, or time range.",
+		{
+			topic: tools.auditQuerySchema.shape.topic,
+			sourceService: tools.auditQuerySchema.shape.sourceService,
+			limit: tools.auditQuerySchema.shape.limit,
+		},
+		async (input) => tools.auditQuery(ctx, tools.auditQuerySchema.parse(input)),
+	);
+
+	// ── Search Tools (tier-gated: sseEnabled) ─────────────────────────────
+
+	server.tool(
+		"qnsp_search_query",
+		"Search encrypted documents using SSE-X (Server-Side Encryption with eXtended PQC). Requires dev-pro tier or higher.",
+		{ query: tools.searchQuerySchema.shape.query, limit: tools.searchQuerySchema.shape.limit },
+		async (input) => tools.searchQuery(ctx, tools.searchQuerySchema.parse(input)),
+	);
+
+	// ── Tenant & Billing Tools ────────────────────────────────────────────
+
+	server.tool(
+		"qnsp_tenant_info",
+		"Get your tenant information — plan, region, crypto policy, and metadata.",
+		{},
+		async (input) => tools.tenantInfo(ctx, tools.tenantInfoSchema.parse(input)),
+	);
+
+	server.tool(
+		"qnsp_billing_status",
+		"Check your current billing tier, feature limits, and upgrade options.",
+		{},
+		async (input) => tools.billingStatus(ctx, tools.billingStatusSchema.parse(input)),
+	);
+
+	// ── Platform Health ───────────────────────────────────────────────────
+
+	server.tool(
+		"qnsp_platform_health",
+		"Check QNSP platform health status across all services.",
+		{},
+		async (input) => tools.platformHealth(ctx, tools.platformHealthSchema.parse(input)),
+	);
+
+	// Start stdio transport
+	const transport = new StdioServerTransport();
+	await server.connect(transport);
+}
+
+main().catch((error) => {
+	process.stderr.write(
+		`QNSP MCP Server fatal error: ${error instanceof Error ? error.message : String(error)}\n`,
+	);
+	process.exit(1);
+});
