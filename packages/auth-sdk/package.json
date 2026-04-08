@@ -1,17 +1,17 @@
 {
 	"name": "@qnsp/auth-sdk",
-	"version": "0.3.0",
+	"version": "0.3.4",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
-	"description": "TypeScript SDK client for the QNSP auth-service API. Provides authentication, token management, WebAuthn, MFA, and federation.",
+	"description": "TypeScript SDK for QNSP post-quantum authentication: PQC-signed JWTs, WebAuthn passkeys, MFA, and OIDC federation. Zero-config — defaults to cloud.qnsp.cuilabs.io. Free API key required.",
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
+			"import": "./dist/index.js"
 		}
 	},
 	"scripts": {
@@ -22,19 +22,56 @@
 		"typecheck": "tsc --project tsconfig.json --noEmit"
 	},
 	"dependencies": {
-		"@opentelemetry/api": "^1.9.0",
-		"@opentelemetry/exporter-metrics-otlp-http": "^0.210.0",
-		"@opentelemetry/resources": "^2.4.0",
-		"@opentelemetry/sdk-metrics": "^2.4.0",
-		"undici": "^7.18.2",
-		"zod": "^4.3.5"
+		"@opentelemetry/api": "^1.9.1",
+		"@opentelemetry/exporter-metrics-otlp-http": "^0.214.0",
+		"@opentelemetry/resources": "^2.6.1",
+		"@opentelemetry/sdk-metrics": "^2.6.1",
+		"@qnsp/sdk-activation": "workspace:*",
+		"undici": "^8.0.1",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@types/node": "^25.0.9",
+		"@types/node": "^25.5.2",
 		"tsx": "^4.21.0",
-		"vitest": "4.0.17"
+		"vitest": "4.1.2"
 	},
 	"engines": {
-		"node": "24.12.0"
-	}
+		"node": ">=24.12.0"
+	},
+	"keywords": [
+		"qnsp",
+		"pqc",
+		"post-quantum",
+		"post-quantum-cryptography",
+		"authentication",
+		"jwt",
+		"webauthn",
+		"passkey",
+		"mfa",
+		"oauth2",
+		"oidc",
+		"ml-dsa",
+		"nist",
+		"fips-204",
+		"quantum-safe",
+		"zero-trust",
+		"typescript",
+		"nodejs",
+		"sdk"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/auth-sdk"
+	},
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"files": [
+		"dist/**/*",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	]
 }

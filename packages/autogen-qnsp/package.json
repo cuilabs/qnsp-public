@@ -1,0 +1,68 @@
+{
+	"name": "@qnsp/autogen-qnsp",
+	"version": "0.2.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"license": "Apache-2.0",
+	"description": "AutoGen function executor for QNSP — submits code workloads to QNSP AI orchestrator enclaves with PQC attestation.",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"test:integration": "vitest run --config vitest.integration.config.ts",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@qnsp/ai-sdk": "workspace:*",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"vitest": "4.1.2"
+	},
+	"peerDependencies": {
+		"autogen": ">=0.0.1"
+	},
+	"peerDependenciesMeta": {
+		"autogen": {
+			"optional": true
+		}
+	},
+	"engines": {
+		"node": ">=24.12.0"
+	},
+	"keywords": [
+		"qnsp",
+		"autogen",
+		"pqc",
+		"post-quantum",
+		"enclave",
+		"ai-orchestrator",
+		"governed-ai",
+		"typescript"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/autogen-qnsp"
+	},
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"files": [
+		"dist/**/*",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	]
+}

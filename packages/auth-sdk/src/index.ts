@@ -1,11 +1,14 @@
 import { performance } from "node:perf_hooks";
 
+import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+
 import type {
 	AuthClientTelemetry,
 	AuthClientTelemetryConfig,
 	AuthClientTelemetryEvent,
 } from "./observability.js";
 import { createAuthClientTelemetry, isAuthClientTelemetry } from "./observability.js";
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 import { validateEmail, validateUUID } from "./validation.js";
 
 /**
@@ -145,8 +148,11 @@ export function toNistAlgorithmName(algorithm: string): string {
 	return ALGORITHM_TO_NIST[algorithm] ?? algorithm;
 }
 
+/** Default QNSP cloud API base URL. Get a free API key at https://cloud.qnsp.cuilabs.io/signup */
+export const DEFAULT_BASE_URL = "https://api.qnsp.cuilabs.io";
+
 export interface AuthClientConfig {
-	readonly baseUrl: string;
+	readonly baseUrl?: string;
 	readonly apiKey: string;
 	readonly timeoutMs?: number;
 	readonly telemetry?: AuthClientTelemetry | AuthClientTelemetryConfig;
@@ -393,26 +399,51 @@ export class AuthClient {
 	private readonly config: InternalAuthClientConfig;
 	private readonly telemetry: AuthClientTelemetry | null;
 	private readonly targetService: string;
+	private activationPromise: Promise<void> | null = null;
+	private readonly activationConfig: SdkActivationConfig;
+	private resolvedTenantId: string | null = null;
+
+	private async ensureActivated(): Promise<void> {
+		if (!this.activationPromise) {
+			this.activationPromise = activateSdk(this.activationConfig).then((response) => {
+				this.resolvedTenantId = response.tenantId;
+			});
+		}
+		return this.activationPromise;
+	}
 
 	constructor(config: AuthClientConfig) {
 		if (!config.apiKey || config.apiKey.trim().length === 0) {
 			throw new Error(
 				"QNSP Auth SDK: apiKey is required. " +
 					"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-					"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+					"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 					"Docs: https://docs.qnsp.cuilabs.io/sdk/auth-sdk",
 			);
 		}
 
-		const baseUrl = config.baseUrl.replace(/\/$/, "");
+		const baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
 
-		// Enforce HTTPS in production (allow HTTP only for localhost in development)
+		// Enforce HTTPS in production (allow HTTP for localhost in development and
+		// for internal service-mesh hostnames — e.g. *.internal — which are on a
+		// private VPC network and do not require TLS termination at the transport layer).
 		if (!baseUrl.startsWith("https://")) {
 			const isLocalhost =
 				baseUrl.startsWith("http://localhost") || baseUrl.startsWith("http://127.0.0.1");
+			let isInternalService = false;
+			try {
+				const parsed = new URL(baseUrl);
+				isInternalService =
+					parsed.protocol === "http:" &&
+					(parsed.hostname.endsWith(".internal") ||
+						parsed.hostname === "localhost" ||
+						parsed.hostname === "127.0.0.1");
+			} catch {
+				// ignore; invalid URL will be caught later by fetch
+			}
 			const isDevelopment =
 				process.env["NODE_ENV"] === "development" || process.env["NODE_ENV"] === "test";
-			if (!isLocalhost || !isDevelopment) {
+			if ((!isLocalhost || !isDevelopment) && !isInternalService) {
 				throw new Error(
 					"baseUrl must use HTTPS in production. HTTP is only allowed for localhost in development.",
 				);
@@ -438,6 +469,13 @@ export class AuthClient {
 		} catch {
 			this.targetService = "auth-service";
 		}
+
+		this.activationConfig = {
+			apiKey: config.apiKey,
+			sdkId: "auth-sdk",
+			sdkVersion: SDK_PACKAGE_VERSION,
+			platformUrl: baseUrl,
+		};
 	}
 
 	private async request<T>(method: string, path: string, options?: RequestOptions): Promise<T> {
@@ -457,6 +495,11 @@ export class AuthClient {
 		};
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -565,6 +608,7 @@ export class AuthClient {
 	async login(request: LoginRequest): Promise<TokenPair> {
 		validateEmail(request.email, "email");
 		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
 
 		return this.request<TokenPair>("POST", "/auth/login", {
 			body: {
@@ -583,6 +627,7 @@ export class AuthClient {
 	 * Returns a new token pair.
 	 */
 	async refreshToken(request: RefreshTokenRequest): Promise<TokenPair> {
+		await this.ensureActivated();
 		return this.request<TokenPair>("POST", "/auth/token/refresh", {
 			body: {
 				refreshToken: request.refreshToken,
@@ -601,6 +646,7 @@ export class AuthClient {
 	): Promise<WebAuthnRegistrationStartResponse> {
 		validateUUID(request.userId, "userId");
 		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
 
 		return this.request<WebAuthnRegistrationStartResponse>(
 			"POST",
@@ -625,6 +671,7 @@ export class AuthClient {
 		validateUUID(request.userId, "userId");
 		validateUUID(request.tenantId, "tenantId");
 		validateUUID(request.challengeId, "challengeId");
+		await this.ensureActivated();
 
 		return this.request<WebAuthnRegistrationCompleteResponse>(
 			"POST",
@@ -656,6 +703,7 @@ export class AuthClient {
 		if (request.email !== undefined) {
 			validateEmail(request.email, "email");
 		}
+		await this.ensureActivated();
 
 		return this.request<WebAuthnAuthenticationStartResponse>(
 			"POST",
@@ -687,6 +735,7 @@ export class AuthClient {
 		if (request.email !== undefined) {
 			validateEmail(request.email, "email");
 		}
+		await this.ensureActivated();
 
 		return this.request<WebAuthnAuthenticationCompleteResponse>(
 			"POST",
@@ -710,6 +759,7 @@ export class AuthClient {
 	async listPasskeys(userId: string, tenantId: string): Promise<readonly WebAuthnCredential[]> {
 		validateUUID(userId, "userId");
 		validateUUID(tenantId, "tenantId");
+		await this.ensureActivated();
 
 		const response = await this.request<{ credentials: readonly WebAuthnCredential[] }>(
 			"GET",
@@ -727,6 +777,7 @@ export class AuthClient {
 	async deletePasskey(credentialId: string, userId: string): Promise<void> {
 		validateUUID(credentialId, "credentialId");
 		validateUUID(userId, "userId");
+		await this.ensureActivated();
 
 		return this.request<void>(
 			"DELETE",
@@ -744,6 +795,7 @@ export class AuthClient {
 	async mfaChallenge(request: MFAChallengeRequest): Promise<MFAChallengeResponse> {
 		validateEmail(request.email, "email");
 		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
 
 		return this.request<MFAChallengeResponse>("POST", "/auth/mfa/challenge", {
 			body: {
@@ -761,6 +813,7 @@ export class AuthClient {
 	async mfaVerify(request: MFAVerifyRequest): Promise<MFAVerifyResponse> {
 		validateEmail(request.email, "email");
 		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
 
 		return this.request<MFAVerifyResponse>("POST", "/auth/mfa/verify", {
 			body: {
@@ -781,6 +834,7 @@ export class AuthClient {
 		if (request.tenantId !== undefined) {
 			validateUUID(request.tenantId, "tenantId");
 		}
+		await this.ensureActivated();
 
 		return this.request<SAMLAssertionResponse>("POST", "/auth/federation/saml/assertion", {
 			body: {
@@ -801,6 +855,7 @@ export class AuthClient {
 	 * Exchanges the authorization code for tokens and returns a token pair.
 	 */
 	async federateOIDC(request: OIDCCallbackRequest): Promise<OIDCCallbackResponse> {
+		await this.ensureActivated();
 		return this.request<OIDCCallbackResponse>("POST", "/auth/federation/oidc/callback", {
 			body: {
 				providerId: request.providerId,
@@ -809,6 +864,269 @@ export class AuthClient {
 			},
 			operation: "federateOIDC",
 		});
+	}
+
+	// ============================================================================
+	// Risk-Based Authentication Methods
+	// ============================================================================
+
+	/**
+	 * Evaluate authentication risk for a user action.
+	 * Calculates a risk score based on IP reputation, device trust, geo-velocity,
+	 * and behavioral analysis. Returns the required action (allow, MFA, or block).
+	 */
+	async evaluateRisk(input: EvaluateRiskInput): Promise<EvaluateRiskResult> {
+		validateUUID(input.userId, "userId");
+		validateUUID(input.tenantId, "tenantId");
+		await this.ensureActivated();
+
+		return this.request<EvaluateRiskResult>("POST", "/auth/risk/evaluate", {
+			body: {
+				userId: input.userId,
+				tenantId: input.tenantId,
+				context: input.context,
+				action: input.action,
+			},
+			operation: "evaluateRisk",
+		});
+	}
+
+	/**
+	 * Create a risk policy for a tenant.
+	 * Policies define rules that contribute to risk scores and actions for each risk level.
+	 */
+	async createRiskPolicy(
+		policy: CreateRiskPolicyInput,
+		tenantId?: string,
+	): Promise<CreateRiskPolicyResult> {
+		await this.ensureActivated();
+
+		const queryString = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+
+		return this.request<CreateRiskPolicyResult>("POST", `/auth/risk/policies${queryString}`, {
+			body: {
+				name: policy.name,
+				enabled: policy.enabled ?? true,
+				rules: policy.rules,
+				thresholds: policy.thresholds ?? {},
+				actions: policy.actions ?? {},
+			},
+			operation: "createRiskPolicy",
+		});
+	}
+
+	/**
+	 * List risk policies for a tenant.
+	 * Returns all configured risk policies ordered by creation date.
+	 */
+	async listRiskPolicies(tenantId?: string): Promise<ListRiskPoliciesResult> {
+		await this.ensureActivated();
+
+		const queryString = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+
+		return this.request<ListRiskPoliciesResult>("GET", `/auth/risk/policies${queryString}`, {
+			operation: "listRiskPolicies",
+		});
+	}
+
+	/**
+	 * Report a threat signal for risk analysis.
+	 * Threat signals are used to inform future risk evaluations.
+	 */
+	async reportThreatSignal(signal: ReportThreatSignalInput): Promise<ReportThreatSignalResult> {
+		validateUUID(signal.tenantId, "tenantId");
+		if (signal.userId !== undefined) {
+			validateUUID(signal.userId, "userId");
+		}
+		await this.ensureActivated();
+
+		return this.request<ReportThreatSignalResult>("POST", "/auth/risk/signals", {
+			body: {
+				...(signal.userId !== undefined ? { userId: signal.userId } : {}),
+				tenantId: signal.tenantId,
+				signalType: signal.signalType,
+				severity: signal.severity,
+				context: signal.context,
+				source: signal.source,
+			},
+			operation: "reportThreatSignal",
+		});
+	}
+
+	/**
+	 * Get risk signals for a specific user.
+	 * Returns recent threat signals associated with the user.
+	 */
+	async getUserRiskSignals(
+		userId: string,
+		options?: { tenantId?: string; limit?: number },
+	): Promise<GetUserRiskSignalsResult> {
+		validateUUID(userId, "userId");
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+		if (options?.limit !== undefined) {
+			params.set("limit", String(options.limit));
+		}
+
+		const queryString = params.toString() ? `?${params.toString()}` : "";
+
+		return this.request<GetUserRiskSignalsResult>(
+			"GET",
+			`/auth/risk/users/${userId}/signals${queryString}`,
+			{
+				operation: "getUserRiskSignals",
+			},
+		);
+	}
+
+	/**
+	 * Get risk statistics for a tenant.
+	 * Returns aggregated risk metrics including risk distribution and blocked attempts.
+	 */
+	async getRiskStats(tenantId?: string): Promise<RiskStats> {
+		await this.ensureActivated();
+
+		const queryString = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+
+		return this.request<RiskStats>("GET", `/auth/risk/stats${queryString}`, {
+			operation: "getRiskStats",
+		});
+	}
+
+	// ============================================================================
+	// Federated Audit Methods
+	// ============================================================================
+
+	/**
+	 * Query federated audit events.
+	 * Search and filter federation-related audit logs with pagination.
+	 */
+	async queryFederatedAudit(
+		query: QueryFederatedAuditInput,
+		tenantId?: string,
+	): Promise<QueryFederatedAuditResult> {
+		await this.ensureActivated();
+
+		const queryString = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+
+		return this.request<QueryFederatedAuditResult>(
+			"POST",
+			`/auth/federation/audit/query${queryString}`,
+			{
+				body: {
+					...(query.startDate !== undefined ? { startDate: query.startDate } : {}),
+					...(query.endDate !== undefined ? { endDate: query.endDate } : {}),
+					...(query.providerIds !== undefined ? { providerIds: query.providerIds } : {}),
+					...(query.eventTypes !== undefined ? { eventTypes: query.eventTypes } : {}),
+					...(query.userIds !== undefined ? { userIds: query.userIds } : {}),
+					limit: query.limit ?? 100,
+					offset: query.offset ?? 0,
+				},
+				operation: "queryFederatedAudit",
+			},
+		);
+	}
+
+	/**
+	 * Create a federated audit compliance report.
+	 * Generates a report summarizing federation activity for a time period.
+	 */
+	async createFederatedAuditReport(
+		report: CreateFederatedAuditReportInput,
+		tenantId?: string,
+	): Promise<FederatedAuditReport> {
+		await this.ensureActivated();
+
+		const queryString = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+
+		return this.request<FederatedAuditReport>(
+			"POST",
+			`/auth/federation/audit/reports${queryString}`,
+			{
+				body: {
+					reportType: report.reportType,
+					startDate: report.startDate,
+					endDate: report.endDate,
+					...(report.providerIds !== undefined ? { providerIds: report.providerIds } : {}),
+					format: report.format ?? "json",
+					includeDetails: report.includeDetails ?? true,
+				},
+				operation: "createFederatedAuditReport",
+			},
+		);
+	}
+
+	/**
+	 * List generated federated audit reports.
+	 * Returns metadata for all reports, ordered by creation date.
+	 */
+	async listFederatedAuditReports(options?: {
+		tenantId?: string;
+		limit?: number;
+	}): Promise<ListFederatedAuditReportsResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+		if (options?.limit !== undefined) {
+			params.set("limit", String(options.limit));
+		}
+
+		const queryString = params.toString() ? `?${params.toString()}` : "";
+
+		return this.request<ListFederatedAuditReportsResult>(
+			"GET",
+			`/auth/federation/audit/reports${queryString}`,
+			{
+				operation: "listFederatedAuditReports",
+			},
+		);
+	}
+
+	/**
+	 * Get a specific federated audit report by ID.
+	 * Returns the full report including summary and optionally detailed events.
+	 */
+	async getFederatedAuditReport(
+		reportId: string,
+		tenantId?: string,
+	): Promise<FederatedAuditReport> {
+		validateUUID(reportId, "reportId");
+		await this.ensureActivated();
+
+		const queryString = tenantId ? `?tenantId=${encodeURIComponent(tenantId)}` : "";
+
+		return this.request<FederatedAuditReport>(
+			"GET",
+			`/auth/federation/audit/reports/${reportId}${queryString}`,
+			{
+				operation: "getFederatedAuditReport",
+			},
+		);
+	}
+
+	/**
+	 * Get cross-tenant federation activity.
+	 * Returns aggregated activity across all tenants (admin use).
+	 */
+	async getCrossTenantActivity(hours?: number): Promise<GetCrossTenantActivityResult> {
+		await this.ensureActivated();
+
+		const queryString = hours !== undefined ? `?hours=${hours}` : "";
+
+		return this.request<GetCrossTenantActivityResult>(
+			"GET",
+			`/auth/federation/audit/cross-tenant${queryString}`,
+			{
+				operation: "getCrossTenantActivity",
+			},
+		);
 	}
 }
 
@@ -1034,6 +1352,404 @@ export const PAT_PQC_ALGORITHM_TO_NIST: Record<string, string> = {
  */
 export function toPatNistAlgorithmName(algorithm: string): string {
 	return PAT_PQC_ALGORITHM_TO_NIST[algorithm] ?? algorithm;
+}
+
+// ============================================================================
+// Risk-Based Authentication Types
+// ============================================================================
+
+/**
+ * Authentication actions that can be evaluated for risk.
+ */
+export type RiskAction =
+	| "login"
+	| "mfa_change"
+	| "password_change"
+	| "api_key_create"
+	| "sensitive_action";
+
+/**
+ * Risk levels returned from risk evaluation.
+ */
+export type RiskLevel = "low" | "medium" | "high" | "critical";
+
+/**
+ * Actions that can be required based on risk evaluation.
+ */
+export type RiskRequiredAction = "allow" | "mfa_required" | "block" | "review";
+
+/**
+ * Threat signal types that can be reported.
+ */
+export type ThreatSignalType =
+	| "impossible_travel"
+	| "credential_stuffing"
+	| "brute_force"
+	| "suspicious_ip"
+	| "compromised_credential"
+	| "anomalous_behavior";
+
+/**
+ * Severity levels for threat signals.
+ */
+export type ThreatSeverity = "low" | "medium" | "high" | "critical";
+
+/**
+ * Geolocation context for risk evaluation.
+ */
+export interface RiskGeoLocation {
+	readonly country?: string;
+	readonly region?: string;
+	readonly city?: string;
+	readonly latitude?: number;
+	readonly longitude?: number;
+}
+
+/**
+ * Context for risk evaluation.
+ */
+export interface RiskEvaluationContext {
+	readonly ipAddress: string;
+	readonly userAgent: string;
+	readonly deviceFingerprint?: string;
+	readonly geoLocation?: RiskGeoLocation;
+	readonly timestamp?: string;
+}
+
+/**
+ * Input for evaluating authentication risk.
+ */
+export interface EvaluateRiskInput {
+	readonly userId: string;
+	readonly tenantId: string;
+	readonly context: RiskEvaluationContext;
+	readonly action: RiskAction;
+}
+
+/**
+ * Individual risk factor from evaluation.
+ */
+export interface RiskFactor {
+	readonly factor: string;
+	readonly score: number;
+	readonly reason: string;
+}
+
+/**
+ * Result from risk evaluation.
+ */
+export interface EvaluateRiskResult {
+	readonly riskScore: number;
+	readonly riskLevel: RiskLevel;
+	readonly riskFactors: readonly RiskFactor[];
+	readonly requiredAction: RiskRequiredAction;
+	readonly sessionId: string;
+}
+
+/**
+ * Risk policy rule condition field.
+ */
+export type RiskPolicyConditionField =
+	| "ip_reputation"
+	| "geo_velocity"
+	| "device_trust"
+	| "time_anomaly"
+	| "behavior_score";
+
+/**
+ * Risk policy rule condition operator.
+ */
+export type RiskPolicyConditionOperator =
+	| "eq"
+	| "ne"
+	| "gt"
+	| "lt"
+	| "gte"
+	| "lte"
+	| "in"
+	| "not_in";
+
+/**
+ * Risk policy rule condition.
+ */
+export interface RiskPolicyCondition {
+	readonly field: RiskPolicyConditionField;
+	readonly operator: RiskPolicyConditionOperator;
+	readonly value: string | number | readonly string[];
+}
+
+/**
+ * Risk policy rule.
+ */
+export interface RiskPolicyRule {
+	readonly condition: RiskPolicyCondition;
+	readonly riskScore: number;
+}
+
+/**
+ * Risk policy thresholds.
+ */
+export interface RiskPolicyThresholds {
+	readonly low?: number;
+	readonly medium?: number;
+	readonly high?: number;
+	readonly critical?: number;
+}
+
+/**
+ * Risk policy actions for each risk level.
+ */
+export interface RiskPolicyActions {
+	readonly low?: "allow" | "log";
+	readonly medium?: "allow" | "mfa_required" | "log";
+	readonly high?: "mfa_required" | "block" | "review";
+	readonly critical?: "block" | "lockout";
+}
+
+/**
+ * Input for creating a risk policy.
+ */
+export interface CreateRiskPolicyInput {
+	readonly name: string;
+	readonly enabled?: boolean;
+	readonly rules: readonly RiskPolicyRule[];
+	readonly thresholds?: RiskPolicyThresholds;
+	readonly actions?: RiskPolicyActions;
+}
+
+/**
+ * Risk policy returned from API.
+ */
+export interface RiskPolicy {
+	readonly id: string;
+	readonly name: string;
+	readonly enabled: boolean;
+	readonly rules: readonly RiskPolicyRule[];
+	readonly thresholds: RiskPolicyThresholds;
+	readonly actions: RiskPolicyActions;
+	readonly createdAt: string;
+}
+
+/**
+ * Result from creating a risk policy.
+ */
+export interface CreateRiskPolicyResult {
+	readonly id: string;
+	readonly name: string;
+	readonly enabled: boolean;
+}
+
+/**
+ * Result from listing risk policies.
+ */
+export interface ListRiskPoliciesResult {
+	readonly policies: readonly RiskPolicy[];
+}
+
+/**
+ * Input for reporting a threat signal.
+ */
+export interface ReportThreatSignalInput {
+	readonly userId?: string;
+	readonly tenantId: string;
+	readonly signalType: ThreatSignalType;
+	readonly severity: ThreatSeverity;
+	readonly context: Record<string, unknown>;
+	readonly source: string;
+}
+
+/**
+ * Result from reporting a threat signal.
+ */
+export interface ReportThreatSignalResult {
+	readonly id: string;
+	readonly signalType: ThreatSignalType;
+	readonly severity: ThreatSeverity;
+}
+
+/**
+ * Risk signal for a user.
+ */
+export interface UserRiskSignal {
+	readonly id: string;
+	readonly signalType: ThreatSignalType;
+	readonly severity: ThreatSeverity;
+	readonly context: Record<string, unknown>;
+	readonly source: string;
+	readonly createdAt: string;
+}
+
+/**
+ * Result from getting user risk signals.
+ */
+export interface GetUserRiskSignalsResult {
+	readonly signals: readonly UserRiskSignal[];
+}
+
+/**
+ * Signal count by type and severity.
+ */
+export interface RiskSignalCount {
+	readonly signalType: ThreatSignalType;
+	readonly severity: ThreatSeverity;
+	readonly count: number;
+}
+
+/**
+ * Risk statistics for a tenant.
+ */
+export interface RiskStats {
+	readonly riskDistribution: Record<RiskLevel, number>;
+	readonly signalsLast24Hours: readonly RiskSignalCount[];
+	readonly blockedAttemptsLast24Hours: number;
+}
+
+// ============================================================================
+// Federated Audit Types
+// ============================================================================
+
+/**
+ * Federation event types.
+ */
+export type FederationEventType =
+	| "federation_login"
+	| "federation_logout"
+	| "federation_link"
+	| "federation_unlink"
+	| "jit_provision"
+	| "attribute_sync"
+	| "session_created"
+	| "session_terminated";
+
+/**
+ * Input for querying federated audit events.
+ */
+export interface QueryFederatedAuditInput {
+	readonly startDate?: string;
+	readonly endDate?: string;
+	readonly providerIds?: readonly string[];
+	readonly eventTypes?: readonly FederationEventType[];
+	readonly userIds?: readonly string[];
+	readonly limit?: number;
+	readonly offset?: number;
+}
+
+/**
+ * Federated audit event.
+ */
+export interface FederatedAuditEvent {
+	readonly id: string;
+	readonly eventType: FederationEventType;
+	readonly providerId: string;
+	readonly userId: string | null;
+	readonly externalUserId: string | null;
+	readonly sessionId: string | null;
+	readonly ipAddress: string | null;
+	readonly userAgent: string | null;
+	readonly geoLocation: Record<string, unknown> | null;
+	readonly attributes: Record<string, unknown>;
+	readonly metadata: Record<string, unknown>;
+	readonly createdAt: string;
+}
+
+/**
+ * Result from querying federated audit events.
+ */
+export interface QueryFederatedAuditResult {
+	readonly events: readonly FederatedAuditEvent[];
+	readonly total: number;
+	readonly limit: number;
+	readonly offset: number;
+}
+
+/**
+ * Report type for federated audit reports.
+ */
+export type FederatedAuditReportType = "compliance" | "access" | "activity" | "security";
+
+/**
+ * Input for creating a federated audit report.
+ */
+export interface CreateFederatedAuditReportInput {
+	readonly reportType: FederatedAuditReportType;
+	readonly startDate: string;
+	readonly endDate: string;
+	readonly providerIds?: readonly string[];
+	readonly format?: "json" | "csv";
+	readonly includeDetails?: boolean;
+}
+
+/**
+ * Provider statistics in a report.
+ */
+export interface FederatedAuditReportProviderStats {
+	readonly providerId: string;
+	readonly eventCount: number;
+	readonly uniqueUsers: number;
+}
+
+/**
+ * Summary section of a federated audit report.
+ */
+export interface FederatedAuditReportSummary {
+	readonly totalEvents: number;
+	readonly uniqueUsers: number;
+	readonly jitProvisioned: number;
+	readonly eventsByType: Record<string, number>;
+	readonly byProvider: readonly FederatedAuditReportProviderStats[];
+}
+
+/**
+ * Federated audit report.
+ */
+export interface FederatedAuditReport {
+	readonly id: string;
+	readonly reportType: FederatedAuditReportType;
+	readonly generatedAt: string;
+	readonly period: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly summary: FederatedAuditReportSummary;
+	readonly events?: readonly unknown[];
+}
+
+/**
+ * Report metadata for listing.
+ */
+export interface FederatedAuditReportMeta {
+	readonly id: string;
+	readonly reportType: FederatedAuditReportType;
+	readonly startDate: string;
+	readonly endDate: string;
+	readonly createdAt: string;
+}
+
+/**
+ * Result from listing federated audit reports.
+ */
+export interface ListFederatedAuditReportsResult {
+	readonly reports: readonly FederatedAuditReportMeta[];
+}
+
+/**
+ * Cross-tenant activity entry.
+ */
+export interface CrossTenantActivityEntry {
+	readonly tenantId: string;
+	readonly providerId: string;
+	readonly eventType: FederationEventType;
+	readonly count: number;
+	readonly uniqueUsers: number;
+}
+
+/**
+ * Result from getting cross-tenant activity.
+ */
+export interface GetCrossTenantActivityResult {
+	readonly timeRange: { readonly hours: number };
+	readonly tenantsActive: number;
+	readonly activity: readonly CrossTenantActivityEntry[];
 }
 
 export * from "./observability.js";

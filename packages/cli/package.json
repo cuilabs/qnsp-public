@@ -1,12 +1,15 @@
 {
 	"name": "@qnsp/cli",
-	"version": "0.1.4",
-	"description": "Command-line interface for QNSP platform",
+	"version": "0.1.6",
+	"description": "QNSP CLI: manage keys, secrets, audit logs, and post-quantum cryptography from the terminal. Free tier at cloud.qnsp.cuilabs.io.",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
+	"engines": {
+		"node": ">=24.12.0"
+	},
 	"bin": {
 		"qnsp": "./dist/index.js"
 	},
@@ -26,12 +29,38 @@
 		"@qnsp/auth-sdk": "workspace:*",
 		"@qnsp/kms-client": "workspace:*",
 		"@qnsp/vault-sdk": "workspace:*",
-		"commander": "^14.0.2",
-		"dotenv": "^17.2.3"
+		"commander": "^14.0.3",
+		"dotenv": "^17.4.0"
 	},
 	"devDependencies": {
-		"@types/node": "^25.0.9",
-		"typescript": "^5.9.3",
-		"vitest": "4.0.17"
+		"@types/node": "^25.5.2",
+		"typescript": "^6.0.2",
+		"vitest": "4.1.2"
+	},
+	"keywords": [
+		"qnsp",
+		"cli",
+		"pqc",
+		"post-quantum",
+		"post-quantum-cryptography",
+		"cryptography",
+		"kms",
+		"key-management",
+		"secrets",
+		"audit",
+		"quantum-safe",
+		"zero-trust",
+		"devtools",
+		"command-line",
+		"developer-tools"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/cli"
+	},
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
 	}
 }

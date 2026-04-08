@@ -1,0 +1,52 @@
+{
+	"name": "@qnsp/resilience",
+	"version": "0.1.1",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"description": "Production-grade resilience patterns for TypeScript: circuit breakers, exponential backoff retries, and timeout controls. Used by the QNSP post-quantum security platform.",
+	"keywords": [
+		"qnsp",
+		"resilience",
+		"circuit-breaker",
+		"retry",
+		"timeout",
+		"bulkhead",
+		"fault-tolerance",
+		"pqc",
+		"post-quantum",
+		"typescript",
+		"nodejs"
+	],
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/resilience"
+	},
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"dev": "tsx watch src/index.ts",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"vitest": "4.1.2"
+	}
+}

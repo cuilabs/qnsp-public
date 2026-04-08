@@ -1,6 +1,8 @@
 # @qnsp/kms-client
 
-TypeScript client for the QNSP KMS service. Provides a lightweight HTTP client for wrapping and unwrapping data keys using tenant-scoped KMS keys.
+KMS client for QNSP key management service. Post-quantum key generation, rotation, and cryptographic operations.
+
+Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 
 ## Installation
 
@@ -8,47 +10,40 @@ TypeScript client for the QNSP KMS service. Provides a lightweight HTTP client f
 pnpm add @qnsp/kms-client
 ```
 
-## Authentication
+## Quick Start
 
-You can authenticate either by:
-
-- passing a bearer token string as the second constructor argument, or
-- providing a custom `getAuthHeader()` function.
-
-```ts
+```typescript
 import { HttpKmsServiceClient } from "@qnsp/kms-client";
 
 const kms = new HttpKmsServiceClient(
-  "https://api.qnsp.cuilabs.io/proxy/kms",
-  process.env.QNSP_SERVICE_TOKEN,
-);
-```
-
-## Usage example
-
-```ts
-import { HttpKmsServiceClient } from "@qnsp/kms-client";
-
-const kms = new HttpKmsServiceClient(
-  "https://api.qnsp.cuilabs.io/proxy/kms",
-  process.env.QNSP_SERVICE_TOKEN,
+  "https://api.qnsp.cuilabs.io",
+  "YOUR_API_KEY",
 );
 
 const wrapped = await kms.wrapKey({
-  tenantId: "tenant_123",
-  keyId: "key_abc",
-  dataKey: "...base64...",
+  tenantId: "your-tenant-id",
+  dataKey: btoa("my-data-encryption-key"),
+  keyId: "your-kms-key-id",
 });
 
 const unwrapped = await kms.unwrapKey({
-  tenantId: "tenant_123",
-  keyId: "key_abc",
+  tenantId: "your-tenant-id",
   wrappedKey: wrapped.wrappedKey,
+  keyId: wrapped.keyId,
 });
 ```
 
+## Documentation
+
+- [SDK Reference](https://docs.qnsp.cuilabs.io/sdk/kms-client)
+- [API Documentation](https://docs.qnsp.cuilabs.io/api)
+- [Getting Started](https://docs.qnsp.cuilabs.io/quickstart)
+
+## Requirements
+
+- Node.js >= 24.12.0 (`engines` in `package.json`; QNSP monorepo baseline)
+- A QNSP account and API key — [sign up free](https://cloud.qnsp.cuilabs.io/auth) with GitHub, Google, or email
+
 ## License
 
-Licensed under the Apache License, Version 2.0. See [`LICENSE`](./LICENSE).
-
-© 2025 QNSP - CUI LABS, Singapore
+[Apache-2.0](./LICENSE)

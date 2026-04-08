@@ -23,6 +23,31 @@ function createUpstream(): Promise<{
 			headers: req.headers,
 		};
 
+		if (req.url?.startsWith("/billing/v1/sdk/activate") && req.method === "POST") {
+			res.statusCode = 200;
+			res.setHeader("content-type", "application/json");
+			res.end(
+				JSON.stringify({
+					activated: true,
+					tenantId: "a1b2c3d4-e5f6-4789-8abc-def012345678",
+					tier: "dev-pro",
+					activationToken: "tok_test",
+					expiresInSeconds: 3600,
+					activatedAt: new Date().toISOString(),
+					limits: {
+						storageGB: 50,
+						apiCalls: 100_000,
+						enclavesEnabled: false,
+						aiTrainingEnabled: false,
+						aiInferenceEnabled: true,
+						sseEnabled: true,
+						vaultEnabled: true,
+					},
+				}),
+			);
+			return;
+		}
+
 		if (req.url?.startsWith("/crypto/v1/assets/discover") && req.method === "POST") {
 			res.statusCode = 200;
 			res.setHeader("content-type", "application/json");

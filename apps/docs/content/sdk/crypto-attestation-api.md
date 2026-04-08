@@ -322,10 +322,12 @@ GET /platform/v1/crypto/policy/presets
 ### TypeScript/Node.js
 
 ```typescript
-import { QnspClient } from '@qnsp/sdk';
+import { CryptoInventoryClient } from '@qnsp/crypto-inventory-sdk';
 
-const client = new QnspClient({
+const client = new CryptoInventoryClient({
   apiKey: process.env.QNSP_API_KEY,
+  baseUrl: 'https://api.qnsp.cuilabs.io',
+  pathPrefix: '/proxy/crypto',
 });
 
 // Get crypto policy

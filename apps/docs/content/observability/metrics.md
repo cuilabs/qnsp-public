@@ -1,11 +1,13 @@
 ---
 title: Metrics
 version: 0.0.1
-last_updated: 2025-12-24
+last_updated: 2026-03-23
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 source_files:
   - /apps/observability-service/src/config/env.ts
+  - /apps/pdp-service/src/pdp-metrics.ts
+  - /apps/edge-gateway/src/observability.ts
 ---
 
 # Metrics
@@ -80,3 +82,19 @@ POST /otlp/v1/metrics
 POST /otlp/v1/traces
 POST /otlp/v1/logs
 ```
+
+## PDP and edge enforcement (production signals)
+
+From `apps/pdp-service/src/pdp-metrics.ts` and `apps/edge-gateway/src/observability.ts` (typically exported via OTLP with CloudWatch namespace **`QNSP`** when using the ADOT awsemf pipeline in `infra/terraform/modules/otlp_gateway`):
+
+| Metric | Type | Notable attributes |
+|--------|------|--------------------|
+| `pdp_evaluation_decisions_total` | counter | `evaluation_mode`, `evaluation_subreason` |
+| `pdp_policy_materialization_outcomes_total` | counter | `outcome` |
+| `pdp_policy_snapshot_age_ms` | histogram | `disposition` (`accepted_fresh` / `rejected_stale`) |
+| `edge_pdp_decision_evaluation_total` | counter | `evaluation_mode`, `evaluation_subreason` |
+| `edge_enforcement_degraded_privileged_denied_total` | counter | privileged mutations denied under `DEGRADED_LEGACY` |
+
+**Dashboards / alarms:** `docs/operations/pdp-edge-enforcement-observability.md` (Terraform module `pdp_edge_enforcement_observability`, optional Grafana JSON under `infra/observability/dashboards/`).
+
+**Scope note:** `/edge/v1/*` is outside the PDP enforcement hook — see `docs/architecture/EDGE-V1-CONTROL-PLANE-PDP-EXCEPTION.md`.

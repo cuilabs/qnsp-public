@@ -1,7 +1,7 @@
 ---
 title: Auth SDK (@qnsp/auth-sdk)
-version: 0.1.1
-last_updated: 2026-02-16
+version: 0.3.1
+last_updated: 2026-03-20
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -197,6 +197,137 @@ console.log(ALGORITHM_TO_NIST);
 // }
 ```
 
+## Risk-Based Authentication
+
+Evaluate authentication risk and manage risk policies to protect against threats:
+
+```ts
+// Evaluate risk for a login attempt
+const risk = await auth.evaluateRisk({
+	userId: "<user_uuid>",
+	tenantId: "<tenant_uuid>",
+	action: "login",
+	context: {
+		ipAddress: "203.0.113.42",
+		userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...",
+		deviceFingerprint: "fp_abc123",
+		geoLocation: {
+			country: "US",
+			region: "CA",
+			city: "San Francisco",
+			latitude: 37.7749,
+			longitude: -122.4194,
+		},
+	},
+});
+
+console.log(risk.riskScore);       // 0-100
+console.log(risk.riskLevel);       // "low" | "medium" | "high" | "critical"
+console.log(risk.requiredAction);  // "allow" | "mfa_required" | "block" | "review"
+console.log(risk.riskFactors);     // Contributing factors
+
+// Create a risk policy
+const policy = await auth.createRiskPolicy({
+	name: "Strict Login Policy",
+	enabled: true,
+	rules: [
+		{
+			condition: { field: "ip_reputation", operator: "lt", value: 50 },
+			riskScore: 30,
+		},
+		{
+			condition: { field: "geo_velocity", operator: "gt", value: 500 },
+			riskScore: 40,
+		},
+	],
+	thresholds: { medium: 30, high: 60, critical: 80 },
+	actions: {
+		low: "allow",
+		medium: "mfa_required",
+		high: "block",
+		critical: "lockout",
+	},
+});
+
+// List all risk policies
+const policies = await auth.listRiskPolicies();
+
+// Report a threat signal
+const signal = await auth.reportThreatSignal({
+	userId: "<user_uuid>",
+	tenantId: "<tenant_uuid>",
+	signalType: "impossible_travel",
+	severity: "high",
+	context: {
+		previousLocation: "San Francisco, CA",
+		currentLocation: "London, UK",
+		timeDeltaMinutes: 30,
+	},
+	source: "geo-analysis-service",
+});
+
+// Get risk signals for a user
+const signals = await auth.getUserRiskSignals("<user_uuid>", {
+	tenantId: "<tenant_uuid>",
+	limit: 50,
+});
+
+// Get risk statistics
+const stats = await auth.getRiskStats();
+console.log(stats.riskDistribution);         // { low: 850, medium: 120, high: 25, critical: 5 }
+console.log(stats.blockedAttemptsLast24Hours);
+```
+
+## Federated Audit
+
+Query and report on federation activity for compliance and security:
+
+```ts
+// Query federated audit events
+const auditEvents = await auth.queryFederatedAudit({
+	startDate: "2026-03-01T00:00:00Z",
+	endDate: "2026-03-20T23:59:59Z",
+	providerIds: ["okta", "azure-ad"],
+	eventTypes: ["federation_login", "jit_provision"],
+	limit: 100,
+	offset: 0,
+});
+
+console.log(auditEvents.total);
+for (const event of auditEvents.events) {
+	console.log(event.eventType, event.providerId, event.createdAt);
+}
+
+// Create a compliance report
+const report = await auth.createFederatedAuditReport({
+	reportType: "compliance",
+	startDate: "2026-03-01T00:00:00Z",
+	endDate: "2026-03-31T23:59:59Z",
+	providerIds: ["okta"],
+	format: "json",
+	includeDetails: true,
+});
+
+console.log(report.summary.totalEvents);
+console.log(report.summary.uniqueUsers);
+console.log(report.summary.jitProvisioned);
+
+// List all reports
+const reports = await auth.listFederatedAuditReports({
+	limit: 20,
+});
+
+// Get a specific report
+const fullReport = await auth.getFederatedAuditReport("<report_uuid>");
+
+// Get cross-tenant activity (admin)
+const crossTenant = await auth.getCrossTenantActivity(24); // Last 24 hours
+console.log(crossTenant.tenantsActive);
+for (const activity of crossTenant.activity) {
+	console.log(activity.tenantId, activity.eventType, activity.count);
+}
+```
+
 ## Key APIs
 
 ### Authentication
@@ -222,6 +353,21 @@ console.log(ALGORITHM_TO_NIST);
 ### Service Tokens
 - `requestServiceToken(config)` - Get service-to-service token
 - `getServiceAuthHeader(config)` - Get ready-to-use auth header
+
+### Risk-Based Authentication
+- `AuthClient.evaluateRisk(input)` - Evaluate authentication risk score
+- `AuthClient.createRiskPolicy(policy, tenantId?)` - Create risk policy
+- `AuthClient.listRiskPolicies(tenantId?)` - List risk policies
+- `AuthClient.reportThreatSignal(signal)` - Report threat signal
+- `AuthClient.getUserRiskSignals(userId, options?)` - Get user risk signals
+- `AuthClient.getRiskStats(tenantId?)` - Get risk statistics
+
+### Federated Audit
+- `AuthClient.queryFederatedAudit(query, tenantId?)` - Query federated audit events
+- `AuthClient.createFederatedAuditReport(report, tenantId?)` - Generate compliance report
+- `AuthClient.listFederatedAuditReports(options?)` - List reports
+- `AuthClient.getFederatedAuditReport(reportId, tenantId?)` - Get specific report
+- `AuthClient.getCrossTenantActivity(hours?)` - Cross-tenant activity
 
 ### Utilities
 - `toNistAlgorithmName(algorithm)` - Convert internal to NIST name

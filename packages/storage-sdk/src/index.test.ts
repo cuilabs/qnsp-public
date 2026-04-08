@@ -1,3 +1,4 @@
+import { clearActivationCache } from "@qnsp/sdk-activation";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StorageClient, StorageEventsClient } from "./index.js";
 
@@ -9,6 +10,24 @@ const mockUploadId = "11111111-1111-4111-a111-111111111111";
 const mockUploadId2 = "22222222-2222-4222-a222-222222222222";
 const mockUploadIdErr = "33333333-3333-4333-a333-333333333333";
 const mockDocumentId = "44444444-4444-4444-a444-444444444444";
+
+const MOCK_ACTIVATION_RESPONSE = {
+	activated: true,
+	tenantId: "a1b2c3d4-e5f6-4789-8abc-def012345678",
+	tier: "dev-pro",
+	activationToken: "tok_test",
+	expiresInSeconds: 3600,
+	activatedAt: new Date().toISOString(),
+	limits: {
+		storageGB: 50,
+		apiCalls: 100_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+};
 
 function jsonResponse(payload: unknown, init?: ResponseInit): Response {
 	return new Response(JSON.stringify(payload), {
@@ -49,6 +68,7 @@ async function collectStream(stream: ReadableStream<Uint8Array>): Promise<Uint8A
 
 describe("StorageClient", () => {
 	beforeEach(() => {
+		clearActivationCache();
 		vi.stubGlobal("fetch", vi.fn());
 	});
 
@@ -82,9 +102,9 @@ describe("StorageClient", () => {
 			},
 		};
 
-		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-			jsonResponse(expectedResponse),
-		);
+		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
+			.mockResolvedValueOnce(jsonResponse(expectedResponse));
 
 		const result = await client.initiateUpload({
 			name: "contract.pdf",
@@ -94,8 +114,8 @@ describe("StorageClient", () => {
 		});
 
 		expect(result).toEqual(expectedResponse);
-		expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-		const call = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(0);
+		expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+		const call = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(1);
 		expect(call).toBeDefined();
 		if (!call) throw new Error("fetch not invoked");
 		const [url, init] = call;
@@ -137,16 +157,16 @@ describe("StorageClient", () => {
 			resumeToken: null,
 		};
 
-		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-			jsonResponse(expectedPayload),
-		);
+		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
+			.mockResolvedValueOnce(jsonResponse(expectedPayload));
 
 		const source = Buffer.from([0xde, 0xad, 0xbe]);
 
 		const result = await client.uploadPart(mockUploadId, 1, source);
 		expect(result).toEqual(expectedPayload);
-		expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-		const uploadCall = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(0);
+		expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+		const uploadCall = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(1);
 		expect(uploadCall).toBeDefined();
 		if (!uploadCall) throw new Error("fetch not invoked");
 		const [, init] = uploadCall;
@@ -184,7 +204,9 @@ describe("StorageClient", () => {
 			},
 		});
 
-		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(response);
+		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
+			.mockResolvedValueOnce(response);
 
 		const result = await client.downloadStream(mockDocumentId, 2, {
 			range: "bytes=0-2",
@@ -236,9 +258,9 @@ describe("StorageClient", () => {
 			lastPartNumber: 1,
 		};
 
-		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-			jsonResponse(statusResponse),
-		);
+		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
+			.mockResolvedValueOnce(jsonResponse(statusResponse));
 
 		await client.getUploadStatus(mockUploadId2);
 
@@ -261,9 +283,9 @@ describe("StorageClient", () => {
 			telemetry,
 		});
 
-		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-			new Response("boom", { status: 500, statusText: "error" }),
-		);
+		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
+			.mockResolvedValueOnce(new Response("boom", { status: 500, statusText: "error" }));
 
 		await expect(client.completeUpload(mockUploadIdErr)).rejects.toThrow(/Storage API error/);
 
@@ -299,9 +321,9 @@ describe("StorageClient", () => {
 			resumeToken: null,
 		};
 
-		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
-			jsonResponse(expectedPayload),
-		);
+		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
+			.mockResolvedValueOnce(jsonResponse(expectedPayload));
 
 		await client.uploadPart(mockUploadId, 1, Buffer.from([1, 2, 3]));
 
@@ -322,6 +344,8 @@ describe("StorageClient", () => {
 		});
 
 		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			// activation
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
 			// PATCH response
 			.mockResolvedValueOnce(
 				jsonResponse({
@@ -361,7 +385,7 @@ describe("StorageClient", () => {
 		});
 		expect(updated.documentId).toBe(mockDocumentId);
 		const patchCall = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock
-			.calls[0] as unknown as [string, RequestInit];
+			.calls[1] as unknown as [string, RequestInit];
 		expect(patchCall[0]).toBe(
 			`https://storage.qnsp.example/storage/v1/documents/${mockDocumentId}/policies`,
 		);
@@ -374,7 +398,7 @@ describe("StorageClient", () => {
 		const policies = await client.getDocumentPolicies(mockDocumentId);
 		expect(policies.tenantId).toBe(mockTenantId);
 		const getCall = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock
-			.calls[1] as unknown as [string, RequestInit];
+			.calls[2] as unknown as [string, RequestInit];
 		expect(getCall[0]).toBe(
 			`https://storage.qnsp.example/storage/v1/documents/${mockDocumentId}/policies`,
 		);
@@ -393,6 +417,8 @@ describe("StorageClient", () => {
 		});
 
 		(globalThis.fetch as unknown as ReturnType<typeof vi.fn>)
+			// activation
+			.mockResolvedValueOnce(jsonResponse(MOCK_ACTIVATION_RESPONSE))
 			// apply
 			.mockResolvedValueOnce(
 				jsonResponse({
@@ -407,7 +433,7 @@ describe("StorageClient", () => {
 		const applied = await client.applyLegalHold(mockDocumentId, { holdId: "hold-9" });
 		expect(applied.legalHolds).toContain("hold-9");
 		const postCall = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock
-			.calls[0] as unknown as [string, RequestInit];
+			.calls[1] as unknown as [string, RequestInit];
 		expect(postCall[0]).toBe(
 			`https://storage.qnsp.example/storage/v1/documents/${mockDocumentId}/legal-holds`,
 		);
@@ -418,7 +444,7 @@ describe("StorageClient", () => {
 
 		await client.releaseLegalHold(mockDocumentId, "hold-9");
 		const delCall = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock
-			.calls[1] as unknown as [string, RequestInit];
+			.calls[2] as unknown as [string, RequestInit];
 		expect(delCall[0]).toBe(
 			`https://storage.qnsp.example/storage/v1/documents/${mockDocumentId}/legal-holds/hold-9`,
 		);

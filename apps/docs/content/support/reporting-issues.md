@@ -41,7 +41,7 @@ See our [Vulnerability Disclosure Policy](/security/vulnerability-disclosure) fo
 
 2. **GitHub Issues** (for SDK/client bugs):
    ```
-   https://github.com/cuilabs/qnsp/issues
+   https://github.com/cuilabs/qnsp-public/issues
    ```
 
 ### What to Include
@@ -143,7 +143,7 @@ https://qnsp.cuilabs.io#overview
 
 2. **GitHub Discussions** (for community input):
    ```
-   https://github.com/cuilabs/qnsp/discussions
+   https://github.com/cuilabs/qnsp-public/discussions
    ```
 
 ### What to Include

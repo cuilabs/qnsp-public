@@ -28,7 +28,7 @@ Customers may test their own tenant:
 - Authorization testing
 
 ### Requirements
-1. Notify security@cuilabs.io 5 days in advance
+1. Notify qnsp-security@cuilabs.io 5 days in advance
 2. Provide testing scope and timeline
 3. Use only your tenant
 4. No DoS/DDoS testing
@@ -57,7 +57,7 @@ Customers may test their own tenant:
 | Low | $100 - $500 |
 
 ### Reporting
-Submit to security@cuilabs.io with:
+Submit to qnsp-security@cuilabs.io with:
 - Detailed description
 - Steps to reproduce
 - Impact assessment

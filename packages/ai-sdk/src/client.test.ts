@@ -1,15 +1,48 @@
 import { createHash } from "node:crypto";
 import { ReadableStream } from "node:stream/web";
 
-import { describe, expect, it } from "vitest";
+import { clearActivationCache } from "@qnsp/sdk-activation";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { AiOrchestratorClient } from "./client.js";
 
+const ACTIVATION_RESPONSE = {
+	activated: true as const,
+	tenantId: "a1b2c3d4-e5f6-4789-8abc-def012345678",
+	tier: "dev-pro",
+	activationToken: "tok_test",
+	expiresInSeconds: 3600,
+	activatedAt: new Date().toISOString(),
+	limits: {
+		storageGB: 50,
+		apiCalls: 100_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+};
+
+function makeActivationResponse(): Response {
+	return new Response(JSON.stringify(ACTIVATION_RESPONSE), {
+		status: 200,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
 describe("AiOrchestratorClient", () => {
+	beforeEach(() => {
+		clearActivationCache();
+	});
+
 	it("submits workload requests with resolved headers", async () => {
 		const mockFetch: typeof fetch = async (input, init) => {
-			expect(init?.headers).toBeDefined();
 			const url = new URL(input as string | URL, "https://example.com");
+			if (url.pathname === "/billing/v1/sdk/activate") {
+				return makeActivationResponse();
+			}
+			expect(init?.headers).toBeDefined();
 			expect(url.pathname).toBe("/ai/v1/workloads");
 			return new Response(
 				JSON.stringify({
@@ -27,7 +60,7 @@ describe("AiOrchestratorClient", () => {
 
 		const client = new AiOrchestratorClient({
 			baseUrl: "https://example.com",
-			token: "test-token",
+			apiKey: "test-token",
 			fetchImpl: mockFetch,
 		});
 
@@ -59,6 +92,9 @@ describe("AiOrchestratorClient", () => {
 	it("returns workload detail with security profile", async () => {
 		const mockFetch: typeof fetch = async (input) => {
 			const url = new URL(input as string | URL, "https://example.com");
+			if (url.pathname === "/billing/v1/sdk/activate") {
+				return makeActivationResponse();
+			}
 			expect(url.pathname).toBe("/ai/v1/workloads/aaaaaaaa-bbbb-4ccc-addd-eeeeeeeeeeee");
 			return new Response(
 				JSON.stringify({
@@ -94,7 +130,7 @@ describe("AiOrchestratorClient", () => {
 
 		const client = new AiOrchestratorClient({
 			baseUrl: "https://example.com",
-			token: "test-token",
+			apiKey: "test-token",
 			fetchImpl: mockFetch,
 		});
 
@@ -109,6 +145,9 @@ describe("AiOrchestratorClient", () => {
 	it("lists workloads and surfaces security metadata", async () => {
 		const mockFetch: typeof fetch = async (input) => {
 			const url = new URL(input as string | URL, "https://example.com");
+			if (url.pathname === "/billing/v1/sdk/activate") {
+				return makeActivationResponse();
+			}
 			expect(url.pathname).toBe("/ai/v1/workloads");
 			return new Response(
 				JSON.stringify({
@@ -145,7 +184,7 @@ describe("AiOrchestratorClient", () => {
 
 		const client = new AiOrchestratorClient({
 			baseUrl: "https://example.com",
-			token: "test-token",
+			apiKey: "test-token",
 			fetchImpl: mockFetch,
 		});
 
@@ -172,6 +211,9 @@ describe("AiOrchestratorClient", () => {
 		const digest = createHash("sha3-512").update(JSON.stringify(manifest)).digest("hex");
 		const mockFetch: typeof fetch = async (input, init) => {
 			const url = new URL(input as string | URL, "https://example.com");
+			if (url.pathname === "/billing/v1/sdk/activate") {
+				return makeActivationResponse();
+			}
 			expect(url.pathname).toBe("/ai/v1/workloads");
 			const body = JSON.parse(init?.body as string);
 			expect(body.name).toBe("resnet-deployment");
@@ -191,7 +233,7 @@ describe("AiOrchestratorClient", () => {
 
 		const client = new AiOrchestratorClient({
 			baseUrl: "https://example.com",
-			token: "test-token",
+			apiKey: "test-token",
 			fetchImpl: mockFetch,
 		});
 
@@ -216,6 +258,9 @@ describe("AiOrchestratorClient", () => {
 	it("invokes inference with payload serialization", async () => {
 		const mockFetch: typeof fetch = async (input, init) => {
 			const url = new URL(input as string | URL, "https://example.com");
+			if (url.pathname === "/billing/v1/sdk/activate") {
+				return makeActivationResponse();
+			}
 			expect(url.pathname).toBe("/ai/v1/inference");
 			const body = JSON.parse(init?.body as string);
 			expect(body.tenantId).toBe("00000000-0000-0000-0000-000000000001");
@@ -235,7 +280,7 @@ describe("AiOrchestratorClient", () => {
 
 		const client = new AiOrchestratorClient({
 			baseUrl: "https://example.com",
-			token: "test-token",
+			apiKey: "test-token",
 			fetchImpl: mockFetch,
 		});
 
@@ -289,6 +334,9 @@ describe("AiOrchestratorClient", () => {
 
 		const mockFetch: typeof fetch = async (input) => {
 			const url = new URL(input as string | URL, "https://example.com");
+			if (url.pathname === "/billing/v1/sdk/activate") {
+				return makeActivationResponse();
+			}
 			expect(url.pathname).toBe("/ai/v1/inference/11111111-2222-4333-a444-555555555555/stream");
 			return new Response(stream, {
 				status: 200,
@@ -298,7 +346,7 @@ describe("AiOrchestratorClient", () => {
 
 		const client = new AiOrchestratorClient({
 			baseUrl: "https://example.com",
-			token: "test-token",
+			apiKey: "test-token",
 			fetchImpl: mockFetch,
 		});
 

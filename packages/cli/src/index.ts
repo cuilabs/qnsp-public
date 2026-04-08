@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
+import cliPackage from "../package.json" with { type: "json" };
 import { registerAccessControlCommands } from "./commands/access-control.js";
 import { registerAuditCommands } from "./commands/audit.js";
 import { registerAuthCommands } from "./commands/auth.js";
@@ -20,7 +21,7 @@ const program = new Command();
 program
 	.name("qnsp")
 	.description("QNSP CLI - Command-line interface for the QNSP platform")
-	.version("0.1.0")
+	.version(cliPackage.version)
 	.option("--edge-gateway-url <url>", "Edge Gateway URL (production entrypoint)")
 	.option("--cloud-portal-url <url>", "Cloud Portal URL (for upgrade/add-on links)")
 	.option("--auth-service-url <url>", "Auth service URL")

@@ -1,7 +1,7 @@
 ---
 title: Search SDK (@qnsp/search-sdk)
-version: 0.1.0
-last_updated: 2026-01-04
+version: 0.3.0
+last_updated: 2026-03-20
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -93,6 +93,174 @@ while (cursor) {
 }
 ```
 
+## Query Analytics
+
+Track and analyze search performance:
+
+```ts
+// Record a query for analytics
+await search.recordQuery({
+	tenantId: "<tenant_uuid>",
+	query: "quarterly report",
+	resultCount: 15,
+	latencyMs: 45,
+	clickedDocumentIds: ["<doc_uuid>"],
+});
+
+// Get query metrics
+const metrics = await search.getQueryMetrics({
+	tenantId: "<tenant_uuid>",
+	since: "2026-03-01T00:00:00Z",
+	groupBy: "day",
+});
+console.log(metrics.avgLatencyMs, metrics.zeroResultRate);
+
+// Get search quality metrics
+const quality = await search.getSearchQuality({
+	tenantId: "<tenant_uuid>",
+});
+console.log(quality.relevanceScore, quality.clickThroughRate);
+
+// Get top queries
+const topQueries = await search.getTopQueries({
+	tenantId: "<tenant_uuid>",
+	limit: 20,
+	zeroResultsOnly: false,
+});
+```
+
+## Synonym Management
+
+Configure query expansion with synonyms:
+
+```ts
+// Create a synonym group
+const group = await search.createSynonymGroup({
+	tenantId: "<tenant_uuid>",
+	name: "Document Types",
+	synonyms: ["report", "document", "file", "doc"],
+	isExpanded: true,
+	language: "en",
+});
+
+// List synonym groups
+const { items } = await search.listSynonymGroups({
+	tenantId: "<tenant_uuid>",
+});
+
+// Update a group
+await search.updateSynonymGroup(group.id, {
+	synonyms: ["report", "document", "file", "doc", "paper"],
+});
+
+// Expand a term
+const expansion = await search.expandTerm({
+	tenantId: "<tenant_uuid>",
+	term: "report",
+});
+console.log(expansion.expandedTerms); // ["document", "file", "doc", "paper"]
+
+// Import/export synonyms
+await search.importSynonyms({
+	tenantId: "<tenant_uuid>",
+	format: "solr",
+	data: "report,document,file\nquarterly,q1,q2,q3,q4",
+});
+
+const exported = await search.exportSynonyms({
+	tenantId: "<tenant_uuid>",
+	format: "json",
+});
+```
+
+## Index Health
+
+Monitor index health and configure maintenance:
+
+```ts
+// Record a health snapshot
+await search.recordHealthSnapshot({
+	tenantId: "<tenant_uuid>",
+	metrics: {
+		documentCount: 150000,
+		indexSizeBytes: 1073741824,
+		avgQueryLatencyMs: 25,
+	},
+});
+
+// Get current index health
+const health = await search.getIndexHealth({
+	tenantId: "<tenant_uuid>",
+});
+console.log(health.status, health.metrics.fragmentationPercent);
+
+// List health alerts
+const alerts = await search.listHealthAlerts({
+	tenantId: "<tenant_uuid>",
+	status: "active",
+	severity: "warning",
+});
+
+// Acknowledge an alert
+await search.acknowledgeAlert({
+	alertId: "<alert_uuid>",
+	acknowledgedBy: "admin@example.com",
+	note: "Investigating high latency",
+});
+
+// Create a maintenance window
+await search.createMaintenanceWindow({
+	tenantId: "<tenant_uuid>",
+	name: "Index Optimization",
+	startsAt: "2026-03-21T02:00:00Z",
+	endsAt: "2026-03-21T04:00:00Z",
+	suppressAlerts: true,
+	operations: ["optimize", "merge_segments"],
+});
+```
+
+## Tenant Isolation
+
+Verify and enforce tenant data boundaries:
+
+```ts
+// Create an isolation policy
+const policy = await search.createIsolationPolicy({
+	tenantId: "<tenant_uuid>",
+	name: "Strict Tenant Isolation",
+	level: "strict",
+	rules: [
+		{
+			field: "tenantId",
+			operator: "equals",
+			value: "<tenant_uuid>",
+		},
+	],
+	enforcementMode: "enforce",
+});
+
+// List isolation policies
+const policies = await search.listIsolationPolicies({
+	tenantId: "<tenant_uuid>",
+});
+
+// Run isolation verification
+const result = await search.runIsolationVerification({
+	tenantId: "<tenant_uuid>",
+	sampleSize: 1000,
+});
+console.log(result.passedChecks, result.failedChecks);
+
+// Report a violation
+await search.reportViolation({
+	tenantId: "<tenant_uuid>",
+	policyId: policy.id,
+	severity: "critical",
+	description: "Cross-tenant data access detected",
+	documentIds: ["<doc_uuid>"],
+});
+```
+
 ## Searchable Symmetric Encryption (SSE)
 
 When configured with an SSE key, the SDK can derive encrypted search tokens:
@@ -132,6 +300,34 @@ const queryTokens = search.deriveQuerySseTokens("quarterly report");
 ### Querying
 - `SearchClient.search(params)` - Search with filters
 - `SearchClient.searchWithAutoSse(params)` - Search with auto SSE
+
+### Query Analytics
+- `SearchClient.recordQuery(input)` - Record query for analytics
+- `SearchClient.getQueryMetrics(params?)` - Get query performance metrics
+- `SearchClient.getSearchQuality(params?)` - Get search quality metrics
+- `SearchClient.getTopQueries(params?)` - Get top/zero-result queries
+
+### Synonym Management
+- `SearchClient.createSynonymGroup(input)` - Create synonym group
+- `SearchClient.listSynonymGroups(params)` - List synonym groups
+- `SearchClient.updateSynonymGroup(groupId, input)` - Update group
+- `SearchClient.deleteSynonymGroup(groupId)` - Delete group
+- `SearchClient.expandTerm(params)` - Expand term with synonyms
+- `SearchClient.importSynonyms(input)` - Import from CSV/JSON/Solr
+- `SearchClient.exportSynonyms(params)` - Export to CSV/JSON/Solr
+
+### Index Health
+- `SearchClient.recordHealthSnapshot(input)` - Record health metrics
+- `SearchClient.getIndexHealth(params)` - Get current health status
+- `SearchClient.listHealthAlerts(params?)` - List health alerts
+- `SearchClient.acknowledgeAlert(input)` - Acknowledge an alert
+- `SearchClient.createMaintenanceWindow(input)` - Schedule maintenance
+
+### Isolation
+- `SearchClient.createIsolationPolicy(input)` - Create isolation policy
+- `SearchClient.listIsolationPolicies(params?)` - List policies
+- `SearchClient.reportViolation(input)` - Report isolation violation
+- `SearchClient.runIsolationVerification(input)` - Verify tenant boundaries
 
 ### SSE Utilities
 - `SearchClient.createSseToken(value)` - Create encrypted token

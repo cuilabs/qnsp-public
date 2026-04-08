@@ -1,7 +1,7 @@
 ---
 title: SDK Overview
-version: 0.2.0
-last_updated: 2026-02-16
+version: 0.3.0
+last_updated: 2026-03-20
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,11 +10,13 @@ source_files:
   - /packages/kms-client/package.json
   - /packages/storage-sdk/package.json
   - /packages/crypto-inventory-sdk/package.json
+  - /packages/observability-sdk/package.json
+  - /packages/security-monitoring-sdk/package.json
 ---
 
 # SDK Overview
 
-QNSP provides official TypeScript/Node.js SDKs for platform services. All SDKs now include tenant crypto policy integration and NIST algorithm name utilities.
+QNSP provides official TypeScript/Node.js SDKs for platform services. All SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
 
 ## Available SDKs
 
@@ -22,33 +24,37 @@ From `packages/*/package.json`:
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `@qnsp/auth-sdk` | 0.2.0 | Authentication, token management, WebAuthn, MFA, PQC signatures |
-| `@qnsp/vault-sdk` | 0.2.0 | Secret management, envelope encryption, rotation, PQC metadata |
-| `@qnsp/kms-client` | 0.1.0 | KMS key wrapping/unwrapping with PQC algorithms |
-| `@qnsp/storage-sdk` | 0.2.0 | Storage service client with PQC encryption metadata |
-| `@qnsp/audit-sdk` | 0.2.0 | Audit service client with algorithm utilities |
-| `@qnsp/access-control-sdk` | 0.2.0 | Access control service client with algorithm utilities |
-| `@qnsp/billing-sdk` | 0.1.2 | Billing service client |
-| `@qnsp/search-sdk` | 0.1.1 | Search service client with SSE |
-| `@qnsp/tenant-sdk` | 0.2.0 | Tenant service client with crypto policy management |
-| `@qnsp/ai-sdk` | 0.1.1 | AI SDK + CLI (`qnsp-ai`) |
-| `@qnsp/crypto-inventory-sdk` | 0.2.0 | Crypto asset inventory and PQC migration tracking |
-| `@qnsp/browser-sdk` | 0.1.0 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
+| `@qnsp/auth-sdk` | 0.3.0 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
+| `@qnsp/vault-sdk` | 0.3.0 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
+| `@qnsp/kms-client` | 0.2.0 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
+| `@qnsp/storage-sdk` | 0.3.0 | Storage client with data classification, retention policies, cross-region replication |
+| `@qnsp/audit-sdk` | 0.3.0 | Audit client with real-time streaming, retention automation, conformance results |
+| `@qnsp/access-control-sdk` | 0.3.0 | Policy simulation, JIT access management, cross-tenant analysis |
+| `@qnsp/billing-sdk` | 0.2.0 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
+| `@qnsp/search-sdk` | 0.2.0 | Search client with query analytics, synonym management, multi-tenant isolation |
+| `@qnsp/tenant-sdk` | 0.3.0 | Tenant client with health dashboard, quota forecasting, onboarding automation |
+| `@qnsp/ai-sdk` | 0.2.0 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
+| `@qnsp/crypto-inventory-sdk` | 0.3.0 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
+| `@qnsp/observability-sdk` | 0.1.0 | Cost attribution, anomaly detection, custom dashboards, SLO tracking |
+| `@qnsp/security-monitoring-sdk` | 0.1.0 | Threat intelligence, automated response, attack paths, compliance mapping |
+| `@qnsp/browser-sdk` | 0.2.0 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
 
 ## Individual SDK docs
 
-- [`@qnsp/auth-sdk`](./auth-sdk)
-- [`@qnsp/vault-sdk`](./vault-sdk)
-- [`@qnsp/storage-sdk`](./storage-sdk)
-- [`@qnsp/kms-client`](./kms-client)
-- [`@qnsp/search-sdk`](./search-sdk)
-- [`@qnsp/audit-sdk`](./audit-sdk)
-- [`@qnsp/access-control-sdk`](./access-control-sdk)
-- [`@qnsp/billing-sdk`](./billing-sdk)
-- [`@qnsp/tenant-sdk`](./tenant-sdk)
-- [`@qnsp/ai-sdk`](./ai-sdk)
-- [`@qnsp/crypto-inventory-sdk`](./crypto-inventory-sdk)
-- [`@qnsp/browser-sdk`](./browser-sdk)
+- [`@qnsp/auth-sdk`](./auth-sdk) — Risk-based auth, federated audit, WebAuthn
+- [`@qnsp/vault-sdk`](./vault-sdk) — Dynamic secrets, leakage detection, versioned secrets
+- [`@qnsp/storage-sdk`](./storage-sdk) — Data classification, retention, cross-region replication
+- [`@qnsp/kms-client`](./kms-client) — BYOHSM, key escrow, usage analytics
+- [`@qnsp/search-sdk`](./search-sdk) — Query analytics, synonym management, isolation
+- [`@qnsp/audit-sdk`](./audit-sdk) — Real-time streaming, retention automation
+- [`@qnsp/access-control-sdk`](./access-control-sdk) — Policy simulation, JIT access
+- [`@qnsp/billing-sdk`](./billing-sdk) — Revenue analytics, dunning, credits
+- [`@qnsp/tenant-sdk`](./tenant-sdk) — Health dashboard, quota forecasting
+- [`@qnsp/ai-sdk`](./ai-sdk) — Model registry, bias monitoring, prompt injection
+- [`@qnsp/crypto-inventory-sdk`](./crypto-inventory-sdk) — Certificate lifecycle, PQC readiness
+- [`@qnsp/observability-sdk`](./observability-sdk) — Cost attribution, anomaly detection, dashboards
+- [`@qnsp/security-monitoring-sdk`](./security-monitoring-sdk) — Threat intelligence, automated response
+- [`@qnsp/browser-sdk`](./browser-sdk) — Browser-side PQC operations
 
 ## Requirements
 
@@ -57,7 +63,13 @@ From `packages/*/package.json`:
 
 ## Features
 
-SDKs provide type-safe interfaces and consistent error handling. Some SDKs include retry/backoff for rate limiting.
+SDKs provide type-safe interfaces and consistent error handling. All SDKs include:
+
+- **Retry/backoff** for rate limiting and transient failures
+- **Tenant crypto policy** integration for algorithm selection
+- **Real-time streaming** support via WebSocket/SSE where applicable
+- **Comprehensive TypeScript types** for all API responses
+- **PQC algorithm support** with NIST standardized names
 
 ## Installation
 
@@ -190,3 +202,40 @@ console.log(ALGORITHM_TO_NIST);
 | `government` | kyber-1024 | dilithium-5, sphincs-shake-256f-simple |
 
 See the [Tenant Crypto Policy Guide](/architecture/tenant-crypto-policy) for detailed documentation.
+
+## New Capabilities (March 2026)
+
+### Authentication & Access
+
+- **Risk-Based Auth** (`@qnsp/auth-sdk`): Adaptive MFA based on behavioral analytics, device fingerprinting, and geolocation
+- **Federated Audit** (`@qnsp/auth-sdk`): Cross-IdP session correlation and unified audit trails
+- **JIT Access** (`@qnsp/access-control-sdk`): Time-bound privilege elevation with automatic revocation
+- **Policy Simulation** (`@qnsp/access-control-sdk`): Test policy changes against historical patterns
+
+### Key & Secret Management
+
+- **BYOHSM** (`@qnsp/kms-client`): Connect external HSMs via PKCS#11
+- **Key Escrow** (`@qnsp/kms-client`): M-of-N threshold recovery schemes
+- **Dynamic Secrets** (`@qnsp/vault-sdk`): On-demand credential generation
+- **Leakage Detection** (`@qnsp/vault-sdk`): Real-time scanning for exposed secrets
+
+### AI & ML Operations
+
+- **Model Registry** (`@qnsp/ai-sdk`): Versioned model catalog with deployment tracking
+- **Bias Monitoring** (`@qnsp/ai-sdk`): Fairness metrics and incident reporting
+- **Cost Optimization** (`@qnsp/ai-sdk`): Token usage analytics and budget alerts
+- **Prompt Injection** (`@qnsp/ai-sdk`): Real-time attack detection and blocking
+
+### Observability & Security
+
+- **Cost Attribution** (`@qnsp/observability-sdk`): Granular cost allocation
+- **Anomaly Detection** (`@qnsp/observability-sdk`): ML-driven baseline deviation alerts
+- **Threat Intelligence** (`@qnsp/security-monitoring-sdk`): External threat feed integration
+- **Automated Response** (`@qnsp/security-monitoring-sdk`): SOAR-style playbooks
+
+### Billing & Tenant Management
+
+- **Revenue Analytics** (`@qnsp/billing-sdk`): Real-time dashboards by tenant/product
+- **Usage Forecasting** (`@qnsp/billing-sdk`): ML-powered consumption predictions
+- **Health Dashboard** (`@qnsp/tenant-sdk`): Consolidated tenant health metrics
+- **Isolation Audit** (`@qnsp/tenant-sdk`): Continuous verification of data isolation

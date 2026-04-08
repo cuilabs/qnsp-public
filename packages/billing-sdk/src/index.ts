@@ -1,11 +1,14 @@
 import { performance } from "node:perf_hooks";
 
+import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+
 import type {
 	BillingClientTelemetry,
 	BillingClientTelemetryConfig,
 	BillingClientTelemetryEvent,
 } from "./observability.js";
 import { createBillingClientTelemetry, isBillingClientTelemetry } from "./observability.js";
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 import { validateUUID } from "./validation.js";
 
 /**
@@ -15,8 +18,11 @@ import { validateUUID } from "./validation.js";
  * Provides a high-level interface for usage meter ingestion and invoice management.
  */
 
+/** Default QNSP cloud API base URL. Get a free API key at https://cloud.qnsp.cuilabs.io/signup */
+export const DEFAULT_BASE_URL = "https://api.qnsp.cuilabs.io";
+
 export interface BillingClientConfig {
-	readonly baseUrl: string;
+	readonly baseUrl?: string;
 	readonly apiKey: string;
 	readonly timeoutMs?: number;
 	readonly telemetry?: BillingClientTelemetry | BillingClientTelemetryConfig;
@@ -114,6 +120,415 @@ export interface ListInvoicesResponse {
 	readonly nextCursor: string | null;
 }
 
+/**
+ * Revenue Analytics Types
+ */
+
+export interface RevenueByTenantRequest {
+	readonly since?: string;
+	readonly until?: string;
+	readonly limit?: number;
+	readonly cursor?: string;
+	readonly sortBy?: "revenue" | "tenantName";
+	readonly sortOrder?: "asc" | "desc";
+}
+
+export interface TenantRevenue {
+	readonly tenantId: string;
+	readonly tenantName: string;
+	readonly totalRevenueCents: number;
+	readonly currency: string;
+	readonly invoiceCount: number;
+	readonly avgInvoiceAmountCents: number;
+	readonly growthPercent: number;
+}
+
+export interface RevenueByTenantResponse {
+	readonly items: readonly TenantRevenue[];
+	readonly nextCursor: string | null;
+	readonly summary: {
+		readonly totalRevenueCents: number;
+		readonly tenantCount: number;
+	};
+}
+
+export interface RevenueByServiceRequest {
+	readonly since?: string;
+	readonly until?: string;
+	readonly tenantId?: string;
+}
+
+export interface ServiceRevenue {
+	readonly service: string;
+	readonly totalRevenueCents: number;
+	readonly meterCount: number;
+	readonly avgUnitPriceCents: number;
+	readonly percentOfTotal: number;
+}
+
+export interface RevenueByServiceResponse {
+	readonly items: readonly ServiceRevenue[];
+	readonly totalRevenueCents: number;
+}
+
+export interface RevenueSummaryRequest {
+	readonly since?: string;
+	readonly until?: string;
+	readonly groupBy?: "day" | "week" | "month" | "quarter";
+}
+
+export interface RevenueSummary {
+	readonly period: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly totalRevenueCents: number;
+	readonly paidRevenueCents: number;
+	readonly pendingRevenueCents: number;
+	readonly overdueRevenueCents: number;
+	readonly invoiceCount: number;
+	readonly paidInvoiceCount: number;
+	readonly avgInvoiceAmountCents: number;
+	readonly growthPercent: number;
+	readonly timeSeries: readonly {
+		readonly period: string;
+		readonly revenueCents: number;
+		readonly invoiceCount: number;
+	}[];
+}
+
+export interface MRRMetricsRequest {
+	readonly since?: string;
+	readonly until?: string;
+}
+
+export interface MRRMetrics {
+	readonly period: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly currentMrrCents: number;
+	readonly previousMrrCents: number;
+	readonly newMrrCents: number;
+	readonly expansionMrrCents: number;
+	readonly contractionMrrCents: number;
+	readonly churnedMrrCents: number;
+	readonly netMrrChangeCents: number;
+	readonly growthRate: number;
+	readonly annualizedRevenueCents: number;
+}
+
+/**
+ * Usage Forecasting Types
+ */
+
+export interface UsageForecastRequest {
+	readonly tenantId?: string;
+	readonly meterType?: string;
+	readonly horizonDays?: number;
+}
+
+export interface UsageForecast {
+	readonly tenantId?: string;
+	readonly meterType?: string;
+	readonly generatedAt: string;
+	readonly horizon: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly predictions: readonly {
+		readonly date: string;
+		readonly predictedValue: number;
+		readonly confidenceLow: number;
+		readonly confidenceHigh: number;
+	}[];
+	readonly accuracy: {
+		readonly mape: number;
+		readonly rmse: number;
+	};
+}
+
+export interface BillingForecastRequest {
+	readonly tenantId?: string;
+	readonly horizonMonths?: number;
+}
+
+export interface BillingForecast {
+	readonly tenantId?: string;
+	readonly generatedAt: string;
+	readonly horizon: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly predictions: readonly {
+		readonly month: string;
+		readonly predictedAmountCents: number;
+		readonly confidenceLow: number;
+		readonly confidenceHigh: number;
+		readonly breakdown: readonly {
+			readonly meterType: string;
+			readonly amountCents: number;
+		}[];
+	}[];
+}
+
+export interface CapacityForecastRequest {
+	readonly meterType?: string;
+	readonly horizonDays?: number;
+	readonly thresholdPercent?: number;
+}
+
+export interface CapacityForecast {
+	readonly meterType?: string;
+	readonly generatedAt: string;
+	readonly currentUsage: number;
+	readonly currentCapacity: number;
+	readonly utilizationPercent: number;
+	readonly predictions: readonly {
+		readonly date: string;
+		readonly predictedUsage: number;
+		readonly predictedUtilization: number;
+		readonly exceedsThreshold: boolean;
+	}[];
+	readonly recommendations: readonly {
+		readonly type: "scale_up" | "optimize" | "no_action";
+		readonly urgency: "low" | "medium" | "high";
+		readonly description: string;
+		readonly estimatedDate?: string;
+	}[];
+}
+
+/**
+ * Dunning Types
+ */
+
+export type DunningStage = "reminder" | "warning" | "final_notice" | "suspension" | "termination";
+export type DunningStatus = "pending" | "in_progress" | "resolved" | "escalated";
+
+export interface DunningSchedule {
+	readonly id: string;
+	readonly name: string;
+	readonly stages: readonly {
+		readonly stage: DunningStage;
+		readonly daysAfterDue: number;
+		readonly actions: readonly string[];
+		readonly emailTemplate?: string;
+	}[];
+	readonly isDefault: boolean;
+	readonly createdAt: string;
+	readonly updatedAt: string;
+}
+
+export interface ConfigureDunningRequest {
+	readonly name: string;
+	readonly stages: readonly {
+		readonly stage: DunningStage;
+		readonly daysAfterDue: number;
+		readonly actions: readonly string[];
+		readonly emailTemplate?: string;
+	}[];
+	readonly isDefault?: boolean;
+}
+
+export interface FailedPayment {
+	readonly id: string;
+	readonly tenantId: string;
+	readonly invoiceId: string;
+	readonly amountCents: number;
+	readonly currency: string;
+	readonly failureReason: string;
+	readonly failureCode?: string;
+	readonly attemptCount: number;
+	readonly lastAttemptAt: string;
+	readonly nextRetryAt?: string;
+	readonly status: DunningStatus;
+	readonly currentStage: DunningStage;
+	readonly createdAt: string;
+}
+
+export interface RetryPaymentRequest {
+	readonly paymentId: string;
+	readonly forceRetry?: boolean;
+}
+
+export interface RetryPaymentResponse {
+	readonly paymentId: string;
+	readonly success: boolean;
+	readonly transactionId?: string;
+	readonly failureReason?: string;
+	readonly nextRetryAt?: string;
+}
+
+export interface ResolveDunningRequest {
+	readonly paymentId: string;
+	readonly resolution: "paid" | "waived" | "written_off";
+	readonly note?: string;
+}
+
+export interface DunningStatusResponse {
+	readonly tenantId: string;
+	readonly status: DunningStatus;
+	readonly currentStage?: DunningStage;
+	readonly failedPayments: readonly FailedPayment[];
+	readonly totalOutstandingCents: number;
+	readonly oldestOverdueDays: number;
+}
+
+export interface DunningMetricsRequest {
+	readonly since?: string;
+	readonly until?: string;
+}
+
+export interface DunningMetrics {
+	readonly period: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly totalFailedPayments: number;
+	readonly recoveredPayments: number;
+	readonly recoveryRate: number;
+	readonly totalRecoveredCents: number;
+	readonly totalWrittenOffCents: number;
+	readonly avgRecoveryDays: number;
+	readonly byStage: readonly {
+		readonly stage: DunningStage;
+		readonly count: number;
+		readonly amountCents: number;
+	}[];
+}
+
+/**
+ * Credits Types
+ */
+
+export type CreditType = "promotional" | "refund" | "loyalty" | "compensation" | "manual";
+export type CreditStatus = "active" | "exhausted" | "expired" | "cancelled";
+
+export interface Credit {
+	readonly id: string;
+	readonly tenantId: string;
+	readonly type: CreditType;
+	readonly amountCents: number;
+	readonly remainingCents: number;
+	readonly currency: string;
+	readonly description: string;
+	readonly status: CreditStatus;
+	readonly expiresAt?: string;
+	readonly createdAt: string;
+	readonly createdBy: string;
+}
+
+export interface CreateCreditRequest {
+	readonly tenantId: string;
+	readonly type: CreditType;
+	readonly amountCents: number;
+	readonly currency?: string;
+	readonly description: string;
+	readonly expiresAt?: string;
+}
+
+export interface CreditBalance {
+	readonly tenantId: string;
+	readonly totalAvailableCents: number;
+	readonly currency: string;
+	readonly credits: readonly {
+		readonly id: string;
+		readonly type: CreditType;
+		readonly remainingCents: number;
+		readonly expiresAt?: string;
+	}[];
+	readonly expiringWithin30Days: number;
+}
+
+export interface ApplyCreditRequest {
+	readonly tenantId: string;
+	readonly invoiceId: string;
+	readonly amountCents: number;
+	readonly creditIds?: readonly string[];
+}
+
+export interface ApplyCreditResponse {
+	readonly invoiceId: string;
+	readonly appliedAmountCents: number;
+	readonly creditsUsed: readonly {
+		readonly creditId: string;
+		readonly amountCents: number;
+	}[];
+	readonly remainingInvoiceAmountCents: number;
+}
+
+export interface Promotion {
+	readonly id: string;
+	readonly code: string;
+	readonly name: string;
+	readonly description?: string;
+	readonly creditAmountCents: number;
+	readonly currency: string;
+	readonly maxRedemptions?: number;
+	readonly currentRedemptions: number;
+	readonly validFrom: string;
+	readonly validUntil?: string;
+	readonly eligibility?: {
+		readonly newTenantsOnly?: boolean;
+		readonly minPlan?: string;
+		readonly regions?: readonly string[];
+	};
+	readonly status: "active" | "paused" | "expired" | "exhausted";
+	readonly createdAt: string;
+}
+
+export interface CreatePromotionRequest {
+	readonly code: string;
+	readonly name: string;
+	readonly description?: string;
+	readonly creditAmountCents: number;
+	readonly currency?: string;
+	readonly maxRedemptions?: number;
+	readonly validFrom?: string;
+	readonly validUntil?: string;
+	readonly eligibility?: {
+		readonly newTenantsOnly?: boolean;
+		readonly minPlan?: string;
+		readonly regions?: readonly string[];
+	};
+}
+
+export interface RedeemPromotionRequest {
+	readonly tenantId: string;
+	readonly promotionCode: string;
+}
+
+export interface RedeemPromotionResponse {
+	readonly success: boolean;
+	readonly credit?: Credit;
+	readonly failureReason?: string;
+}
+
+export interface CreditTransaction {
+	readonly id: string;
+	readonly tenantId: string;
+	readonly creditId: string;
+	readonly type: "credit" | "debit" | "expiration" | "cancellation";
+	readonly amountCents: number;
+	readonly balanceAfterCents: number;
+	readonly invoiceId?: string;
+	readonly description: string;
+	readonly createdAt: string;
+}
+
+export interface CreditHistoryRequest {
+	readonly tenantId: string;
+	readonly since?: string;
+	readonly until?: string;
+	readonly limit?: number;
+	readonly cursor?: string;
+}
+
+export interface CreditHistoryResponse {
+	readonly items: readonly CreditTransaction[];
+	readonly nextCursor: string | null;
+}
+
 interface RequestOptions {
 	readonly body?: unknown;
 	readonly headers?: Record<string, string>;
@@ -127,26 +542,51 @@ export class BillingClient {
 	private readonly config: InternalBillingClientConfig;
 	private readonly telemetry: BillingClientTelemetry | null;
 	private readonly targetService: string;
+	private activationPromise: Promise<void> | null = null;
+	private readonly activationConfig: SdkActivationConfig;
+	private resolvedTenantId: string | null = null;
+
+	private async ensureActivated(): Promise<void> {
+		if (!this.activationPromise) {
+			this.activationPromise = activateSdk(this.activationConfig).then((response) => {
+				this.resolvedTenantId = response.tenantId;
+			});
+		}
+		return this.activationPromise;
+	}
 
 	constructor(config: BillingClientConfig) {
 		if (!config.apiKey || config.apiKey.trim().length === 0) {
 			throw new Error(
 				"QNSP Billing SDK: apiKey is required. " +
 					"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-					"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+					"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 					"Docs: https://docs.qnsp.cuilabs.io/sdk/billing-sdk",
 			);
 		}
 
-		const baseUrl = config.baseUrl.replace(/\/$/, "");
+		const baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
 
-		// Enforce HTTPS in production (allow HTTP only for localhost in development)
+		// Enforce HTTPS in production (allow HTTP for localhost in development and
+		// for internal service-mesh hostnames — e.g. *.internal — which are on a
+		// private VPC network and do not require TLS termination at the transport layer).
 		if (!baseUrl.startsWith("https://")) {
 			const isLocalhost =
 				baseUrl.startsWith("http://localhost") || baseUrl.startsWith("http://127.0.0.1");
+			let isInternalService = false;
+			try {
+				const parsed = new URL(baseUrl);
+				isInternalService =
+					parsed.protocol === "http:" &&
+					(parsed.hostname.endsWith(".internal") ||
+						parsed.hostname === "localhost" ||
+						parsed.hostname === "127.0.0.1");
+			} catch {
+				// ignore; invalid URL will be caught later by fetch
+			}
 			const isDevelopment =
 				process.env["NODE_ENV"] === "development" || process.env["NODE_ENV"] === "test";
-			if (!isLocalhost || !isDevelopment) {
+			if ((!isLocalhost || !isDevelopment) && !isInternalService) {
 				throw new Error(
 					"baseUrl must use HTTPS in production. HTTP is only allowed for localhost in development.",
 				);
@@ -172,6 +612,13 @@ export class BillingClient {
 		} catch {
 			this.targetService = "billing-service";
 		}
+
+		this.activationConfig = {
+			apiKey: config.apiKey,
+			sdkId: "billing-sdk",
+			sdkVersion: SDK_PACKAGE_VERSION,
+			platformUrl: baseUrl,
+		};
 	}
 
 	private async request<T>(method: string, path: string, options?: RequestOptions): Promise<T> {
@@ -191,6 +638,11 @@ export class BillingClient {
 		};
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -302,6 +754,7 @@ export class BillingClient {
 		for (const meter of request.meters) {
 			validateUUID(meter.tenantId, "meter.tenantId");
 		}
+		await this.ensureActivated();
 
 		return this.request<IngestMetersResponse>("POST", "/billing/v1/meters", {
 			body: {
@@ -317,6 +770,7 @@ export class BillingClient {
 	 */
 	async createInvoice(request: CreateInvoiceRequest): Promise<Invoice> {
 		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
 
 		return this.request<Invoice>("POST", "/billing/v1/invoices", {
 			body: {
@@ -346,6 +800,7 @@ export class BillingClient {
 		},
 	): Promise<ListInvoicesResponse> {
 		validateUUID(tenantId, "tenantId");
+		await this.ensureActivated();
 
 		const params = new URLSearchParams({
 			tenantId,
@@ -359,6 +814,330 @@ export class BillingClient {
 
 		return this.request<ListInvoicesResponse>("GET", `/billing/v1/invoices?${params}`, {
 			operation: "listInvoices",
+		});
+	}
+
+	/**
+	 * Get revenue breakdown by tenant.
+	 */
+	async getRevenueByTenant(request?: RevenueByTenantRequest): Promise<RevenueByTenantResponse> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.since !== undefined) params.set("since", request.since);
+		if (request?.until !== undefined) params.set("until", request.until);
+		if (request?.limit !== undefined) params.set("limit", String(request.limit));
+		if (request?.cursor !== undefined) params.set("cursor", request.cursor);
+		if (request?.sortBy !== undefined) params.set("sortBy", request.sortBy);
+		if (request?.sortOrder !== undefined) params.set("sortOrder", request.sortOrder);
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/billing/v1/revenue/by-tenant?${queryString}`
+			: "/billing/v1/revenue/by-tenant";
+
+		return this.request<RevenueByTenantResponse>("GET", path, {
+			operation: "getRevenueByTenant",
+		});
+	}
+
+	/**
+	 * Get revenue breakdown by service.
+	 */
+	async getRevenueByService(request?: RevenueByServiceRequest): Promise<RevenueByServiceResponse> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.since !== undefined) params.set("since", request.since);
+		if (request?.until !== undefined) params.set("until", request.until);
+		if (request?.tenantId !== undefined) {
+			validateUUID(request.tenantId, "tenantId");
+			params.set("tenantId", request.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/billing/v1/revenue/by-service?${queryString}`
+			: "/billing/v1/revenue/by-service";
+
+		return this.request<RevenueByServiceResponse>("GET", path, {
+			operation: "getRevenueByService",
+		});
+	}
+
+	/**
+	 * Get revenue summary with time series data.
+	 */
+	async getRevenueSummary(request?: RevenueSummaryRequest): Promise<RevenueSummary> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.since !== undefined) params.set("since", request.since);
+		if (request?.until !== undefined) params.set("until", request.until);
+		if (request?.groupBy !== undefined) params.set("groupBy", request.groupBy);
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/billing/v1/revenue/summary?${queryString}`
+			: "/billing/v1/revenue/summary";
+
+		return this.request<RevenueSummary>("GET", path, {
+			operation: "getRevenueSummary",
+		});
+	}
+
+	/**
+	 * Get Monthly Recurring Revenue (MRR) metrics.
+	 */
+	async getMRRMetrics(request?: MRRMetricsRequest): Promise<MRRMetrics> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.since !== undefined) params.set("since", request.since);
+		if (request?.until !== undefined) params.set("until", request.until);
+
+		const queryString = params.toString();
+		const path = queryString ? `/billing/v1/revenue/mrr?${queryString}` : "/billing/v1/revenue/mrr";
+
+		return this.request<MRRMetrics>("GET", path, {
+			operation: "getMRRMetrics",
+		});
+	}
+
+	/**
+	 * Get usage forecast for a tenant or meter type.
+	 */
+	async getUsageForecast(request?: UsageForecastRequest): Promise<UsageForecast> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.tenantId !== undefined) {
+			validateUUID(request.tenantId, "tenantId");
+			params.set("tenantId", request.tenantId);
+		}
+		if (request?.meterType !== undefined) params.set("meterType", request.meterType);
+		if (request?.horizonDays !== undefined) params.set("horizonDays", String(request.horizonDays));
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/billing/v1/forecast/usage?${queryString}`
+			: "/billing/v1/forecast/usage";
+
+		return this.request<UsageForecast>("GET", path, {
+			operation: "getUsageForecast",
+		});
+	}
+
+	/**
+	 * Get billing forecast for a tenant.
+	 */
+	async getBillingForecast(request?: BillingForecastRequest): Promise<BillingForecast> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.tenantId !== undefined) {
+			validateUUID(request.tenantId, "tenantId");
+			params.set("tenantId", request.tenantId);
+		}
+		if (request?.horizonMonths !== undefined)
+			params.set("horizonMonths", String(request.horizonMonths));
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/billing/v1/forecast/billing?${queryString}`
+			: "/billing/v1/forecast/billing";
+
+		return this.request<BillingForecast>("GET", path, {
+			operation: "getBillingForecast",
+		});
+	}
+
+	/**
+	 * Get capacity forecast and recommendations.
+	 */
+	async getCapacityForecast(request?: CapacityForecastRequest): Promise<CapacityForecast> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.meterType !== undefined) params.set("meterType", request.meterType);
+		if (request?.horizonDays !== undefined) params.set("horizonDays", String(request.horizonDays));
+		if (request?.thresholdPercent !== undefined)
+			params.set("thresholdPercent", String(request.thresholdPercent));
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/billing/v1/forecast/capacity?${queryString}`
+			: "/billing/v1/forecast/capacity";
+
+		return this.request<CapacityForecast>("GET", path, {
+			operation: "getCapacityForecast",
+		});
+	}
+
+	/**
+	 * Configure dunning schedule for payment recovery.
+	 */
+	async configureDunning(request: ConfigureDunningRequest): Promise<DunningSchedule> {
+		await this.ensureActivated();
+
+		return this.request<DunningSchedule>("POST", "/billing/v1/dunning/schedules", {
+			body: request,
+			operation: "configureDunning",
+		});
+	}
+
+	/**
+	 * Retry a failed payment.
+	 */
+	async retryPayment(request: RetryPaymentRequest): Promise<RetryPaymentResponse> {
+		validateUUID(request.paymentId, "paymentId");
+		await this.ensureActivated();
+
+		return this.request<RetryPaymentResponse>(
+			"POST",
+			`/billing/v1/dunning/payments/${request.paymentId}/retry`,
+			{
+				body: { forceRetry: request.forceRetry ?? false },
+				operation: "retryPayment",
+			},
+		);
+	}
+
+	/**
+	 * Resolve a dunning case.
+	 */
+	async resolveDunning(request: ResolveDunningRequest): Promise<FailedPayment> {
+		validateUUID(request.paymentId, "paymentId");
+		await this.ensureActivated();
+
+		return this.request<FailedPayment>(
+			"POST",
+			`/billing/v1/dunning/payments/${request.paymentId}/resolve`,
+			{
+				body: {
+					resolution: request.resolution,
+					...(request.note !== undefined ? { note: request.note } : {}),
+				},
+				operation: "resolveDunning",
+			},
+		);
+	}
+
+	/**
+	 * Get dunning status for a tenant.
+	 */
+	async getDunningStatus(tenantId: string): Promise<DunningStatusResponse> {
+		validateUUID(tenantId, "tenantId");
+		await this.ensureActivated();
+
+		return this.request<DunningStatusResponse>(
+			"GET",
+			`/billing/v1/dunning/status?tenantId=${tenantId}`,
+			{
+				operation: "getDunningStatus",
+			},
+		);
+	}
+
+	/**
+	 * Get dunning metrics for recovery performance.
+	 */
+	async getDunningMetrics(request?: DunningMetricsRequest): Promise<DunningMetrics> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.since !== undefined) params.set("since", request.since);
+		if (request?.until !== undefined) params.set("until", request.until);
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/billing/v1/dunning/metrics?${queryString}`
+			: "/billing/v1/dunning/metrics";
+
+		return this.request<DunningMetrics>("GET", path, {
+			operation: "getDunningMetrics",
+		});
+	}
+
+	/**
+	 * Create a credit for a tenant.
+	 */
+	async createCredit(request: CreateCreditRequest): Promise<Credit> {
+		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
+
+		return this.request<Credit>("POST", "/billing/v1/credits", {
+			body: request,
+			operation: "createCredit",
+		});
+	}
+
+	/**
+	 * Get credit balance for a tenant.
+	 */
+	async getCreditBalance(tenantId: string): Promise<CreditBalance> {
+		validateUUID(tenantId, "tenantId");
+		await this.ensureActivated();
+
+		return this.request<CreditBalance>("GET", `/billing/v1/credits/balance?tenantId=${tenantId}`, {
+			operation: "getCreditBalance",
+		});
+	}
+
+	/**
+	 * Apply credit to an invoice.
+	 */
+	async applyCredit(request: ApplyCreditRequest): Promise<ApplyCreditResponse> {
+		validateUUID(request.tenantId, "tenantId");
+		validateUUID(request.invoiceId, "invoiceId");
+		await this.ensureActivated();
+
+		return this.request<ApplyCreditResponse>("POST", "/billing/v1/credits/apply", {
+			body: request,
+			operation: "applyCredit",
+		});
+	}
+
+	/**
+	 * Create a promotional offer.
+	 */
+	async createPromotion(request: CreatePromotionRequest): Promise<Promotion> {
+		await this.ensureActivated();
+
+		return this.request<Promotion>("POST", "/billing/v1/credits/promotions", {
+			body: request,
+			operation: "createPromotion",
+		});
+	}
+
+	/**
+	 * Redeem a promotion code.
+	 */
+	async redeemPromotion(request: RedeemPromotionRequest): Promise<RedeemPromotionResponse> {
+		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
+
+		return this.request<RedeemPromotionResponse>("POST", "/billing/v1/credits/redeem", {
+			body: request,
+			operation: "redeemPromotion",
+		});
+	}
+
+	/**
+	 * Get credit transaction history for a tenant.
+	 */
+	async getCreditHistory(request: CreditHistoryRequest): Promise<CreditHistoryResponse> {
+		validateUUID(request.tenantId, "tenantId");
+		await this.ensureActivated();
+
+		const params = new URLSearchParams({ tenantId: request.tenantId });
+		if (request.since !== undefined) params.set("since", request.since);
+		if (request.until !== undefined) params.set("until", request.until);
+		if (request.limit !== undefined) params.set("limit", String(request.limit));
+		if (request.cursor !== undefined) params.set("cursor", request.cursor);
+
+		return this.request<CreditHistoryResponse>("GET", `/billing/v1/credits/history?${params}`, {
+			operation: "getCreditHistory",
 		});
 	}
 }

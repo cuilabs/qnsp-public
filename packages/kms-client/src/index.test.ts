@@ -1,8 +1,27 @@
+import { clearActivationCache } from "@qnsp/sdk-activation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HttpKmsServiceClient } from "./index.js";
 
 // Override global fetch
 global.fetch = vi.fn();
+
+const MOCK_ACTIVATION_RESPONSE = {
+	activated: true,
+	tenantId: "a1b2c3d4-e5f6-4789-8abc-def012345678",
+	tier: "dev-pro",
+	activationToken: "tok_test",
+	expiresInSeconds: 3600,
+	activatedAt: new Date().toISOString(),
+	limits: {
+		storageGB: 50,
+		apiCalls: 100_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+};
 
 describe("HttpKmsServiceClient", () => {
 	const baseUrl = "https://kms.example.com";
@@ -11,6 +30,7 @@ describe("HttpKmsServiceClient", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		clearActivationCache();
 	});
 
 	it("should wrap key successfully", async () => {
@@ -23,6 +43,12 @@ describe("HttpKmsServiceClient", () => {
 			provider: "liboqs",
 		};
 
+		vi.mocked(fetch).mockResolvedValueOnce(
+			new Response(JSON.stringify(MOCK_ACTIVATION_RESPONSE), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			}),
+		);
 		vi.mocked(fetch).mockResolvedValueOnce(
 			new Response(JSON.stringify(testResponse), {
 				status: 200,
@@ -59,6 +85,12 @@ describe("HttpKmsServiceClient", () => {
 		};
 
 		vi.mocked(fetch).mockResolvedValueOnce(
+			new Response(JSON.stringify(MOCK_ACTIVATION_RESPONSE), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			}),
+		);
+		vi.mocked(fetch).mockResolvedValueOnce(
 			new Response(JSON.stringify(testResponse), {
 				status: 200,
 				headers: { "content-type": "application/json" },
@@ -72,7 +104,7 @@ describe("HttpKmsServiceClient", () => {
 			associatedData: "associated-data-base64",
 		});
 
-		const callArgs = vi.mocked(fetch).mock.calls[0];
+		const callArgs = vi.mocked(fetch).mock.calls[1];
 		const body = JSON.parse(callArgs[1]?.body as string);
 		expect(body.associatedData).toBe("associated-data-base64");
 	});
@@ -83,6 +115,12 @@ describe("HttpKmsServiceClient", () => {
 			dataKey: "unwrapped-key-data",
 		};
 
+		vi.mocked(fetch).mockResolvedValueOnce(
+			new Response(JSON.stringify(MOCK_ACTIVATION_RESPONSE), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			}),
+		);
 		vi.mocked(fetch).mockResolvedValueOnce(
 			new Response(JSON.stringify(testResponse), {
 				status: 200,
@@ -128,6 +166,12 @@ describe("HttpKmsServiceClient", () => {
 		const client = new HttpKmsServiceClient(baseUrl, apiToken);
 
 		vi.mocked(fetch).mockResolvedValueOnce(
+			new Response(JSON.stringify(MOCK_ACTIVATION_RESPONSE), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			}),
+		);
+		vi.mocked(fetch).mockResolvedValueOnce(
 			new Response(JSON.stringify({ message: "KMS service unavailable" }), {
 				status: 500,
 				statusText: "Internal Server Error",
@@ -148,6 +192,12 @@ describe("HttpKmsServiceClient", () => {
 		const client = new HttpKmsServiceClient(baseUrl, apiToken);
 
 		vi.mocked(fetch).mockResolvedValueOnce(
+			new Response(JSON.stringify(MOCK_ACTIVATION_RESPONSE), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			}),
+		);
+		vi.mocked(fetch).mockResolvedValueOnce(
 			new Response(JSON.stringify({ message: "Invalid wrapped key" }), {
 				status: 400,
 				statusText: "Bad Request",
@@ -167,6 +217,12 @@ describe("HttpKmsServiceClient", () => {
 	it("should handle JSON parse errors gracefully", async () => {
 		const client = new HttpKmsServiceClient(baseUrl, apiToken);
 
+		vi.mocked(fetch).mockResolvedValueOnce(
+			new Response(JSON.stringify(MOCK_ACTIVATION_RESPONSE), {
+				status: 200,
+				headers: { "content-type": "application/json" },
+			}),
+		);
 		vi.mocked(fetch).mockResolvedValueOnce(
 			new Response("{", {
 				status: 500,

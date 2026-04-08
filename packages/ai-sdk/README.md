@@ -1,7 +1,8 @@
 # @qnsp/ai-sdk
 
-TypeScript client for the QNSP AI Orchestrator. Provides workload submission, model deployment,
-inference, training, and artifact management helpers with built-in tier enforcement.
+TypeScript SDK client for the QNSP AI orchestration service. Provides secure AI workload management, enclave inference, and encrypted training.
+
+Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 
 ## Installation
 
@@ -9,77 +10,33 @@ inference, training, and artifact management helpers with built-in tier enforcem
 pnpm add @qnsp/ai-sdk
 ```
 
-## Authentication
+## Quick Start
 
-The client authenticates with a **QNSP service token** (PQC-signed JWT) issued by the auth service.
-Pass the token via the `token` option. You may optionally set `tier` if you are enforcing pricing
-entitlements on the client before making API calls.
-
-```ts
+```typescript
 import { AiOrchestratorClient } from "@qnsp/ai-sdk";
 
 const ai = new AiOrchestratorClient({
-  baseUrl: "https://api.qnsp.cuilabs.io/proxy/ai",
-  token: process.env.QNSP_SERVICE_TOKEN!,
-  tier: "dev-pro",
+  baseUrl: "https://api.qnsp.cuilabs.io",
+  apiKey: "YOUR_API_KEY",
+});
+
+const result = await ai.runInference({
+  model: "my-model",
+  input: { prompt: "Summarize the quarterly report" },
 });
 ```
 
-## Tier requirements
+## Documentation
 
-| Capability | Minimum tier | Notes |
-|------------|--------------|-------|
-| Basic inference (`invokeInference`, `deployModel`) | `dev-pro` | Throws `TierError` if `tier` is lower |
-| Secure enclaves / GPU workloads | `enterprise-standard` | Triggered when workloads request GPU resources |
-| AI training / fine-tuning | `enterprise-pro` | Automatically enforced when workload name contains `training` or `fine-tune` |
+- [SDK Reference](https://docs.qnsp.cuilabs.io/sdk/ai-sdk)
+- [API Documentation](https://docs.qnsp.cuilabs.io/api)
+- [Getting Started](https://docs.qnsp.cuilabs.io/quickstart)
 
-The SDK relies on `@qnsp/shared-kernel`'s `checkTierAccess` helper, so upgrading the tier in the
-constructor immediately unlocks the relevant calls.
+## Requirements
 
-## Usage example
-
-```ts
-import { AiOrchestratorClient } from "@qnsp/ai-sdk";
-
-const ai = new AiOrchestratorClient({
-  baseUrl: "https://api.qnsp.cuilabs.io/proxy/ai",
-  token: process.env.QNSP_SERVICE_TOKEN!,
-  tier: "enterprise-pro",
-});
-
-// Register an artifact
-const artifact = await ai.registerArtifact({
-  tenantId: "tenant_123",
-  modelName: "quantum-guardian",
-  digest: "sha3-512:...",
-  storageUrl: "qnsp://storage/documents/abc",
-});
-
-// Submit an enclave-enabled training workload
-await ai.submitWorkload({
-  tenantId: "tenant_123",
-  name: "guardian-training",
-  resources: { cpu: 8, memory: "64Gi", gpu: 2 },
-  containerImage: "ghcr.io/qnsp/training:latest",
-  command: ["python", "train.py"],
-  artifacts: [{ artifactId: artifact.artifactId, mountPath: "/models", accessMode: "read" }],
-  env: { DATASET_PATH: "/datasets/latest" },
-});
-```
-
-## Telemetry
-
-All requests emit OpenTelemetry spans when you wrap `fetchImpl` with your tracing/export logic.
-Future releases will expose `createAiClientTelemetry`, matching other SDKs.
-
-## Related documentation
-
-- [Developer onboarding guide](../../docs/guides/developer-onboarding.md#sdk-quick-links)
-- [AI orchestrator service plan](../../docs/service-plans/storage-service-plan.md)
-- [Pricing & tier limits](../../packages/shared-kernel/src/tier-limits.ts)
+- Node.js >= 24.12.0 (`engines` in `package.json`; QNSP monorepo baseline)
+- A QNSP account and API key — [sign up free](https://cloud.qnsp.cuilabs.io/auth) with GitHub, Google, or email
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [`LICENSE`](./LICENSE).
-
-© 2025 QNSP - CUI LABS, Singapore
+[Apache-2.0](./LICENSE)

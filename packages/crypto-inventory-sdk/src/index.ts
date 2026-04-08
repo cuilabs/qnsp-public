@@ -8,10 +8,12 @@
 
 import { performance } from "node:perf_hooks";
 
+import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
 import { z } from "zod";
 
 import type { CryptoInventoryTelemetry, CryptoInventoryTelemetryConfig } from "./observability.js";
 import { createCryptoInventoryTelemetry, isCryptoInventoryTelemetry } from "./observability.js";
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 
 /**
  * Mapping from internal algorithm names to NIST/standards display names.
@@ -218,13 +220,393 @@ export interface DiscoverAssetsRequest {
 	readonly source?: "kms" | "vault" | "edge-gateway";
 }
 
+/** Default QNSP cloud API base URL. Get a free API key at https://cloud.qnsp.cuilabs.io/signup */
+export const DEFAULT_BASE_URL = "https://api.qnsp.cuilabs.io";
+
 export interface CryptoInventoryClientConfig {
-	readonly baseUrl: string;
+	readonly baseUrl?: string;
 	readonly apiKey: string;
 	readonly timeoutMs?: number;
 	readonly maxRetries?: number;
 	readonly retryDelayMs?: number;
 	readonly telemetry?: CryptoInventoryTelemetry | CryptoInventoryTelemetryConfig;
+}
+
+export type DeprecationSeverity = "critical" | "high" | "medium" | "low";
+export type DeprecationStatus = "active" | "deprecated" | "legacy" | "prohibited";
+export type NotificationChannel = "email" | "webhook" | "slack" | "teams" | "pagerduty";
+
+export interface DeprecationPolicy {
+	readonly id: string;
+	readonly algorithm: string;
+	readonly status: DeprecationStatus;
+	readonly severity: DeprecationSeverity;
+	readonly deprecationDate: string | null;
+	readonly sunsetDate: string | null;
+	readonly replacementAlgorithm: string | null;
+	readonly rationale: string | null;
+	readonly complianceFrameworks: readonly string[];
+	readonly notifyAffectedTenants: boolean;
+	readonly createdAt: string;
+	readonly updatedAt: string;
+}
+
+export interface CreateDeprecationPolicyRequest {
+	readonly tenantId?: string;
+	readonly algorithm: string;
+	readonly status: DeprecationStatus;
+	readonly severity: DeprecationSeverity;
+	readonly deprecationDate?: string;
+	readonly sunsetDate?: string;
+	readonly replacementAlgorithm?: string;
+	readonly rationale?: string;
+	readonly complianceFrameworks?: readonly string[];
+	readonly notifyAffectedTenants?: boolean;
+}
+
+export interface UpdateDeprecationPolicyRequest {
+	readonly status?: DeprecationStatus;
+	readonly severity?: DeprecationSeverity;
+	readonly deprecationDate?: string | null;
+	readonly sunsetDate?: string | null;
+	readonly replacementAlgorithm?: string | null;
+	readonly rationale?: string | null;
+	readonly complianceFrameworks?: readonly string[];
+	readonly notifyAffectedTenants?: boolean;
+}
+
+export interface ListDeprecationPoliciesRequest {
+	readonly tenantId?: string;
+	readonly status?: DeprecationStatus;
+	readonly severity?: DeprecationSeverity;
+	readonly algorithm?: string;
+	readonly limit?: number;
+	readonly offset?: number;
+}
+
+export interface ListDeprecationPoliciesResponse {
+	readonly policies: readonly DeprecationPolicy[];
+	readonly total: number;
+	readonly limit: number;
+	readonly offset: number;
+}
+
+export interface AffectedAsset {
+	readonly assetId: string;
+	readonly assetName: string | null;
+	readonly assetType: string;
+	readonly source: string;
+	readonly algorithm: string;
+	readonly deprecationStatus: DeprecationStatus;
+	readonly deprecationSeverity: DeprecationSeverity;
+	readonly sunsetDate: string | null;
+	readonly replacementAlgorithm: string | null;
+	readonly acknowledged: boolean;
+	readonly acknowledgmentNote: string | null;
+	readonly plannedMigrationDate: string | null;
+}
+
+export interface GetAffectedAssetsRequest {
+	readonly tenantId?: string;
+	readonly severity?: DeprecationSeverity;
+	readonly status?: DeprecationStatus;
+	readonly acknowledged?: boolean;
+	readonly algorithm?: string;
+	readonly limit?: number;
+	readonly offset?: number;
+}
+
+export interface GetAffectedAssetsResponse {
+	readonly assets: readonly AffectedAsset[];
+	readonly total: number;
+	readonly limit: number;
+	readonly offset: number;
+}
+
+export interface AcknowledgeDeprecationRequest {
+	readonly tenantId?: string;
+	readonly assetIds: readonly string[];
+	readonly acknowledgmentNote?: string;
+	readonly plannedMigrationDate?: string;
+}
+
+export interface AcknowledgeDeprecationResponse {
+	readonly acknowledged: number;
+	readonly total: number;
+}
+
+export interface DeprecationSummary {
+	readonly tenantId: string;
+	readonly totalAffectedAssets: number;
+	readonly totalAcknowledged: number;
+	readonly unacknowledgedCount: number;
+	readonly bySeverity: Record<DeprecationSeverity, { total: number; acknowledged: number }>;
+	readonly byStatus: Record<DeprecationStatus, number>;
+	readonly upcomingSunsets: readonly {
+		readonly algorithm: string;
+		readonly sunsetDate: string;
+		readonly affectedAssets: number;
+	}[];
+}
+
+export type HardwareType =
+	| "hsm"
+	| "tpm"
+	| "secure_enclave"
+	| "smartcard"
+	| "crypto_accelerator"
+	| "key_storage_device";
+
+export type HardwareStatus =
+	| "active"
+	| "standby"
+	| "maintenance"
+	| "degraded"
+	| "offline"
+	| "decommissioned";
+
+export type HealthStatus = "healthy" | "warning" | "critical" | "unknown";
+
+export type ComplianceLevel =
+	| "fips_140_2_l1"
+	| "fips_140_2_l2"
+	| "fips_140_2_l3"
+	| "fips_140_2_l4"
+	| "fips_140_3_l1"
+	| "fips_140_3_l2"
+	| "fips_140_3_l3"
+	| "fips_140_3_l4"
+	| "common_criteria"
+	| "pci_hsm"
+	| "none";
+
+export interface HardwareDevice {
+	readonly id: string;
+	readonly tenantId: string;
+	readonly name: string;
+	readonly hardwareType: HardwareType;
+	readonly status: HardwareStatus;
+	readonly vendor: string | null;
+	readonly model: string | null;
+	readonly serialNumber: string | null;
+	readonly firmwareVersion: string | null;
+	readonly location: string | null;
+	readonly networkAddress: string | null;
+	readonly complianceLevel: ComplianceLevel | null;
+	readonly certificationExpiry: string | null;
+	readonly maxKeyCapacity: number | null;
+	readonly currentKeyCount: number | null;
+	readonly supportedAlgorithms: readonly string[];
+	readonly pqcCapable: boolean;
+	readonly lastHealthCheck: string | null;
+	readonly healthStatus: HealthStatus;
+	readonly metadata: Record<string, unknown>;
+	readonly createdAt: string;
+	readonly updatedAt: string;
+}
+
+export interface RegisterHardwareRequest {
+	readonly tenantId?: string;
+	readonly name: string;
+	readonly hardwareType: HardwareType;
+	readonly vendor?: string;
+	readonly model?: string;
+	readonly serialNumber?: string;
+	readonly firmwareVersion?: string;
+	readonly location?: string;
+	readonly networkAddress?: string;
+	readonly complianceLevel?: ComplianceLevel;
+	readonly certificationExpiry?: string;
+	readonly maxKeyCapacity?: number;
+	readonly supportedAlgorithms?: readonly string[];
+	readonly pqcCapable?: boolean;
+	readonly metadata?: Record<string, unknown>;
+}
+
+export interface UpdateHardwareRequest {
+	readonly name?: string;
+	readonly status?: HardwareStatus;
+	readonly firmwareVersion?: string;
+	readonly location?: string | null;
+	readonly networkAddress?: string | null;
+	readonly complianceLevel?: ComplianceLevel;
+	readonly certificationExpiry?: string | null;
+	readonly maxKeyCapacity?: number;
+	readonly supportedAlgorithms?: readonly string[];
+	readonly pqcCapable?: boolean;
+	readonly metadata?: Record<string, unknown>;
+}
+
+export interface ListHardwareRequest {
+	readonly tenantId?: string;
+	readonly hardwareType?: HardwareType;
+	readonly status?: HardwareStatus;
+	readonly healthStatus?: HealthStatus;
+	readonly pqcCapable?: boolean;
+	readonly complianceLevel?: ComplianceLevel;
+	readonly location?: string;
+	readonly limit?: number;
+	readonly offset?: number;
+}
+
+export interface ListHardwareResponse {
+	readonly devices: readonly HardwareDevice[];
+	readonly total: number;
+	readonly limit: number;
+	readonly offset: number;
+}
+
+export interface RecordHealthCheckRequest {
+	readonly healthStatus: HealthStatus;
+	readonly responseTimeMs?: number;
+	readonly keySlotUtilization?: number;
+	readonly memoryUtilization?: number;
+	readonly cpuUtilization?: number;
+	readonly temperature?: number;
+	readonly errorCount?: number;
+	readonly lastErrorMessage?: string;
+	readonly diagnosticsData?: Record<string, unknown>;
+}
+
+export interface HealthCheckRecord {
+	readonly id: string;
+	readonly hardwareId: string;
+	readonly healthStatus: HealthStatus;
+	readonly responseTimeMs: number | null;
+	readonly keySlotUtilization: number | null;
+	readonly memoryUtilization: number | null;
+	readonly cpuUtilization: number | null;
+	readonly temperature: number | null;
+	readonly errorCount: number | null;
+	readonly lastErrorMessage: string | null;
+	readonly diagnosticsData: Record<string, unknown>;
+	readonly checkedAt: string;
+}
+
+export interface GetHardwareHealthRequest {
+	readonly tenantId?: string;
+	readonly since?: string;
+	readonly until?: string;
+	readonly limit?: number;
+}
+
+export interface GetHardwareHealthResponse {
+	readonly healthChecks: readonly HealthCheckRecord[];
+}
+
+export interface HardwareInventorySummary {
+	readonly tenantId: string;
+	readonly totalDevices: number;
+	readonly activeDevices: number;
+	readonly pqcReadyDevices: number;
+	readonly byType: Record<HardwareType, { total: number; healthy: number; pqcCapable: number }>;
+	readonly byStatus: Record<HardwareStatus, number>;
+	readonly byHealth: Record<HealthStatus, number>;
+	readonly keyCapacity: {
+		readonly totalSlots: number;
+		readonly usedSlots: number;
+		readonly availableSlots: number;
+		readonly utilizationPercent: number;
+	};
+	readonly expiringCertifications: readonly {
+		readonly id: string;
+		readonly name: string;
+		readonly certificationExpiry: string;
+		readonly complianceLevel: ComplianceLevel;
+	}[];
+}
+
+export type ReadinessLevel = "exemplary" | "advanced" | "progressing" | "developing" | "initial";
+
+export type ReadinessCategory =
+	| "key_management"
+	| "certificate_infrastructure"
+	| "tls_configuration"
+	| "code_signing"
+	| "data_protection"
+	| "hardware_security"
+	| "policy_governance";
+
+export interface CategoryFinding {
+	readonly findingType: "strength" | "weakness" | "recommendation";
+	readonly description: string;
+	readonly impact: "high" | "medium" | "low";
+	readonly affectedAssets?: number;
+}
+
+export interface CategoryScore {
+	readonly category: ReadinessCategory;
+	readonly score: number;
+	readonly maxScore: number;
+	readonly percentage: number;
+	readonly level: ReadinessLevel;
+	readonly findings: readonly CategoryFinding[];
+}
+
+export interface PqcReadinessScore {
+	readonly tenantId: string;
+	readonly overallScore: number;
+	readonly maxScore: number;
+	readonly percentage: number;
+	readonly level: ReadinessLevel;
+	readonly categoryScores: readonly CategoryScore[];
+	readonly calculatedAt: string;
+	readonly trendDirection: "improving" | "stable" | "declining" | "unknown";
+	readonly trendPercentage: number | null;
+}
+
+export interface ScoreHistoryEntry {
+	readonly score: number;
+	readonly percentage: number;
+	readonly level: ReadinessLevel;
+	readonly calculatedAt: string;
+}
+
+export interface GetScoreHistoryRequest {
+	readonly tenantId?: string;
+	readonly since?: string;
+	readonly until?: string;
+	readonly limit?: number;
+}
+
+export interface GetScoreHistoryResponse {
+	readonly history: readonly ScoreHistoryEntry[];
+}
+
+export interface ReadinessRecommendation {
+	readonly priority: "critical" | "high" | "medium" | "low";
+	readonly category: ReadinessCategory;
+	readonly title: string;
+	readonly description: string;
+	readonly estimatedImpact: number;
+	readonly affectedAssets: number | undefined;
+}
+
+export interface ReadinessRecommendations {
+	readonly tenantId: string;
+	readonly currentScore: number;
+	readonly currentLevel: ReadinessLevel;
+	readonly recommendations: readonly ReadinessRecommendation[];
+	readonly totalRecommendations: number;
+}
+
+export interface ReadinessBenchmark {
+	readonly tenantId: string;
+	readonly yourScore: {
+		readonly percentage: number;
+		readonly level: ReadinessLevel;
+	};
+	readonly benchmark: {
+		readonly totalOrganizations: number;
+		readonly percentile25: number;
+		readonly percentile50: number;
+		readonly percentile75: number;
+		readonly percentile90: number;
+		readonly averageScore: number;
+		readonly topScore: number;
+	};
+	readonly yourPercentile: number;
+	readonly comparedToAverage: number;
 }
 
 type InternalConfig = {
@@ -246,29 +628,55 @@ export class CryptoInventoryClient {
 	private readonly config: InternalConfig;
 	private readonly telemetry: CryptoInventoryTelemetry | null;
 	private readonly targetService: string;
+	private activationPromise: Promise<void> | null = null;
+	private readonly activationConfig: SdkActivationConfig;
+	private resolvedTenantId: string | null = null;
+
+	private async ensureActivated(): Promise<void> {
+		if (!this.activationPromise) {
+			this.activationPromise = activateSdk(this.activationConfig).then((response) => {
+				this.resolvedTenantId = response.tenantId;
+			});
+		}
+		return this.activationPromise;
+	}
 
 	constructor(config: CryptoInventoryClientConfig) {
-		const baseUrl = config.baseUrl.replace(/\/$/, "");
-
-		if (!baseUrl.startsWith("https://")) {
-			const isLocalhost =
-				baseUrl.startsWith("http://localhost") || baseUrl.startsWith("http://127.0.0.1");
-			const isDevelopment =
-				process.env["NODE_ENV"] === "development" || process.env["NODE_ENV"] === "test";
-			if (!isLocalhost || !isDevelopment) {
-				throw new Error(
-					"baseUrl must use HTTPS in production. HTTP is only allowed for localhost in development.",
-				);
-			}
-		}
-
 		if (!config.apiKey || config.apiKey.trim().length === 0) {
 			throw new Error(
 				"QNSP Crypto Inventory SDK: apiKey is required. " +
 					"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-					"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+					"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 					"Docs: https://docs.qnsp.cuilabs.io/sdk/crypto-inventory-sdk",
 			);
+		}
+
+		const baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
+
+		// Enforce HTTPS in production (allow HTTP for localhost in development and
+		// for internal service-mesh hostnames — e.g. *.internal — which are on a
+		// private VPC network and do not require TLS termination at the transport layer).
+		if (!baseUrl.startsWith("https://")) {
+			const isLocalhost =
+				baseUrl.startsWith("http://localhost") || baseUrl.startsWith("http://127.0.0.1");
+			let isInternalService = false;
+			try {
+				const parsed = new URL(baseUrl);
+				isInternalService =
+					parsed.protocol === "http:" &&
+					(parsed.hostname.endsWith(".internal") ||
+						parsed.hostname === "localhost" ||
+						parsed.hostname === "127.0.0.1");
+			} catch {
+				// ignore; invalid URL will be caught later by fetch
+			}
+			const isDevelopment =
+				process.env["NODE_ENV"] === "development" || process.env["NODE_ENV"] === "test";
+			if ((!isLocalhost || !isDevelopment) && !isInternalService) {
+				throw new Error(
+					"baseUrl must use HTTPS in production. HTTP is only allowed for localhost in development.",
+				);
+			}
 		}
 
 		this.config = {
@@ -290,6 +698,13 @@ export class CryptoInventoryClient {
 		} catch {
 			this.targetService = "crypto-inventory-service";
 		}
+
+		this.activationConfig = {
+			apiKey: config.apiKey,
+			sdkId: "crypto-inventory-sdk",
+			sdkVersion: SDK_PACKAGE_VERSION,
+			platformUrl: this.config.baseUrl,
+		};
 	}
 
 	private withTenantHeader(tenantId?: string): Record<string, string> {
@@ -315,6 +730,11 @@ export class CryptoInventoryClient {
 		};
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -411,6 +831,7 @@ export class CryptoInventoryClient {
 	 * List cryptographic assets with optional filters.
 	 */
 	async listAssets(request: ListAssetsRequest): Promise<ListAssetsResponse> {
+		await this.ensureActivated();
 		uuidSchema.parse(request.tenantId);
 
 		const params = new URLSearchParams({
@@ -444,6 +865,7 @@ export class CryptoInventoryClient {
 	 * Get a specific asset by ID.
 	 */
 	async getAsset(assetId: string): Promise<CryptoAsset> {
+		await this.ensureActivated();
 		const result = await this.request<{ asset: CryptoAsset }>(
 			"GET",
 			`/crypto/v1/assets/${assetId}`,
@@ -460,6 +882,7 @@ export class CryptoInventoryClient {
 	 * Get asset statistics for a tenant.
 	 */
 	async getAssetStats(tenantId: string): Promise<AssetStats> {
+		await this.ensureActivated();
 		uuidSchema.parse(tenantId);
 		const result = await this.request<{ stats: AssetStats }>(
 			"GET",
@@ -477,6 +900,7 @@ export class CryptoInventoryClient {
 		if (request?.tenantId) {
 			uuidSchema.parse(request.tenantId);
 		}
+		await this.ensureActivated();
 		const result = await this.request<{ runs: DiscoveryRun[] }>(
 			"POST",
 			"/crypto/v1/assets/discover",
@@ -499,9 +923,12 @@ export class CryptoInventoryClient {
 		readonly limit?: number;
 		readonly offset?: number;
 	}): Promise<{ readonly jobs: readonly DiscoveryJob[]; readonly count: number }> {
-		const params = new URLSearchParams();
 		if (options.tenantId) {
 			uuidSchema.parse(options.tenantId);
+		}
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options.tenantId) {
 			params.set("tenantId", options.tenantId);
 		}
 		if (options.status) {
@@ -535,6 +962,7 @@ export class CryptoInventoryClient {
 		readonly jobId: string;
 		readonly tenantId?: string;
 	}): Promise<DiscoveryJob> {
+		await this.ensureActivated();
 		uuidSchema.parse(options.jobId);
 		const params = new URLSearchParams();
 		if (options.tenantId) {
@@ -556,9 +984,12 @@ export class CryptoInventoryClient {
 	 * Get discovery run history.
 	 */
 	async getDiscoveryRuns(tenantId?: string, limit?: number): Promise<readonly DiscoveryRun[]> {
-		const params = new URLSearchParams();
 		if (tenantId) {
 			uuidSchema.parse(tenantId);
+		}
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (tenantId) {
 			params.set("tenantId", tenantId);
 		}
 		if (limit) params.set("limit", String(limit));
@@ -580,6 +1011,7 @@ export class CryptoInventoryClient {
 	 * Delete an asset from the inventory.
 	 */
 	async deleteAsset(assetId: string): Promise<void> {
+		await this.ensureActivated();
 		await this.request<{ success: boolean }>("DELETE", `/crypto/v1/assets/${assetId}`, {
 			operation: "deleteAsset",
 		});
@@ -596,6 +1028,7 @@ export class CryptoInventoryClient {
 		readonly pqcPercentage: number;
 		readonly migrationComplete: boolean;
 	}> {
+		await this.ensureActivated();
 		uuidSchema.parse(tenantId);
 		const stats = await this.getAssetStats(tenantId);
 		const pqcPercentage = stats.totalAssets > 0 ? (stats.pqcAssets / stats.totalAssets) * 100 : 0;
@@ -607,6 +1040,456 @@ export class CryptoInventoryClient {
 			pqcPercentage: Math.round(pqcPercentage * 100) / 100,
 			migrationComplete: stats.classicalAssets === 0 && stats.totalAssets > 0,
 		};
+	}
+
+	/**
+	 * Create or update an algorithm deprecation policy.
+	 */
+	async createDeprecationPolicy(
+		request: CreateDeprecationPolicyRequest,
+	): Promise<DeprecationPolicy> {
+		await this.ensureActivated();
+		const result = await this.request<{ policy: DeprecationPolicy }>(
+			"POST",
+			"/crypto/v1/deprecation/policies",
+			{
+				body: request,
+				headers: this.withTenantHeader(request.tenantId),
+				operation: "createDeprecationPolicy",
+			},
+		);
+		return result.policy;
+	}
+
+	/**
+	 * List algorithm deprecation policies.
+	 */
+	async listDeprecationPolicies(
+		options: ListDeprecationPoliciesRequest = {},
+	): Promise<ListDeprecationPoliciesResponse> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options.tenantId) {
+			uuidSchema.parse(options.tenantId);
+			params.set("tenantId", options.tenantId);
+		}
+		if (options.status) params.set("status", options.status);
+		if (options.severity) params.set("severity", options.severity);
+		if (options.algorithm) params.set("algorithm", options.algorithm);
+		if (options.limit !== undefined) params.set("limit", String(options.limit));
+		if (options.offset !== undefined) params.set("offset", String(options.offset));
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/deprecation/policies?${queryString}`
+			: "/crypto/v1/deprecation/policies";
+
+		return this.request<ListDeprecationPoliciesResponse>("GET", path, {
+			operation: "listDeprecationPolicies",
+			headers: this.withTenantHeader(options.tenantId),
+		});
+	}
+
+	/**
+	 * Get a specific deprecation policy by ID.
+	 */
+	async getDeprecationPolicy(policyId: string, tenantId?: string): Promise<DeprecationPolicy> {
+		await this.ensureActivated();
+		uuidSchema.parse(policyId);
+		const result = await this.request<{ policy: DeprecationPolicy }>(
+			"GET",
+			`/crypto/v1/deprecation/policies/${policyId}`,
+			{
+				operation: "getDeprecationPolicy",
+				headers: this.withTenantHeader(tenantId),
+			},
+		);
+		return result.policy;
+	}
+
+	/**
+	 * Update an existing deprecation policy.
+	 */
+	async updateDeprecationPolicy(
+		policyId: string,
+		updates: UpdateDeprecationPolicyRequest,
+		tenantId?: string,
+	): Promise<DeprecationPolicy> {
+		await this.ensureActivated();
+		uuidSchema.parse(policyId);
+		const result = await this.request<{ policy: DeprecationPolicy }>(
+			"PATCH",
+			`/crypto/v1/deprecation/policies/${policyId}`,
+			{
+				body: updates,
+				headers: this.withTenantHeader(tenantId),
+				operation: "updateDeprecationPolicy",
+			},
+		);
+		return result.policy;
+	}
+
+	/**
+	 * Delete a deprecation policy.
+	 */
+	async deleteDeprecationPolicy(policyId: string, tenantId?: string): Promise<void> {
+		await this.ensureActivated();
+		uuidSchema.parse(policyId);
+		await this.request<void>("DELETE", `/crypto/v1/deprecation/policies/${policyId}`, {
+			operation: "deleteDeprecationPolicy",
+			headers: this.withTenantHeader(tenantId),
+		});
+	}
+
+	/**
+	 * Get assets affected by deprecation policies.
+	 */
+	async getAffectedAssets(
+		options: GetAffectedAssetsRequest = {},
+	): Promise<GetAffectedAssetsResponse> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options.tenantId) {
+			uuidSchema.parse(options.tenantId);
+			params.set("tenantId", options.tenantId);
+		}
+		if (options.severity) params.set("severity", options.severity);
+		if (options.status) params.set("status", options.status);
+		if (options.acknowledged !== undefined)
+			params.set("acknowledged", String(options.acknowledged));
+		if (options.algorithm) params.set("algorithm", options.algorithm);
+		if (options.limit !== undefined) params.set("limit", String(options.limit));
+		if (options.offset !== undefined) params.set("offset", String(options.offset));
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/deprecation/affected-assets?${queryString}`
+			: "/crypto/v1/deprecation/affected-assets";
+
+		return this.request<GetAffectedAssetsResponse>("GET", path, {
+			operation: "getAffectedAssets",
+			headers: this.withTenantHeader(options.tenantId),
+		});
+	}
+
+	/**
+	 * Acknowledge deprecation for specific assets.
+	 */
+	async acknowledgeDeprecation(
+		request: AcknowledgeDeprecationRequest,
+	): Promise<AcknowledgeDeprecationResponse> {
+		await this.ensureActivated();
+		return this.request<AcknowledgeDeprecationResponse>(
+			"POST",
+			"/crypto/v1/deprecation/acknowledge",
+			{
+				body: request,
+				headers: this.withTenantHeader(request.tenantId),
+				operation: "acknowledgeDeprecation",
+			},
+		);
+	}
+
+	/**
+	 * Get deprecation summary for a tenant.
+	 */
+	async getDeprecationSummary(tenantId?: string): Promise<DeprecationSummary> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (tenantId) {
+			uuidSchema.parse(tenantId);
+			params.set("tenantId", tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/deprecation/summary?${queryString}`
+			: "/crypto/v1/deprecation/summary";
+
+		return this.request<DeprecationSummary>("GET", path, {
+			operation: "getDeprecationSummary",
+			headers: this.withTenantHeader(tenantId),
+		});
+	}
+
+	/**
+	 * Register a new hardware security device.
+	 */
+	async registerHardware(request: RegisterHardwareRequest): Promise<HardwareDevice> {
+		await this.ensureActivated();
+		const result = await this.request<{ device: HardwareDevice }>("POST", "/crypto/v1/hardware", {
+			body: request,
+			headers: this.withTenantHeader(request.tenantId),
+			operation: "registerHardware",
+		});
+		return result.device;
+	}
+
+	/**
+	 * List hardware security devices.
+	 */
+	async listHardware(options: ListHardwareRequest = {}): Promise<ListHardwareResponse> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options.tenantId) {
+			uuidSchema.parse(options.tenantId);
+			params.set("tenantId", options.tenantId);
+		}
+		if (options.hardwareType) params.set("hardwareType", options.hardwareType);
+		if (options.status) params.set("status", options.status);
+		if (options.healthStatus) params.set("healthStatus", options.healthStatus);
+		if (options.pqcCapable !== undefined) params.set("pqcCapable", String(options.pqcCapable));
+		if (options.complianceLevel) params.set("complianceLevel", options.complianceLevel);
+		if (options.location) params.set("location", options.location);
+		if (options.limit !== undefined) params.set("limit", String(options.limit));
+		if (options.offset !== undefined) params.set("offset", String(options.offset));
+
+		const queryString = params.toString();
+		const path = queryString ? `/crypto/v1/hardware?${queryString}` : "/crypto/v1/hardware";
+
+		return this.request<ListHardwareResponse>("GET", path, {
+			operation: "listHardware",
+			headers: this.withTenantHeader(options.tenantId),
+		});
+	}
+
+	/**
+	 * Get a specific hardware device by ID.
+	 */
+	async getHardware(hardwareId: string, tenantId?: string): Promise<HardwareDevice> {
+		await this.ensureActivated();
+		uuidSchema.parse(hardwareId);
+		const result = await this.request<{ device: HardwareDevice }>(
+			"GET",
+			`/crypto/v1/hardware/${hardwareId}`,
+			{
+				operation: "getHardware",
+				headers: this.withTenantHeader(tenantId),
+			},
+		);
+		return result.device;
+	}
+
+	/**
+	 * Update a hardware device.
+	 */
+	async updateHardware(
+		hardwareId: string,
+		updates: UpdateHardwareRequest,
+		tenantId?: string,
+	): Promise<HardwareDevice> {
+		await this.ensureActivated();
+		uuidSchema.parse(hardwareId);
+		const result = await this.request<{ device: HardwareDevice }>(
+			"PATCH",
+			`/crypto/v1/hardware/${hardwareId}`,
+			{
+				body: updates,
+				headers: this.withTenantHeader(tenantId),
+				operation: "updateHardware",
+			},
+		);
+		return result.device;
+	}
+
+	/**
+	 * Delete a hardware device.
+	 */
+	async deleteHardware(hardwareId: string, tenantId?: string): Promise<void> {
+		await this.ensureActivated();
+		uuidSchema.parse(hardwareId);
+		await this.request<void>("DELETE", `/crypto/v1/hardware/${hardwareId}`, {
+			operation: "deleteHardware",
+			headers: this.withTenantHeader(tenantId),
+		});
+	}
+
+	/**
+	 * Record a health check for a hardware device.
+	 */
+	async recordHealthCheck(
+		hardwareId: string,
+		healthCheck: RecordHealthCheckRequest,
+		tenantId?: string,
+	): Promise<HealthCheckRecord> {
+		await this.ensureActivated();
+		uuidSchema.parse(hardwareId);
+		const result = await this.request<{ healthCheck: HealthCheckRecord }>(
+			"POST",
+			`/crypto/v1/hardware/${hardwareId}/health`,
+			{
+				body: healthCheck,
+				headers: this.withTenantHeader(tenantId),
+				operation: "recordHealthCheck",
+			},
+		);
+		return result.healthCheck;
+	}
+
+	/**
+	 * Get health check history for a hardware device.
+	 */
+	async getHardwareHealth(
+		hardwareId: string,
+		options: GetHardwareHealthRequest = {},
+	): Promise<GetHardwareHealthResponse> {
+		await this.ensureActivated();
+		uuidSchema.parse(hardwareId);
+		const params = new URLSearchParams();
+		if (options.tenantId) {
+			uuidSchema.parse(options.tenantId);
+			params.set("tenantId", options.tenantId);
+		}
+		if (options.since) params.set("since", options.since);
+		if (options.until) params.set("until", options.until);
+		if (options.limit !== undefined) params.set("limit", String(options.limit));
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/hardware/${hardwareId}/health?${queryString}`
+			: `/crypto/v1/hardware/${hardwareId}/health`;
+
+		return this.request<GetHardwareHealthResponse>("GET", path, {
+			operation: "getHardwareHealth",
+			headers: this.withTenantHeader(options.tenantId),
+		});
+	}
+
+	/**
+	 * Get hardware inventory summary.
+	 */
+	async getInventorySummary(tenantId?: string): Promise<HardwareInventorySummary> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (tenantId) {
+			uuidSchema.parse(tenantId);
+			params.set("tenantId", tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/hardware/summary?${queryString}`
+			: "/crypto/v1/hardware/summary";
+
+		return this.request<HardwareInventorySummary>("GET", path, {
+			operation: "getInventorySummary",
+			headers: this.withTenantHeader(tenantId),
+		});
+	}
+
+	/**
+	 * Get PQC readiness score for a tenant.
+	 */
+	async getReadinessScore(tenantId?: string): Promise<PqcReadinessScore> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (tenantId) {
+			uuidSchema.parse(tenantId);
+			params.set("tenantId", tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/pqc-readiness/score?${queryString}`
+			: "/crypto/v1/pqc-readiness/score";
+
+		const result = await this.request<{ score: PqcReadinessScore }>("GET", path, {
+			operation: "getReadinessScore",
+			headers: this.withTenantHeader(tenantId),
+		});
+		return result.score;
+	}
+
+	/**
+	 * Get PQC readiness score for a specific category.
+	 */
+	async getCategoryScore(category: ReadinessCategory, tenantId?: string): Promise<CategoryScore> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (tenantId) {
+			uuidSchema.parse(tenantId);
+			params.set("tenantId", tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/pqc-readiness/score/category/${category}?${queryString}`
+			: `/crypto/v1/pqc-readiness/score/category/${category}`;
+
+		const result = await this.request<{ categoryScore: CategoryScore }>("GET", path, {
+			operation: "getCategoryScore",
+			headers: this.withTenantHeader(tenantId),
+		});
+		return result.categoryScore;
+	}
+
+	/**
+	 * Get PQC readiness score history.
+	 */
+	async getScoreHistory(options: GetScoreHistoryRequest = {}): Promise<GetScoreHistoryResponse> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options.tenantId) {
+			uuidSchema.parse(options.tenantId);
+			params.set("tenantId", options.tenantId);
+		}
+		if (options.since) params.set("since", options.since);
+		if (options.until) params.set("until", options.until);
+		if (options.limit !== undefined) params.set("limit", String(options.limit));
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/pqc-readiness/score/history?${queryString}`
+			: "/crypto/v1/pqc-readiness/score/history";
+
+		return this.request<GetScoreHistoryResponse>("GET", path, {
+			operation: "getScoreHistory",
+			headers: this.withTenantHeader(options.tenantId),
+		});
+	}
+
+	/**
+	 * Get PQC readiness recommendations.
+	 */
+	async getRecommendations(tenantId?: string): Promise<ReadinessRecommendations> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (tenantId) {
+			uuidSchema.parse(tenantId);
+			params.set("tenantId", tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/pqc-readiness/recommendations?${queryString}`
+			: "/crypto/v1/pqc-readiness/recommendations";
+
+		return this.request<ReadinessRecommendations>("GET", path, {
+			operation: "getRecommendations",
+			headers: this.withTenantHeader(tenantId),
+		});
+	}
+
+	/**
+	 * Get PQC readiness benchmark comparison.
+	 */
+	async getBenchmark(tenantId?: string): Promise<ReadinessBenchmark> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (tenantId) {
+			uuidSchema.parse(tenantId);
+			params.set("tenantId", tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/crypto/v1/pqc-readiness/benchmark?${queryString}`
+			: "/crypto/v1/pqc-readiness/benchmark";
+
+		return this.request<ReadinessBenchmark>("GET", path, {
+			operation: "getBenchmark",
+			headers: this.withTenantHeader(tenantId),
+		});
 	}
 }
 

@@ -1,11 +1,14 @@
 {
 	"name": "@qnsp/kms-client",
-	"version": "0.2.0",
+	"version": "0.2.4",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
+	"engines": {
+		"node": ">=24.12.0"
+	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {
@@ -22,15 +25,49 @@
 		"typecheck": "tsc --project tsconfig.json --noEmit"
 	},
 	"devDependencies": {
-		"@types/node": "^25.0.9",
-		"typescript": "^5.9.3",
-		"vitest": "4.0.17"
+		"@types/node": "^25.5.2",
+		"typescript": "^6.0.2",
+		"vitest": "4.1.2"
 	},
 	"dependencies": {
-		"@opentelemetry/api": "^1.9.0",
-		"@opentelemetry/exporter-metrics-otlp-http": "^0.210.0",
-		"@opentelemetry/resources": "^2.4.0",
-		"@opentelemetry/sdk-metrics": "^2.4.0",
-		"zod": "^4.3.5"
+		"@opentelemetry/api": "^1.9.1",
+		"@opentelemetry/exporter-metrics-otlp-http": "^0.214.0",
+		"@opentelemetry/resources": "^2.6.1",
+		"@opentelemetry/sdk-metrics": "^2.6.1",
+		"@qnsp/sdk-activation": "workspace:*",
+		"zod": "^4.3.6"
+	},
+	"keywords": [
+		"qnsp",
+		"kms",
+		"key-management",
+		"pqc",
+		"post-quantum",
+		"post-quantum-cryptography",
+		"ml-kem",
+		"ml-dsa",
+		"slh-dsa",
+		"cryptography",
+		"hsm",
+		"nist",
+		"fips-203",
+		"fips-204",
+		"fips-205",
+		"kyber",
+		"dilithium",
+		"quantum-safe",
+		"quantum-resistant",
+		"zero-trust",
+		"typescript",
+		"nodejs"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/kms-client"
+	},
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
 	}
 }

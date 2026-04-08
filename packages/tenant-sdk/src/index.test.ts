@@ -1,9 +1,15 @@
-import { describe, expect, it, vi } from "vitest";
+import { clearActivationCache } from "@qnsp/sdk-activation";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TenantClient } from "./index.js";
 
 describe("TenantClient Security Tests", () => {
 	const mockFetch = vi.fn();
 	global.fetch = mockFetch;
+
+	beforeEach(() => {
+		clearActivationCache();
+		vi.clearAllMocks();
+	});
 
 	describe("HTTPS Enforcement", () => {
 		it("should reject HTTP URLs in production", () => {
@@ -65,6 +71,43 @@ describe("TenantClient Security Tests", () => {
 		});
 
 		it("should not expose sensitive data in error messages", async () => {
+			// activation mock (first network call per client instance)
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				headers: new Headers(),
+				json: async () => ({
+					activated: true,
+					tenantId: "a1b2c3d4-e5f6-4789-8abc-def012345678",
+					tier: "dev-pro",
+					activationToken: "tok_test",
+					expiresInSeconds: 3600,
+					activatedAt: new Date().toISOString(),
+					limits: {
+						storageGB: 50,
+						apiCalls: 100_000,
+						enclavesEnabled: false,
+						aiTrainingEnabled: false,
+						aiInferenceEnabled: true,
+						sseEnabled: true,
+						vaultEnabled: true,
+					},
+				}),
+			});
+			mockFetch.mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				statusText: "Internal Server Error",
+				headers: new Headers(),
+				text: async () =>
+					JSON.stringify({
+						error: "Database connection failed",
+						stack: "at TenantService.getTenant()",
+						apiKey: "api_key_example_123",
+						password: "secret123",
+					}),
+			});
+			// second call in the IIFE below — activationPromise already resolved
 			mockFetch.mockResolvedValueOnce({
 				ok: false,
 				status: 500,
@@ -108,6 +151,30 @@ describe("TenantClient Security Tests", () => {
 		});
 
 		it("should retry on 429 with Retry-After header", async () => {
+			// activation mock consumed before mockImplementation kicks in
+			mockFetch.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				headers: new Headers(),
+				json: async () => ({
+					activated: true,
+					tenantId: "a1b2c3d4-e5f6-4789-8abc-def012345678",
+					tier: "dev-pro",
+					activationToken: "tok_test",
+					expiresInSeconds: 3600,
+					activatedAt: new Date().toISOString(),
+					limits: {
+						storageGB: 50,
+						apiCalls: 100_000,
+						enclavesEnabled: false,
+						aiTrainingEnabled: false,
+						aiInferenceEnabled: true,
+						sseEnabled: true,
+						vaultEnabled: true,
+					},
+				}),
+			});
+
 			let attemptCount = 0;
 			mockFetch.mockImplementation(async () => {
 				attemptCount++;

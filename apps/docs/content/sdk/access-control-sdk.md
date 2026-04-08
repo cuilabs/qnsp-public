@@ -1,8 +1,8 @@
 ---
 title: Access Control SDK (@qnsp/access-control-sdk)
-version: 0.1.0
-last_updated: 2026-02-16
-copyright: © 2025 CUI Labs. All rights reserved.
+version: 0.3.1
+last_updated: 2026-03-20
+copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
   - /packages/access-control-sdk/src/index.ts
@@ -101,6 +101,188 @@ await accessControl.revokeCapability({
 });
 ```
 
+## Policy Simulation
+
+Test policy changes before deployment with what-if analysis.
+
+```ts
+// Simulate a single access request
+const result = await accessControl.simulateAccess({
+	subject: { type: "user", id: "<user_uuid>" },
+	resource: { type: "storage", id: "documents/secret.pdf" },
+	action: "storage:read",
+	context: { ipAddress: "10.0.0.5", environment: "production" },
+	proposedPolicies: [
+		{
+			name: "new-deny-policy",
+			effect: "deny",
+			actions: ["storage:*"],
+			resources: ["storage:documents/secret*"],
+		},
+	],
+});
+
+console.log(result.decision); // "allow" | "deny" | "no_match"
+console.log(result.matchedPolicies); // policies that matched
+console.log(result.decisionReason);
+
+// Batch simulation for multiple requests
+const batchResult = await accessControl.batchSimulate([
+	{ subject: { type: "user", id: "user-1" }, resource: { type: "storage", id: "doc-1" }, action: "read" },
+	{ subject: { type: "user", id: "user-2" }, resource: { type: "storage", id: "doc-2" }, action: "write" },
+]);
+
+console.log(batchResult.summary.allowed);
+console.log(batchResult.summary.denied);
+
+// Analyze impact of a policy change
+const impact = await accessControl.analyzeImpact({
+	proposedChange: {
+		type: "remove",
+		policyId: "<policy_uuid>",
+	},
+	scope: { sampleSize: 100 },
+});
+
+console.log(impact.impact.totalAffected);
+console.log(impact.riskAssessment.level); // "low" | "medium" | "high"
+console.log(impact.riskAssessment.recommendation);
+
+// Get simulation history
+const history = await accessControl.getSimulationHistory({ limit: 50 });
+```
+
+## Just-In-Time (JIT) Access
+
+Time-limited elevated access with approval workflows.
+
+```ts
+// Request JIT access
+const jitRequest = await accessControl.requestJitAccess({
+	resourceType: "database",
+	resourceId: "production-db",
+	permissions: ["read", "write"],
+	justification: "Investigating production incident INC-12345",
+	durationMinutes: 60,
+	ticketId: "INC-12345",
+	urgency: "high",
+});
+
+console.log(jitRequest.status); // "pending_approval" | "approved" | "auto_approved"
+console.log(jitRequest.expiresAt);
+
+// List JIT requests
+const requests = await accessControl.listJitRequests({
+	status: "pending_approval",
+	limit: 20,
+});
+
+// Process (approve/deny) a JIT request
+const processed = await accessControl.processJitRequest("<request_uuid>", {
+	decision: "approve",
+	comment: "Approved for incident response",
+	modifiedDuration: 30, // reduce to 30 minutes
+});
+
+// Get user's active JIT grants
+const grants = await accessControl.getUserJitGrants("<user_uuid>");
+for (const grant of grants.activeGrants) {
+	console.log(`${grant.resourceType}/${grant.resourceId}: ${grant.remainingMinutes} min left`);
+}
+
+// Check if user has JIT access
+const access = await accessControl.checkJitAccess(
+	"<user_uuid>",
+	"database",
+	"production-db",
+	"write"
+);
+
+if (access.hasAccess) {
+	console.log(`Access granted until ${access.expiresAt}`);
+}
+
+// Revoke a JIT grant
+await accessControl.revokeJitGrant("<grant_uuid>", "Security review required");
+
+// Create a JIT policy
+await accessControl.createJitPolicy({
+	name: "database-jit-policy",
+	resourcePattern: "database/%",
+	maxDurationMinutes: 120,
+	requireApproval: true,
+	approvers: ["security-team@example.com"],
+	autoApproveConditions: {
+		maxDurationMinutes: 15,
+		requiredTicketSystem: true,
+	},
+	notifyOnGrant: true,
+	notifyOnExpiry: true,
+});
+
+// List JIT policies
+const policies = await accessControl.listJitPolicies();
+
+// Get JIT statistics
+const stats = await accessControl.getJitStats();
+console.log(`Approval rate: ${stats.last30Days.approvalRate}%`);
+console.log(`Active grants: ${stats.activeGrants}`);
+```
+
+## Cross-Tenant Analysis
+
+Analyze access patterns and policies across tenants (platform admin).
+
+```ts
+// Get cross-tenant overview
+const overview = await accessControl.getCrossTenantOverview({
+	tenantIds: ["tenant-1", "tenant-2"],
+	timeRange: { lastHours: 24 },
+	includeMetrics: true,
+});
+
+console.log(overview.tenantCount);
+console.log(overview.aggregates.totalPolicies);
+
+// Compare policies across tenants
+const comparison = await accessControl.comparePolicies(
+	["tenant-1", "tenant-2", "tenant-3"],
+	"effect" // compare by: "effect" | "actions" | "resources" | "category"
+);
+
+console.log(`Fully shared: ${comparison.summary.fullyShared}`);
+console.log(`Unique policies: ${comparison.summary.unique}`);
+
+// Query access anomalies
+const anomalies = await accessControl.queryAnomalies({
+	anomalyTypes: ["privilege_escalation", "cross_tenant_violation"],
+	minSeverity: "medium",
+	limit: 100,
+});
+
+for (const anomaly of anomalies.anomalies) {
+	console.log(`${anomaly.severity}: ${anomaly.description}`);
+}
+
+// Get cross-tenant access graph
+const graph = await accessControl.getCrossTenantGraph({
+	depth: 2,
+	includeExpired: false,
+});
+
+console.log(`Nodes: ${graph.statistics.totalNodes}`);
+console.log(`Edges: ${graph.statistics.totalEdges}`);
+
+// Run tenant isolation audit
+const audit = await accessControl.runIsolationAudit("<tenant_uuid>");
+
+console.log(audit.isolationStatus); // "healthy" | "violations_found"
+if (audit.crossTenantViolations.length > 0) {
+	console.log("Violations found:", audit.crossTenantViolations);
+	console.log("Recommendations:", audit.recommendations);
+}
+```
+
 ## PQC Algorithm Information
 
 The Access Control SDK exports the full 90-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
@@ -140,14 +322,38 @@ console.log(ALGORITHM_TO_NIST);
 ## Key APIs
 
 ### Policy Management
-- `AccessControlClient.createPolicy(request)`
-- `AccessControlClient.getPolicy(policyId)`
-- `AccessControlClient.listPolicies(tenantId, options?)`
+- `AccessControlClient.createPolicy(request)` - Create a policy
+- `AccessControlClient.getPolicy(policyId)` - Get policy by ID
+- `AccessControlClient.listPolicies(tenantId, options?)` - List tenant policies
 
 ### Capability Tokens
 - `AccessControlClient.issueCapability(request)` - Issue PQC-signed token
 - `AccessControlClient.introspectCapability(request)` - Validate token
 - `AccessControlClient.revokeCapability(request)` - Revoke token
+
+### Policy Simulation
+- `AccessControlClient.simulateAccess(input, options?)` - Simulate policy access
+- `AccessControlClient.batchSimulate(requests, options?)` - Batch simulation
+- `AccessControlClient.analyzeImpact(input, options?)` - Analyze policy change impact
+- `AccessControlClient.getSimulationHistory(options?)` - Get simulation history
+
+### Just-In-Time Access
+- `AccessControlClient.requestJitAccess(input, options?)` - Request JIT access
+- `AccessControlClient.listJitRequests(options?)` - List JIT requests
+- `AccessControlClient.processJitRequest(requestId, input, options?)` - Approve/deny request
+- `AccessControlClient.getUserJitGrants(userId, options?)` - Get user's active grants
+- `AccessControlClient.checkJitAccess(userId, resourceType, resourceId, permission, options?)` - Check JIT access
+- `AccessControlClient.revokeJitGrant(grantId, reason, options?)` - Revoke grant
+- `AccessControlClient.createJitPolicy(input, options?)` - Create JIT policy
+- `AccessControlClient.listJitPolicies(options?)` - List JIT policies
+- `AccessControlClient.getJitStats(options?)` - Get JIT statistics
+
+### Cross-Tenant Analysis
+- `AccessControlClient.getCrossTenantOverview(query?)` - Cross-tenant overview
+- `AccessControlClient.comparePolicies(tenantIds, compareBy?)` - Compare policies
+- `AccessControlClient.queryAnomalies(query?)` - Query anomalies
+- `AccessControlClient.getCrossTenantGraph(options?)` - Access graph
+- `AccessControlClient.runIsolationAudit(tenantId?)` - Isolation audit
 
 ### Utilities
 - `toNistAlgorithmName(algorithm)` - Convert internal to NIST name
@@ -158,3 +364,9 @@ console.log(ALGORITHM_TO_NIST);
 - `PolicyStatement` - Effect, actions, resources, conditions
 - `IssueCapabilityResponse` - Token with PQC signature metadata
 - `IntrospectCapabilityResponse` - Token validation result
+- `SimulateAccessResult` - Simulation result with decision and matched policies
+- `ImpactAnalysisResult` - Impact analysis with risk assessment
+- `JitAccessRequestResult` - JIT request result
+- `JitStats` - JIT statistics
+- `CrossTenantOverviewResult` - Cross-tenant metrics
+- `IsolationAuditResult` - Isolation audit result

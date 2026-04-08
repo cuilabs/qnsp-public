@@ -1,0 +1,71 @@
+{
+	"name": "@qnsp/llamaindex-qnsp",
+	"version": "0.2.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"license": "Apache-2.0",
+	"description": "LlamaIndex adapters for QNSP — encrypted vector store and document storage backed by QNSP search and storage services.",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"test:integration": "vitest run --config vitest.integration.config.ts",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@qnsp/search-sdk": "workspace:*",
+		"@qnsp/storage-sdk": "workspace:*",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"vitest": "4.1.2"
+	},
+	"peerDependencies": {
+		"llamaindex": ">=0.5.0"
+	},
+	"peerDependenciesMeta": {
+		"llamaindex": {
+			"optional": true
+		}
+	},
+	"engines": {
+		"node": ">=24.12.0"
+	},
+	"keywords": [
+		"qnsp",
+		"llamaindex",
+		"pqc",
+		"post-quantum",
+		"vector-store",
+		"encrypted-search",
+		"sse-x",
+		"ai-agents",
+		"governed-ai",
+		"typescript"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/llamaindex-qnsp"
+	},
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"files": [
+		"dist/**/*",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	]
+}

@@ -20,7 +20,7 @@ QNSP was conceived, architected, and engineered starting in Dec 2020. The curren
 
 ## What QNSP Provides
 
-- **Identity & Auth**: PQC-signed JWTs (Dilithium), refresh tokens, service accounts, RBAC
+- **Identity & Auth**: PQC-signed JWTs (ML-DSA), refresh tokens, service accounts, RBAC, WebAuthn passkeys, OAuth social sign-in (GitHub, Google)
 - **KMS**: Key generation, rotation, BYOK import
 - **Secrets**: Secure storage with TTL and rotation
 - **Storage**: Encryption at rest

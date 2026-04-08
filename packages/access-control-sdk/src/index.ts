@@ -1,5 +1,7 @@
 import { performance } from "node:perf_hooks";
 
+import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+
 import type {
 	AccessControlClientTelemetry,
 	AccessControlClientTelemetryConfig,
@@ -9,6 +11,7 @@ import {
 	createAccessControlClientTelemetry,
 	isAccessControlClientTelemetry,
 } from "./observability.js";
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 import { validateUUID } from "./validation.js";
 
 /**
@@ -139,8 +142,11 @@ export function toNistAlgorithmName(algorithm: string): string {
 	return ALGORITHM_TO_NIST[algorithm] ?? algorithm;
 }
 
+/** Default QNSP cloud API base URL. Get a free API key at https://cloud.qnsp.cuilabs.io/signup */
+export const DEFAULT_BASE_URL = "https://api.qnsp.cuilabs.io";
+
 export interface AccessControlClientConfig {
-	readonly baseUrl: string;
+	readonly baseUrl?: string;
 	readonly apiKey: string;
 	readonly timeoutMs?: number;
 	readonly maxRetries?: number;
@@ -308,6 +314,448 @@ export interface RevokeCapabilityResponse {
 	readonly reason?: string | null;
 }
 
+/**
+ * Policy Simulation Types
+ */
+
+export interface SimulationSubject {
+	readonly type: "user" | "service" | "group";
+	readonly id: string;
+	readonly attributes?: Record<string, unknown>;
+}
+
+export interface SimulationResource {
+	readonly type: string;
+	readonly id: string;
+	readonly attributes?: Record<string, unknown>;
+}
+
+export interface SimulationContext {
+	readonly ipAddress?: string;
+	readonly timestamp?: string;
+	readonly environment?: string;
+	readonly customAttributes?: Record<string, unknown>;
+}
+
+export interface ProposedPolicy {
+	readonly id?: string;
+	readonly name: string;
+	readonly effect: "allow" | "deny";
+	readonly actions: readonly string[];
+	readonly resources: readonly string[];
+	readonly conditions?: Record<string, unknown>;
+}
+
+export interface SimulateAccessInput {
+	readonly subject: SimulationSubject;
+	readonly resource: SimulationResource;
+	readonly action: string;
+	readonly context?: SimulationContext;
+	readonly proposedPolicies?: readonly ProposedPolicy[];
+}
+
+export interface MatchedPolicy {
+	readonly policyId: string;
+	readonly policyName: string;
+	readonly effect: string;
+	readonly matchReason: string;
+	readonly isProposed: boolean;
+}
+
+export interface SimulateAccessResult {
+	readonly decision: "allow" | "deny" | "no_match";
+	readonly decisionReason: string;
+	readonly matchedPolicies: readonly MatchedPolicy[];
+	readonly totalPoliciesEvaluated: number;
+	readonly proposedPoliciesIncluded: number;
+}
+
+export interface BatchSimulateRequest {
+	readonly requests: readonly SimulateAccessInput[];
+	readonly policySetId?: string;
+}
+
+export interface BatchSimulationResultItem {
+	readonly request: SimulateAccessInput;
+	readonly decision: "allow" | "deny" | "no_match";
+	readonly matchedPoliciesCount: number;
+}
+
+export interface BatchSimulateResult {
+	readonly results: readonly BatchSimulationResultItem[];
+	readonly summary: {
+		readonly totalRequests: number;
+		readonly allowed: number;
+		readonly denied: number;
+		readonly noMatch: number;
+	};
+}
+
+export interface PolicyChangeType {
+	readonly type: "add" | "modify" | "remove";
+	readonly policyId?: string;
+	readonly policy?: {
+		readonly name: string;
+		readonly effect: "allow" | "deny";
+		readonly actions: readonly string[];
+		readonly resources: readonly string[];
+		readonly conditions?: Record<string, unknown>;
+	};
+}
+
+export interface ImpactAnalysisScope {
+	readonly subjectTypes?: readonly string[];
+	readonly resourceTypes?: readonly string[];
+	readonly sampleSize?: number;
+}
+
+export interface AnalyzeImpactInput {
+	readonly proposedChange: PolicyChangeType;
+	readonly scope?: ImpactAnalysisScope;
+}
+
+export interface AffectedCapability {
+	readonly capabilityId: string;
+	readonly subjectType: string;
+	readonly subjectId: string;
+	readonly currentEffect: string;
+	readonly proposedEffect: string | null;
+	readonly impactType: "revoked" | "modified" | "unchanged" | "new_grant";
+}
+
+export interface ImpactAnalysisResult {
+	readonly analysisId: string;
+	readonly proposedChange: PolicyChangeType;
+	readonly impact: {
+		readonly totalAffected: number;
+		readonly byType: {
+			readonly revoked: number;
+			readonly modified: number;
+		};
+		readonly affectedCapabilities: readonly AffectedCapability[];
+	};
+	readonly riskAssessment: {
+		readonly level: "low" | "medium" | "high";
+		readonly recommendation: string;
+	};
+}
+
+export interface SimulationHistoryItem {
+	readonly id: string;
+	readonly subject: SimulationSubject;
+	readonly resource: SimulationResource;
+	readonly action: string;
+	readonly decision: "allow" | "deny" | "no_match";
+	readonly matchedPoliciesCount: number;
+	readonly proposedCount: number;
+	readonly createdAt: string;
+}
+
+export interface SimulationHistoryResult {
+	readonly simulations: readonly SimulationHistoryItem[];
+}
+
+/**
+ * Just-In-Time (JIT) Access Types
+ */
+
+export type JitUrgency = "low" | "medium" | "high" | "critical";
+
+export type JitRequestStatus =
+	| "pending_approval"
+	| "approved"
+	| "auto_approved"
+	| "denied"
+	| "expired"
+	| "revoked";
+
+export interface RequestJitAccessInput {
+	readonly resourceType: string;
+	readonly resourceId: string;
+	readonly permissions: readonly string[];
+	readonly justification: string;
+	readonly durationMinutes?: number;
+	readonly ticketId?: string;
+	readonly urgency?: JitUrgency;
+}
+
+export interface JitAccessRequestResult {
+	readonly id: string;
+	readonly status: JitRequestStatus;
+	readonly resourceType: string;
+	readonly resourceId: string;
+	readonly permissions: readonly string[];
+	readonly durationMinutes: number;
+	readonly approvedAt: string | null;
+	readonly expiresAt: string | null;
+	readonly policyApplied: string | null;
+}
+
+export interface JitRequest {
+	readonly id: string;
+	readonly requesterId: string;
+	readonly resourceType: string;
+	readonly resourceId: string;
+	readonly permissions: readonly string[];
+	readonly justification: string;
+	readonly durationMinutes: number;
+	readonly ticketId: string | null;
+	readonly urgency: JitUrgency;
+	readonly status: JitRequestStatus;
+	readonly approvedAt: string | null;
+	readonly expiresAt: string | null;
+	readonly createdAt: string;
+}
+
+export interface ListJitRequestsResult {
+	readonly requests: readonly JitRequest[];
+}
+
+export interface ProcessJitRequestInput {
+	readonly decision: "approve" | "deny";
+	readonly comment?: string;
+	readonly modifiedDuration?: number;
+	readonly modifiedPermissions?: readonly string[];
+}
+
+export interface ProcessJitRequestResult {
+	readonly id: string;
+	readonly status: "approved" | "denied";
+	readonly processedBy: string;
+	readonly processedAt: string;
+	readonly expiresAt: string | null;
+	readonly finalPermissions: readonly string[];
+	readonly finalDurationMinutes: number;
+}
+
+export interface JitGrant {
+	readonly id: string;
+	readonly requestId: string;
+	readonly resourceType: string;
+	readonly resourceId: string;
+	readonly permissions: readonly string[];
+	readonly grantedAt: string;
+	readonly expiresAt: string;
+	readonly remainingMinutes: number;
+}
+
+export interface UserJitGrantsResult {
+	readonly activeGrants: readonly JitGrant[];
+}
+
+export interface CheckJitAccessResult {
+	readonly hasAccess: boolean;
+	readonly grantId?: string;
+	readonly expiresAt?: string;
+	readonly remainingMinutes?: number;
+}
+
+export interface RevokeJitGrantResult {
+	readonly id: string;
+	readonly status: "revoked";
+	readonly revokedAt: string;
+	readonly revokedBy: string;
+	readonly reason: string;
+}
+
+export interface JitAutoApproveConditions {
+	readonly maxDurationMinutes?: number;
+	readonly allowedPermissions?: readonly string[];
+	readonly requiredTicketSystem?: boolean;
+}
+
+export interface CreateJitPolicyInput {
+	readonly name: string;
+	readonly resourcePattern: string;
+	readonly maxDurationMinutes?: number;
+	readonly requireApproval?: boolean;
+	readonly approvers?: readonly string[];
+	readonly autoApproveConditions?: JitAutoApproveConditions;
+	readonly notifyOnGrant?: boolean;
+	readonly notifyOnExpiry?: boolean;
+}
+
+export interface JitPolicy {
+	readonly id: string;
+	readonly name: string;
+	readonly resourcePattern: string;
+	readonly maxDurationMinutes: number;
+	readonly requireApproval: boolean;
+	readonly approvers: readonly string[];
+	readonly autoApproveConditions: JitAutoApproveConditions;
+	readonly enabled: boolean;
+	readonly createdAt: string;
+}
+
+export interface ListJitPoliciesResult {
+	readonly policies: readonly JitPolicy[];
+}
+
+export interface JitStats {
+	readonly last30Days: {
+		readonly requestsByStatus: Record<string, number>;
+		readonly totalRequests: number;
+		readonly approvalRate: number;
+	};
+	readonly activeGrants: number;
+	readonly averageDurationMinutes: number;
+}
+
+/**
+ * Cross-Tenant Analysis Types
+ */
+
+export interface CrossTenantTimeRange {
+	readonly start?: string;
+	readonly end?: string;
+	readonly lastHours?: number;
+}
+
+export interface CrossTenantOverviewQuery {
+	readonly tenantIds?: readonly string[];
+	readonly timeRange?: CrossTenantTimeRange;
+	readonly includeMetrics?: boolean;
+}
+
+export interface TenantMetrics {
+	readonly policyCount: number;
+	readonly categoryCount: number;
+	readonly denyPolicies: number;
+	readonly allowPolicies: number;
+	readonly totalCapabilities: number;
+	readonly activeCapabilities: number;
+	readonly revokedCapabilities: number;
+}
+
+export interface CrossTenantOverviewResult {
+	readonly tenantCount: number;
+	readonly tenants: Record<string, TenantMetrics>;
+	readonly aggregates: {
+		readonly totalPolicies: number;
+		readonly totalCapabilities: number;
+		readonly totalActiveCapabilities: number;
+	};
+}
+
+export type PolicyCompareBy = "effect" | "actions" | "resources" | "category";
+
+export interface ComparePoliciesInput {
+	readonly tenantIds: readonly string[];
+	readonly compareBy?: PolicyCompareBy;
+}
+
+export interface PolicyComparisonItem {
+	readonly policyName: string;
+	readonly presentIn: readonly string[];
+	readonly missingFrom: readonly string[];
+	readonly differences: readonly {
+		readonly tenantId: string;
+		readonly value: unknown;
+	}[];
+}
+
+export interface ComparePoliciesResult {
+	readonly tenantIds: readonly string[];
+	readonly compareBy: PolicyCompareBy;
+	readonly totalUniquePolicies: number;
+	readonly comparison: readonly PolicyComparisonItem[];
+	readonly summary: {
+		readonly fullyShared: number;
+		readonly partiallyShared: number;
+		readonly unique: number;
+	};
+}
+
+export type AnomalyType =
+	| "unusual_access_time"
+	| "cross_tenant_violation"
+	| "privilege_escalation"
+	| "dormant_account_access"
+	| "high_frequency_access";
+
+export type AnomalySeverity = "low" | "medium" | "high" | "critical";
+
+export interface QueryAnomaliesInput {
+	readonly anomalyTypes?: readonly AnomalyType[];
+	readonly minSeverity?: AnomalySeverity;
+	readonly limit?: number;
+}
+
+export interface AccessAnomaly {
+	readonly id: string;
+	readonly tenantId: string;
+	readonly anomalyType: AnomalyType;
+	readonly severity: AnomalySeverity;
+	readonly subjectType: string;
+	readonly subjectId: string;
+	readonly resourceType: string | null;
+	readonly resourceId: string | null;
+	readonly description: string;
+	readonly context: Record<string, unknown>;
+	readonly detectedAt: string;
+	readonly acknowledged: boolean;
+}
+
+export interface QueryAnomaliesResult {
+	readonly anomalies: readonly AccessAnomaly[];
+	readonly statistics: {
+		readonly total: number;
+		readonly bySeverity: Record<string, number>;
+		readonly byType: Record<string, number>;
+		readonly byTenant: Record<string, number>;
+		readonly unacknowledged: number;
+	};
+}
+
+export interface CrossTenantGraphNode {
+	readonly id: string;
+	readonly type: string;
+}
+
+export interface CrossTenantGraphEdge {
+	readonly source: string;
+	readonly sourceType: string;
+	readonly target: string;
+	readonly targetType: string;
+	readonly capabilityCount: number;
+	readonly policyIds: readonly string[];
+}
+
+export interface CrossTenantGraphResult {
+	readonly nodes: readonly CrossTenantGraphNode[];
+	readonly edges: readonly CrossTenantGraphEdge[];
+	readonly statistics: {
+		readonly totalNodes: number;
+		readonly totalEdges: number;
+		readonly tenantCount: number;
+		readonly subjectCount: number;
+	};
+}
+
+export interface IsolationViolation {
+	readonly capabilityTenant: string;
+	readonly policyTenant: string;
+	readonly subjectType: string;
+	readonly subjectId: string;
+	readonly count: number;
+	readonly severity: string;
+	readonly recommendation: string;
+}
+
+export interface SharedPolicyInfo {
+	readonly policyName: string;
+	readonly tenants: readonly string[];
+	readonly note: string;
+}
+
+export interface IsolationAuditResult {
+	readonly isolationStatus: "healthy" | "violations_found";
+	readonly crossTenantViolations: readonly IsolationViolation[];
+	readonly sharedPolicyNames: readonly SharedPolicyInfo[];
+	readonly recommendations: readonly string[];
+	readonly auditedAt: string;
+}
+
 interface RequestOptions {
 	readonly body?: unknown;
 	readonly headers?: Record<string, string>;
@@ -321,6 +769,19 @@ export class AccessControlClient {
 	private readonly config: InternalAccessControlClientConfig;
 	private readonly telemetry: AccessControlClientTelemetry | null;
 	private readonly targetService: string;
+	private activationPromise: Promise<void> | null = null;
+	private readonly activationConfig: SdkActivationConfig | null;
+	private resolvedTenantId: string | null = null;
+
+	private async ensureActivated(): Promise<void> {
+		if (!this.activationConfig) return;
+		if (!this.activationPromise) {
+			this.activationPromise = activateSdk(this.activationConfig).then((response) => {
+				this.resolvedTenantId = response.tenantId;
+			});
+		}
+		return this.activationPromise;
+	}
 
 	private static isPrivateIpv4(hostname: string): boolean {
 		const m = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
@@ -349,12 +810,12 @@ export class AccessControlClient {
 			throw new Error(
 				"QNSP Access Control SDK: apiKey is required. " +
 					"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-					"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+					"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 					"Docs: https://docs.qnsp.cuilabs.io/sdk/access-control-sdk",
 			);
 		}
 
-		const baseUrl = config.baseUrl.replace(/\/$/, "");
+		const baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
 
 		// Enforce HTTPS in production (allow HTTP only for localhost in development)
 		if (!baseUrl.startsWith("https://")) {
@@ -397,6 +858,23 @@ export class AccessControlClient {
 		} catch {
 			this.targetService = "access-control-service";
 		}
+
+		// Skip activation for internal service-to-service calls
+		let isInternal = false;
+		try {
+			const parsed = new URL(this.config.baseUrl);
+			isInternal = AccessControlClient.isInternalServiceHostname(parsed.hostname);
+		} catch {
+			// ignore
+		}
+		this.activationConfig = isInternal
+			? null
+			: {
+					apiKey: config.apiKey,
+					sdkId: "access-control-sdk",
+					sdkVersion: SDK_PACKAGE_VERSION,
+					platformUrl: this.config.baseUrl,
+				};
 	}
 
 	private async request<T>(method: string, path: string, options?: RequestOptions): Promise<T> {
@@ -416,6 +894,11 @@ export class AccessControlClient {
 		};
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -521,6 +1004,7 @@ export class AccessControlClient {
 	 * Create a new access policy.
 	 */
 	async createPolicy(request: CreatePolicyRequest): Promise<AccessPolicy> {
+		await this.ensureActivated();
 		validateUUID(request.tenantId, "tenantId");
 
 		return this.request<AccessPolicy>("POST", "/access/v1/policies", {
@@ -543,6 +1027,7 @@ export class AccessControlClient {
 	 * Get a policy by ID.
 	 */
 	async getPolicy(policyId: string): Promise<AccessPolicy> {
+		await this.ensureActivated();
 		validateUUID(policyId, "policyId");
 
 		return this.request<AccessPolicy>("GET", `/access/v1/policies/${policyId}`, {
@@ -561,6 +1046,7 @@ export class AccessControlClient {
 			readonly cursor?: string;
 		},
 	): Promise<ListPoliciesResult> {
+		await this.ensureActivated();
 		validateUUID(tenantId, "tenantId");
 
 		const params = new URLSearchParams();
@@ -585,6 +1071,7 @@ export class AccessControlClient {
 	 * Issue a capability token based on a policy.
 	 */
 	async issueCapability(request: IssueCapabilityRequest): Promise<IssueCapabilityResponse> {
+		await this.ensureActivated();
 		validateUUID(request.tenantId, "tenantId");
 		validateUUID(request.policyId, "policyId");
 
@@ -607,6 +1094,7 @@ export class AccessControlClient {
 	async introspectCapability(
 		request: IntrospectCapabilityRequest,
 	): Promise<IntrospectCapabilityResponse> {
+		await this.ensureActivated();
 		return this.request<IntrospectCapabilityResponse>(
 			"POST",
 			"/access/v1/capabilities/introspect",
@@ -623,6 +1111,7 @@ export class AccessControlClient {
 	 * Revoke a capability token.
 	 */
 	async revokeCapability(request: RevokeCapabilityRequest): Promise<RevokeCapabilityResponse> {
+		await this.ensureActivated();
 		validateUUID(request.tokenId, "tokenId");
 
 		return this.request<RevokeCapabilityResponse>(
@@ -637,6 +1126,481 @@ export class AccessControlClient {
 				telemetryRoute: "/access/v1/capabilities/:tokenId/revoke",
 			},
 		);
+	}
+
+	/**
+	 * Simulate an access request against current and/or proposed policies.
+	 * Returns the decision, matched policies, and reasoning.
+	 */
+	async simulateAccess(
+		input: SimulateAccessInput,
+		options?: { readonly tenantId?: string },
+	): Promise<SimulateAccessResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/simulate${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<SimulateAccessResult>("POST", path, {
+			body: {
+				subject: input.subject,
+				resource: input.resource,
+				action: input.action,
+				...(input.context !== undefined ? { context: input.context } : {}),
+				...(input.proposedPolicies !== undefined
+					? { proposedPolicies: input.proposedPolicies }
+					: {}),
+			},
+			operation: "simulateAccess",
+			telemetryRoute: "/access/v1/simulate",
+		});
+	}
+
+	/**
+	 * Batch simulate multiple access requests for efficiency.
+	 * Evaluates up to 100 requests in a single call.
+	 */
+	async batchSimulate(
+		requests: readonly SimulateAccessInput[],
+		options?: { readonly tenantId?: string; readonly policySetId?: string },
+	): Promise<BatchSimulateResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/simulate/batch${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<BatchSimulateResult>("POST", path, {
+			body: {
+				requests,
+				...(options?.policySetId !== undefined ? { policySetId: options.policySetId } : {}),
+			},
+			operation: "batchSimulate",
+			telemetryRoute: "/access/v1/simulate/batch",
+		});
+	}
+
+	/**
+	 * Analyze the impact of a proposed policy change.
+	 * Returns affected capabilities and risk assessment.
+	 */
+	async analyzeImpact(
+		input: AnalyzeImpactInput,
+		options?: { readonly tenantId?: string },
+	): Promise<ImpactAnalysisResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/simulate/impact${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<ImpactAnalysisResult>("POST", path, {
+			body: {
+				proposedChange: input.proposedChange,
+				...(input.scope !== undefined ? { scope: input.scope } : {}),
+			},
+			operation: "analyzeImpact",
+			telemetryRoute: "/access/v1/simulate/impact",
+		});
+	}
+
+	/**
+	 * Get the history of policy simulations for audit and review.
+	 */
+	async getSimulationHistory(options?: {
+		readonly tenantId?: string;
+		readonly limit?: number;
+	}): Promise<SimulationHistoryResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+		if (options?.limit !== undefined) {
+			params.set("limit", String(options.limit));
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/simulate/history${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<SimulationHistoryResult>("GET", path, {
+			operation: "getSimulationHistory",
+			telemetryRoute: "/access/v1/simulate/history",
+		});
+	}
+
+	/**
+	 * Request Just-In-Time elevated access to a resource.
+	 */
+	async requestJitAccess(
+		input: RequestJitAccessInput,
+		options?: { readonly tenantId?: string },
+	): Promise<JitAccessRequestResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/requests${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<JitAccessRequestResult>("POST", path, {
+			body: {
+				resourceType: input.resourceType,
+				resourceId: input.resourceId,
+				permissions: input.permissions,
+				justification: input.justification,
+				...(input.durationMinutes !== undefined ? { durationMinutes: input.durationMinutes } : {}),
+				...(input.ticketId !== undefined ? { ticketId: input.ticketId } : {}),
+				...(input.urgency !== undefined ? { urgency: input.urgency } : {}),
+			},
+			operation: "requestJitAccess",
+			telemetryRoute: "/access/v1/jit/requests",
+		});
+	}
+
+	/**
+	 * List JIT access requests, optionally filtered by status.
+	 */
+	async listJitRequests(options?: {
+		readonly tenantId?: string;
+		readonly status?: JitRequestStatus;
+		readonly limit?: number;
+	}): Promise<ListJitRequestsResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+		if (options?.status) {
+			params.set("status", options.status);
+		}
+		if (options?.limit !== undefined) {
+			params.set("limit", String(options.limit));
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/requests${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<ListJitRequestsResult>("GET", path, {
+			operation: "listJitRequests",
+			telemetryRoute: "/access/v1/jit/requests",
+		});
+	}
+
+	/**
+	 * Process a JIT access request (approve or deny).
+	 */
+	async processJitRequest(
+		requestId: string,
+		input: ProcessJitRequestInput,
+		options?: { readonly tenantId?: string },
+	): Promise<ProcessJitRequestResult> {
+		await this.ensureActivated();
+		validateUUID(requestId, "requestId");
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/requests/${requestId}/process${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<ProcessJitRequestResult>("POST", path, {
+			body: {
+				decision: input.decision,
+				...(input.comment !== undefined ? { comment: input.comment } : {}),
+				...(input.modifiedDuration !== undefined
+					? { modifiedDuration: input.modifiedDuration }
+					: {}),
+				...(input.modifiedPermissions !== undefined
+					? { modifiedPermissions: input.modifiedPermissions }
+					: {}),
+			},
+			operation: "processJitRequest",
+			telemetryRoute: "/access/v1/jit/requests/:requestId/process",
+		});
+	}
+
+	/**
+	 * Get active JIT grants for a specific user.
+	 */
+	async getUserJitGrants(
+		userId: string,
+		options?: { readonly tenantId?: string },
+	): Promise<UserJitGrantsResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/grants/user/${encodeURIComponent(userId)}${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<UserJitGrantsResult>("GET", path, {
+			operation: "getUserJitGrants",
+			telemetryRoute: "/access/v1/jit/grants/user/:userId",
+		});
+	}
+
+	/**
+	 * Check if a user has JIT access to a specific resource and permission.
+	 */
+	async checkJitAccess(
+		userId: string,
+		resourceType: string,
+		resourceId: string,
+		permission: string,
+		options?: { readonly tenantId?: string },
+	): Promise<CheckJitAccessResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/check${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<CheckJitAccessResult>("POST", path, {
+			body: {
+				userId,
+				resourceType,
+				resourceId,
+				permission,
+			},
+			operation: "checkJitAccess",
+			telemetryRoute: "/access/v1/jit/check",
+		});
+	}
+
+	/**
+	 * Revoke an active JIT grant.
+	 */
+	async revokeJitGrant(
+		grantId: string,
+		reason: string,
+		options?: { readonly tenantId?: string },
+	): Promise<RevokeJitGrantResult> {
+		await this.ensureActivated();
+		validateUUID(grantId, "grantId");
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/grants/${grantId}/revoke${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<RevokeJitGrantResult>("POST", path, {
+			body: { reason },
+			operation: "revokeJitGrant",
+			telemetryRoute: "/access/v1/jit/grants/:grantId/revoke",
+		});
+	}
+
+	/**
+	 * Create a JIT access policy.
+	 */
+	async createJitPolicy(
+		input: CreateJitPolicyInput,
+		options?: { readonly tenantId?: string },
+	): Promise<{ readonly id: string; readonly name: string }> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/policies${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<{ readonly id: string; readonly name: string }>("POST", path, {
+			body: {
+				name: input.name,
+				resourcePattern: input.resourcePattern,
+				...(input.maxDurationMinutes !== undefined
+					? { maxDurationMinutes: input.maxDurationMinutes }
+					: {}),
+				...(input.requireApproval !== undefined ? { requireApproval: input.requireApproval } : {}),
+				...(input.approvers !== undefined ? { approvers: input.approvers } : {}),
+				...(input.autoApproveConditions !== undefined
+					? { autoApproveConditions: input.autoApproveConditions }
+					: {}),
+				...(input.notifyOnGrant !== undefined ? { notifyOnGrant: input.notifyOnGrant } : {}),
+				...(input.notifyOnExpiry !== undefined ? { notifyOnExpiry: input.notifyOnExpiry } : {}),
+			},
+			operation: "createJitPolicy",
+			telemetryRoute: "/access/v1/jit/policies",
+		});
+	}
+
+	/**
+	 * List JIT access policies.
+	 */
+	async listJitPolicies(options?: { readonly tenantId?: string }): Promise<ListJitPoliciesResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/policies${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<ListJitPoliciesResult>("GET", path, {
+			operation: "listJitPolicies",
+			telemetryRoute: "/access/v1/jit/policies",
+		});
+	}
+
+	/**
+	 * Get JIT access statistics for the last 30 days.
+	 */
+	async getJitStats(options?: { readonly tenantId?: string }): Promise<JitStats> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.tenantId) {
+			params.set("tenantId", options.tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/jit/stats${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<JitStats>("GET", path, {
+			operation: "getJitStats",
+			telemetryRoute: "/access/v1/jit/stats",
+		});
+	}
+
+	/**
+	 * Get cross-tenant access overview (platform admin).
+	 */
+	async getCrossTenantOverview(
+		query?: CrossTenantOverviewQuery,
+	): Promise<CrossTenantOverviewResult> {
+		await this.ensureActivated();
+
+		return this.request<CrossTenantOverviewResult>("POST", "/access/v1/cross-tenant/overview", {
+			body: {
+				...(query?.tenantIds !== undefined ? { tenantIds: query.tenantIds } : {}),
+				...(query?.timeRange !== undefined ? { timeRange: query.timeRange } : {}),
+				...(query?.includeMetrics !== undefined ? { includeMetrics: query.includeMetrics } : {}),
+			},
+			operation: "getCrossTenantOverview",
+			telemetryRoute: "/access/v1/cross-tenant/overview",
+		});
+	}
+
+	/**
+	 * Compare policies across multiple tenants.
+	 */
+	async comparePolicies(
+		tenantIds: readonly string[],
+		compareBy?: PolicyCompareBy,
+	): Promise<ComparePoliciesResult> {
+		await this.ensureActivated();
+
+		if (tenantIds.length < 2 || tenantIds.length > 10) {
+			throw new Error("comparePolicies requires 2-10 tenant IDs");
+		}
+
+		return this.request<ComparePoliciesResult>("POST", "/access/v1/cross-tenant/compare", {
+			body: {
+				tenantIds,
+				...(compareBy !== undefined ? { compareBy } : {}),
+			},
+			operation: "comparePolicies",
+			telemetryRoute: "/access/v1/cross-tenant/compare",
+		});
+	}
+
+	/**
+	 * Query access anomalies across tenants.
+	 */
+	async queryAnomalies(query?: QueryAnomaliesInput): Promise<QueryAnomaliesResult> {
+		await this.ensureActivated();
+
+		return this.request<QueryAnomaliesResult>("POST", "/access/v1/cross-tenant/anomalies", {
+			body: {
+				...(query?.anomalyTypes !== undefined ? { anomalyTypes: query.anomalyTypes } : {}),
+				...(query?.minSeverity !== undefined ? { minSeverity: query.minSeverity } : {}),
+				...(query?.limit !== undefined ? { limit: query.limit } : {}),
+			},
+			operation: "queryAnomalies",
+			telemetryRoute: "/access/v1/cross-tenant/anomalies",
+		});
+	}
+
+	/**
+	 * Get the cross-tenant access graph showing relationships between subjects and tenants.
+	 */
+	async getCrossTenantGraph(options?: {
+		readonly depth?: number;
+		readonly includeExpired?: boolean;
+	}): Promise<CrossTenantGraphResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (options?.depth !== undefined) {
+			params.set("depth", String(options.depth));
+		}
+		if (options?.includeExpired !== undefined) {
+			params.set("includeExpired", String(options.includeExpired));
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/cross-tenant/graph${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<CrossTenantGraphResult>("GET", path, {
+			operation: "getCrossTenantGraph",
+			telemetryRoute: "/access/v1/cross-tenant/graph",
+		});
+	}
+
+	/**
+	 * Run a tenant isolation audit to detect cross-tenant access violations.
+	 */
+	async runIsolationAudit(tenantId?: string): Promise<IsolationAuditResult> {
+		await this.ensureActivated();
+
+		const params = new URLSearchParams();
+		if (tenantId) {
+			params.set("tenantId", tenantId);
+		}
+
+		const queryString = params.toString();
+		const path = `/access/v1/cross-tenant/isolation-audit${queryString ? `?${queryString}` : ""}`;
+
+		return this.request<IsolationAuditResult>("GET", path, {
+			operation: "runIsolationAudit",
+			telemetryRoute: "/access/v1/cross-tenant/isolation-audit",
+		});
 	}
 }
 

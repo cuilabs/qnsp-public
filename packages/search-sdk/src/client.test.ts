@@ -1,10 +1,29 @@
+import { clearActivationCache } from "@qnsp/sdk-activation";
 import type { fetch as undiciFetch } from "undici";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type FetchImpl = typeof undiciFetch;
 
 import { SearchClient } from "./client.js";
 import type { IndexDocumentRequest } from "./types.js";
+
+const MOCK_ACTIVATION_RESPONSE = {
+	activated: true,
+	tenantId: "a1b2c3d4-e5f6-4789-8abc-def012345678",
+	tier: "dev-pro",
+	activationToken: "tok_test",
+	expiresInSeconds: 3600,
+	activatedAt: new Date().toISOString(),
+	limits: {
+		storageGB: 50,
+		apiCalls: 100_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+};
 
 const baseDocument: IndexDocumentRequest = {
 	tenantId: "tenant-1",
@@ -27,16 +46,28 @@ const baseDocument: IndexDocumentRequest = {
 };
 
 describe("SearchClient", () => {
+	beforeEach(() => {
+		clearActivationCache();
+	});
+
 	it("submits index requests with bearer token", async () => {
-		const mockFetch = vi.fn().mockResolvedValue({
-			ok: true,
-			status: 202,
-			statusText: "Accepted",
-		});
+		const mockFetch = vi
+			.fn()
+			.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				statusText: "OK",
+				json: async () => MOCK_ACTIVATION_RESPONSE,
+			})
+			.mockResolvedValueOnce({
+				ok: true,
+				status: 202,
+				statusText: "Accepted",
+			});
 
 		const client = new SearchClient({
 			baseUrl: "https://search.internal",
-			apiToken: "search-token",
+			apiKey: "search-token",
 			fetchImpl: mockFetch as unknown as FetchImpl,
 		});
 
@@ -45,12 +76,12 @@ describe("SearchClient", () => {
 			title: "Quantum Secure Roadmap",
 		});
 
-		expect(mockFetch).toHaveBeenCalledTimes(1);
-		const firstCall = mockFetch.mock.calls.at(0);
-		if (!firstCall) {
-			throw new Error("fetch was not invoked");
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+		const secondCall = mockFetch.mock.calls.at(1);
+		if (!secondCall) {
+			throw new Error("fetch was not invoked for operation");
 		}
-		const [url, init] = firstCall;
+		const [url, init] = secondCall;
 		expect(url).toBe("https://search.internal/search/v1/documents/index");
 		expect(init?.method).toBe("POST");
 		expect(init?.headers).toMatchObject({
@@ -59,19 +90,27 @@ describe("SearchClient", () => {
 	});
 
 	it("executes search queries with SSE filters", async () => {
-		const mockFetch = vi.fn().mockResolvedValue({
-			ok: true,
-			status: 200,
-			statusText: "OK",
-			json: async () => ({
-				items: [],
-				nextCursor: null,
-			}),
-		});
+		const mockFetch = vi
+			.fn()
+			.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				statusText: "OK",
+				json: async () => MOCK_ACTIVATION_RESPONSE,
+			})
+			.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				statusText: "OK",
+				json: async () => ({
+					items: [],
+					nextCursor: null,
+				}),
+			});
 
 		const client = new SearchClient({
 			baseUrl: "https://search.internal",
-			apiToken: "search-token",
+			apiKey: "search-token",
 			fetchImpl: mockFetch as unknown as FetchImpl,
 		});
 
@@ -81,29 +120,37 @@ describe("SearchClient", () => {
 			sseTokens: ["token-1", "token-2"],
 		});
 
-		const firstCall = mockFetch.mock.calls.at(0);
-		if (!firstCall) {
-			throw new Error("fetch was not invoked");
+		const secondCall = mockFetch.mock.calls.at(1);
+		if (!secondCall) {
+			throw new Error("fetch was not invoked for operation");
 		}
-		const [url] = firstCall;
+		const [url] = secondCall;
 		expect(url).toContain("sse=token-1");
 		expect(url).toContain("sse=token-2");
 	});
 
 	it("supports SSE-only queries", async () => {
-		const mockFetch = vi.fn().mockResolvedValue({
-			ok: true,
-			status: 200,
-			statusText: "OK",
-			json: async () => ({
-				items: [],
-				nextCursor: null,
-			}),
-		});
+		const mockFetch = vi
+			.fn()
+			.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				statusText: "OK",
+				json: async () => MOCK_ACTIVATION_RESPONSE,
+			})
+			.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				statusText: "OK",
+				json: async () => ({
+					items: [],
+					nextCursor: null,
+				}),
+			});
 
 		const client = new SearchClient({
 			baseUrl: "https://search.internal",
-			apiToken: "search-token",
+			apiKey: "search-token",
 			fetchImpl: mockFetch as unknown as FetchImpl,
 		});
 
@@ -112,11 +159,11 @@ describe("SearchClient", () => {
 			sseTokens: ["token-only"],
 		});
 
-		const firstCall = mockFetch.mock.calls.at(0);
-		if (!firstCall) {
-			throw new Error("fetch was not invoked");
+		const secondCall = mockFetch.mock.calls.at(1);
+		if (!secondCall) {
+			throw new Error("fetch was not invoked for operation");
 		}
-		const [url] = firstCall;
+		const [url] = secondCall;
 		expect(url).toContain("sse=token-only");
 		expect(url).not.toContain("q=");
 	});
@@ -125,7 +172,7 @@ describe("SearchClient", () => {
 		const key = Buffer.from("shared-secret").toString("base64");
 		const client = new SearchClient({
 			baseUrl: "https://search.internal",
-			apiToken: "test-api-token",
+			apiKey: "test-api-token",
 			sseKey: key,
 		});
 

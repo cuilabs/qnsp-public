@@ -1,7 +1,8 @@
 # @qnsp/access-control-sdk
 
-TypeScript client for the QNSP Access Control service. Manages policies, capability tokens, issuance,
-introspection, and revocation for zero-trust enforcement.
+TypeScript SDK client for the QNSP access-control-service API. Provides policy management and capability token operations.
+
+Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 
 ## Installation
 
@@ -9,67 +10,45 @@ introspection, and revocation for zero-trust enforcement.
 pnpm add @qnsp/access-control-sdk
 ```
 
-## Authentication
+## Quick Start
 
-Provide a **service token** via `apiKey`. Capability operations require privileged platform roles, so
-ensure the token belongs to a tenant/automation authorized to issue policies.
-
-```ts
+```typescript
 import { AccessControlClient } from "@qnsp/access-control-sdk";
 
-const ac = new AccessControlClient({
-  baseUrl: "https://api.qnsp.cuilabs.io/proxy/access",
-  apiKey: process.env.QNSP_SERVICE_TOKEN!,
-});
-```
-
-## Tier requirements
-
-Access-control features are available on paid tiers (`dev-pro` and above). The SDK does not enforce
-tiers directly, but backend APIs will reject requests if the tenant lacks capability support.
-
-## Usage example
-
-```ts
-import { AccessControlClient } from "@qnsp/access-control-sdk";
-
-const ac = new AccessControlClient({
-  baseUrl: "https://api.qnsp.cuilabs.io/proxy/access",
-  apiKey: process.env.QNSP_SERVICE_TOKEN!,
+const acl = new AccessControlClient({
+  baseUrl: "https://api.qnsp.cuilabs.io",
+  apiKey: "YOUR_API_KEY",
 });
 
-const policy = await ac.createPolicy({
-  tenantId: "tenant_123",
-  name: "edge-writer",
+const policy = await acl.createPolicy({
+  tenantId: "your-tenant-id",
+  name: "vault-read",
   statement: {
     effect: "allow",
-    actions: ["edge.routes.write"],
-    resources: ["edge-route:*"],
+    actions: ["vault:read"],
+    resources: ["secret:*"],
   },
 });
 
-const capability = await ac.issueCapability({
-  tenantId: "tenant_123",
+const capability = await acl.issueCapability({
+  tenantId: "your-tenant-id",
   policyId: policy.id,
-  subject: { type: "service", id: "edge-gateway" },
-  issuedBy: "platform-api",
+  subject: { type: "user", id: "user-id" },
+  issuedBy: "admin",
 });
 ```
 
-## Telemetry
+## Documentation
 
-Use the optional `telemetry` configuration (or `createAccessControlClientTelemetry`) to emit OTLP
-metrics for every request (latency, retries, errors). These metrics power the Access Control dashboards
-in `docs/observability/portal-dashboards.md`.
+- [SDK Reference](https://docs.qnsp.cuilabs.io/sdk/access-control-sdk)
+- [API Documentation](https://docs.qnsp.cuilabs.io/api)
+- [Getting Started](https://docs.qnsp.cuilabs.io/quickstart)
 
-## Related documentation
+## Requirements
 
-- [Developer onboarding guide](../../docs/guides/developer-onboarding.md#sdk-quick-links)
-- [SDK inventory](../../docs/technical/SDK-INVENTORY.md)
-- [Tier limits](../shared-kernel/src/tier-limits.ts)
+- Node.js >= 24.12.0 (`engines` in `package.json`; QNSP monorepo baseline)
+- A QNSP account and API key — [sign up free](https://cloud.qnsp.cuilabs.io/auth) with GitHub, Google, or email
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [`LICENSE`](./LICENSE).
-
-© 2025 QNSP - CUI LABS, Singapore
+[Apache-2.0](./LICENSE)

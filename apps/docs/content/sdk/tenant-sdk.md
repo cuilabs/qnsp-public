@@ -1,7 +1,7 @@
 ---
 title: Tenant SDK (@qnsp/tenant-sdk)
-version: 0.2.0
-last_updated: 2026-02-16
+version: 0.4.0
+last_updated: 2026-03-20
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Tenant SDK (`@qnsp/tenant-sdk`)
 
-TypeScript client for `tenant-service`. Provides tenant lifecycle management and crypto policy configuration.
+TypeScript client for `tenant-service`. Provides tenant lifecycle management, crypto policy configuration, health monitoring, quota management, and onboarding workflows.
 
 ## Install
 
@@ -57,6 +57,160 @@ const updated = await tenants.updateTenant("<tenant_uuid>", {
 
 // List tenants
 const { items, nextCursor } = await tenants.listTenants({ limit: 50 });
+```
+
+## Health Dashboard
+
+Monitor tenant health and performance:
+
+```ts
+// Record a health snapshot
+await tenants.recordHealthSnapshot({
+	tenantId: "<tenant_uuid>",
+	metrics: {
+		apiLatencyP50Ms: 25,
+		apiLatencyP99Ms: 150,
+		errorRate: 0.001,
+		requestsPerSecond: 500,
+		storageUsedBytes: 10737418240,
+	},
+});
+
+// Get current health
+const health = await tenants.getCurrentHealth("<tenant_uuid>");
+console.log(health.status); // "healthy" | "degraded" | "unhealthy"
+
+// Get health trends
+const trends = await tenants.getHealthTrends({
+	tenantId: "<tenant_uuid>",
+	since: "2026-03-01T00:00:00Z",
+	granularity: "hour",
+});
+console.log(trends.summary.uptimePercent);
+
+// Create a health alert
+const alert = await tenants.createHealthAlert({
+	tenantId: "<tenant_uuid>",
+	severity: "warning",
+	title: "High API Latency",
+	description: "P99 latency exceeded 500ms threshold",
+	metric: "apiLatencyP99Ms",
+	threshold: 500,
+	currentValue: 650,
+});
+
+// Acknowledge alert
+await tenants.acknowledgeAlert({
+	alertId: alert.id,
+	acknowledgedBy: "ops@example.com",
+	note: "Investigating root cause",
+});
+```
+
+## Quota Forecasting
+
+Track and predict resource quota usage:
+
+```ts
+// Record quota usage
+await tenants.recordQuotaUsage({
+	tenantId: "<tenant_uuid>",
+	quotaName: "api_requests",
+	usage: 15000,
+});
+
+// Get current quotas
+const quotas = await tenants.getCurrentQuotas("<tenant_uuid>");
+for (const quota of quotas.quotas) {
+	console.log(quota.name, quota.utilizationPercent);
+}
+
+// Get quota forecast
+const forecast = await tenants.getForecast({
+	tenantId: "<tenant_uuid>",
+	horizonDays: 30,
+});
+for (const f of forecast.forecasts) {
+	if (f.estimatedExhaustionDate) {
+		console.log(`${f.quotaName} will exhaust on ${f.estimatedExhaustionDate}`);
+	}
+}
+
+// Get quota suggestions
+const suggestions = await tenants.getQuotaSuggestions("<tenant_uuid>");
+for (const s of suggestions.suggestions) {
+	console.log(`${s.quotaName}: ${s.currentLimit} -> ${s.suggestedLimit}`);
+}
+```
+
+## Onboarding Workflows
+
+Manage tenant onboarding with configurable workflows:
+
+```ts
+// Create a workflow template
+const template = await tenants.createWorkflowTemplate({
+	name: "Enterprise Onboarding",
+	steps: [
+		{ name: "Account Setup", order: 1, required: true, estimatedMinutes: 5 },
+		{ name: "SSO Configuration", order: 2, required: true, estimatedMinutes: 15 },
+		{ name: "Team Invitations", order: 3, required: false, estimatedMinutes: 10 },
+		{ name: "API Keys", order: 4, required: true, estimatedMinutes: 5 },
+		{ name: "Compliance Review", order: 5, required: true, estimatedMinutes: 30 },
+	],
+	isDefault: false,
+});
+
+// Start onboarding for a tenant
+const onboarding = await tenants.startOnboarding({
+	tenantId: "<tenant_uuid>",
+	templateId: template.id,
+});
+
+// Check onboarding status
+const status = await tenants.getOnboardingStatus("<tenant_uuid>");
+console.log(status.progress.percentComplete);
+
+// Get onboarding statistics
+const stats = await tenants.getOnboardingStats({
+	since: "2026-01-01T00:00:00Z",
+});
+console.log(stats.completionRate, stats.avgCompletionTimeMinutes);
+```
+
+## Isolation Audit
+
+Verify tenant data isolation and security boundaries:
+
+```ts
+// Create an isolation policy
+const policy = await tenants.createIsolationPolicy({
+	tenantId: "<tenant_uuid>",
+	name: "Data Isolation Policy",
+	level: "strict",
+	rules: [
+		{ resource: "keys", constraint: "tenant_bound", action: "deny" },
+		{ resource: "secrets", constraint: "cross_tenant_access", action: "deny" },
+	],
+	enforcementMode: "enforce",
+});
+
+// Run isolation audit
+const audit = await tenants.runIsolationAudit({
+	tenantId: "<tenant_uuid>",
+	depth: "deep",
+	categories: ["data_access", "key_usage", "network"],
+});
+console.log(audit.summary.passedChecks, audit.summary.failedChecks);
+
+// Get isolation findings
+const findings = await tenants.getIsolationFindings({
+	tenantId: "<tenant_uuid>",
+	severity: "critical",
+});
+for (const finding of findings.items) {
+	console.log(finding.title, finding.recommendation);
+}
 ```
 
 ## Crypto Policy Management (v0)
@@ -195,6 +349,30 @@ console.log(ALGORITHM_TO_NIST);
 - `TenantClient.updateTenant(id, request)`
 - `TenantClient.getTenant(id)`
 - `TenantClient.listTenants(options?)`
+
+### Health Dashboard
+- `TenantClient.recordHealthSnapshot(request)` - Record health metrics
+- `TenantClient.getCurrentHealth(tenantId)` - Get current health status
+- `TenantClient.getHealthTrends(request)` - Get health trends over time
+- `TenantClient.createHealthAlert(request)` - Create health alert
+- `TenantClient.acknowledgeAlert(request)` - Acknowledge alert
+
+### Quota Forecasting
+- `TenantClient.recordQuotaUsage(request)` - Record quota usage
+- `TenantClient.getCurrentQuotas(tenantId)` - Get current quota status
+- `TenantClient.getForecast(request)` - Get quota forecast
+- `TenantClient.getQuotaSuggestions(tenantId)` - Get quota recommendations
+
+### Onboarding
+- `TenantClient.createWorkflowTemplate(request)` - Create workflow template
+- `TenantClient.startOnboarding(request)` - Start onboarding workflow
+- `TenantClient.getOnboardingStatus(tenantId)` - Get onboarding progress
+- `TenantClient.getOnboardingStats(options?)` - Get onboarding analytics
+
+### Isolation Audit
+- `TenantClient.createIsolationPolicy(request)` - Create isolation policy
+- `TenantClient.runIsolationAudit(request)` - Run isolation audit
+- `TenantClient.getIsolationFindings(request)` - Get audit findings
 
 ### Crypto Policy (v0)
 - `TenantClient.getTenantCryptoPolicy(tenantId)`

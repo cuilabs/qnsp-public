@@ -1,12 +1,14 @@
 ---
 title: Alerts
 version: 0.0.1
-last_updated: 2025-12-24
+last_updated: 2026-03-23
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 # Alerts
 
 Configure alerts for QNSP platform events.
+
+> **Scope:** The YAML fragments below are **illustrative** patterns. They are not a guarantee that each rule is deployed in production. For cloud-portal bootstrap outages (`/api/session/bootstrap` 503), see `docs/operations/portal-bootstrap-observability.md` in the monorepo — **ai-orchestrator** auto-remediation and optional `ALERT_WEBHOOK_URL` are **not** wired to that path unless you add explicit alarms or integrations.
 
 ## Alert types
 
@@ -85,3 +87,7 @@ Trigger on service unavailability:
 ## Alert management
 
 Alert management APIs are not shipped in this repo.
+
+## PDP / edge enforcement (deployed alarms)
+
+When `enable_pdp_service` and `enable_pdp_edge_enforcement_observability` are true, Terraform provisions CloudWatch alarms described in `docs/operations/pdp-edge-enforcement-observability.md` (PDP snapshot stale and materialization degraded via log metric filters on the PDP log group). Edge `edge_enforcement_degraded_privileged_denied_total` is on the **dashboard** (alarms cannot use `SEARCH` on that signal in CloudWatch). Wire SNS with `pdp_edge_enforcement_observability_alarm_sns_topic_arns` in `infra/terraform/variables.tf`.

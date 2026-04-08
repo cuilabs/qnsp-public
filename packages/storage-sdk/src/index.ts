@@ -1,9 +1,41 @@
+import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+
 import type {
 	StorageClientTelemetry,
 	StorageClientTelemetryConfig,
 	StorageClientTelemetryEvent,
 } from "./observability.js";
 import { createStorageClientTelemetry, isStorageClientTelemetry } from "./observability.js";
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
+import type {
+	ClassificationLevel,
+	ClassificationPolicySummary,
+	ClassificationStats,
+	ClassifyObjectRequest,
+	CreateClassificationPolicyRequest,
+	CreateReplicationConfigRequest,
+	CreateRetentionPolicyRequest,
+	CreateTieringPolicyRequest,
+	DeletionType,
+	DetectPiiResult,
+	EvaluateRetentionResult,
+	EvaluateTieringResult,
+	LegalHoldType,
+	ObjectClassification,
+	ObjectReplicationStatus,
+	PlaceHoldRequest,
+	ReplicationConfigSummary,
+	ReplicationHealth,
+	ReplicationMetrics,
+	ReplicationMode,
+	RetentionPolicySummary,
+	RetentionType,
+	ScheduleDeleteRequest,
+	StartClassificationScanRequest,
+	TieringPolicy,
+	TieringRecommendation,
+	TieringStats,
+} from "./types.js";
 import { validateUUID } from "./validation.js";
 
 /**
@@ -144,8 +176,11 @@ export function toNistAlgorithmName(algorithm: string): string {
 	return ALGORITHM_TO_NIST[algorithm] ?? algorithm;
 }
 
+/** Default QNSP cloud API base URL. Get a free API key at https://cloud.qnsp.cuilabs.io/signup */
+export const DEFAULT_BASE_URL = "https://api.qnsp.cuilabs.io";
+
 export interface StorageClientConfig {
-	readonly baseUrl: string;
+	readonly baseUrl?: string;
 	readonly apiKey: string;
 	readonly tenantId: string;
 	readonly timeoutMs?: number;
@@ -286,26 +321,51 @@ export class StorageClient {
 	private readonly config: InternalStorageClientConfig;
 	private readonly telemetry: StorageClientTelemetry | null;
 	private readonly targetService: string;
+	private activationPromise: Promise<void> | null = null;
+	private readonly activationConfig: SdkActivationConfig;
+	private resolvedTenantId: string | null = null;
+
+	private async ensureActivated(): Promise<void> {
+		if (!this.activationPromise) {
+			this.activationPromise = activateSdk(this.activationConfig).then((response) => {
+				this.resolvedTenantId = response.tenantId;
+			});
+		}
+		return this.activationPromise;
+	}
 
 	constructor(config: StorageClientConfig) {
 		if (!config.apiKey || config.apiKey.trim().length === 0) {
 			throw new Error(
 				"QNSP Storage SDK: apiKey is required. " +
 					"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-					"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+					"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 					"Docs: https://docs.qnsp.cuilabs.io/sdk/storage-sdk",
 			);
 		}
 
-		const baseUrl = config.baseUrl.replace(/\/$/, "");
+		const baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
 
-		// Enforce HTTPS in production (allow HTTP only for localhost in development)
+		// Enforce HTTPS in production (allow HTTP for localhost in development and
+		// for internal service-mesh hostnames — e.g. *.internal — which are on a
+		// private VPC network and do not require TLS termination at the transport layer).
 		if (!baseUrl.startsWith("https://")) {
 			const isLocalhost =
 				baseUrl.startsWith("http://localhost") || baseUrl.startsWith("http://127.0.0.1");
+			let isInternalService = false;
+			try {
+				const parsed = new URL(baseUrl);
+				isInternalService =
+					parsed.protocol === "http:" &&
+					(parsed.hostname.endsWith(".internal") ||
+						parsed.hostname === "localhost" ||
+						parsed.hostname === "127.0.0.1");
+			} catch {
+				// ignore; invalid URL will be caught later by fetch
+			}
 			const isDevelopment =
 				process.env["NODE_ENV"] === "development" || process.env["NODE_ENV"] === "test";
-			if (!isLocalhost || !isDevelopment) {
+			if ((!isLocalhost || !isDevelopment) && !isInternalService) {
 				throw new Error(
 					"baseUrl must use HTTPS in production. HTTP is only allowed for localhost in development.",
 				);
@@ -332,6 +392,13 @@ export class StorageClient {
 		} catch {
 			this.targetService = "storage-service";
 		}
+
+		this.activationConfig = {
+			apiKey: config.apiKey,
+			sdkId: "storage-sdk",
+			sdkVersion: SDK_PACKAGE_VERSION,
+			platformUrl: baseUrl,
+		};
 	}
 
 	private async request<T>(method: string, path: string, options?: RequestOptions): Promise<T> {
@@ -351,6 +418,11 @@ export class StorageClient {
 		};
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -454,6 +526,7 @@ export class StorageClient {
 		readonly resumeToken: string | null;
 		readonly pqc: PqcMetadata;
 	}> {
+		await this.ensureActivated();
 		const result = await this.request<{
 			uploadId: string;
 			documentId: string;
@@ -496,12 +569,18 @@ export class StorageClient {
 		partId: number,
 		data: ReadableStream<Uint8Array> | Buffer | Uint8Array,
 	): Promise<UploadPartResult> {
+		await this.ensureActivated();
 		const url = `${this.config.baseUrl}/storage/v1/uploads/${uploadId}/parts/${partId}`;
 		const headers: Record<string, string> = {
 			"Content-Type": "application/octet-stream",
 		};
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const bytesSent =
 			data instanceof Buffer || data instanceof Uint8Array ? data.byteLength : undefined;
@@ -579,6 +658,7 @@ export class StorageClient {
 
 	async getUploadStatus(uploadId: string): Promise<UploadStatus> {
 		validateUUID(uploadId, "uploadId");
+		await this.ensureActivated();
 		// Use GET since we need the full status object
 		return this.request<UploadStatus>("GET", `/storage/v1/uploads/${uploadId}`, {
 			operation: "getUploadStatus",
@@ -588,6 +668,7 @@ export class StorageClient {
 
 	async completeUpload(uploadId: string): Promise<CompleteUploadResult> {
 		validateUUID(uploadId, "uploadId");
+		await this.ensureActivated();
 		return this.request("POST", `/storage/v1/uploads/${uploadId}/complete`, {
 			operation: "completeUpload",
 			telemetryRoute: "/storage/v1/uploads/:uploadId/complete",
@@ -603,6 +684,7 @@ export class StorageClient {
 			readonly signature?: string | null;
 		},
 	): Promise<DownloadDescriptor> {
+		await this.ensureActivated();
 		const params = new URLSearchParams({
 			tenantId: this.config.tenantId,
 		});
@@ -644,6 +726,7 @@ export class StorageClient {
 		readonly range?: { readonly start: number; readonly end: number };
 		readonly checksumSha3: string;
 	}> {
+		await this.ensureActivated();
 		const params = new URLSearchParams({
 			tenantId: this.config.tenantId,
 		});
@@ -669,6 +752,11 @@ export class StorageClient {
 		}
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -768,6 +856,7 @@ export class StorageClient {
 	 */
 	async getDocumentPolicies(documentId: string): Promise<DocumentPolicies> {
 		validateUUID(documentId, "documentId");
+		await this.ensureActivated();
 		return this.request("GET", `/storage/v1/documents/${documentId}/policies`, {
 			operation: "getDocumentPolicies",
 			telemetryRoute: "/storage/v1/documents/:documentId/policies",
@@ -786,6 +875,7 @@ export class StorageClient {
 		input: UpdatePoliciesRequest,
 	): Promise<DocumentPolicies> {
 		validateUUID(documentId, "documentId");
+		await this.ensureActivated();
 		return this.request("PATCH", `/storage/v1/documents/${documentId}/policies`, {
 			body: input,
 			operation: "updateDocumentPolicies",
@@ -809,6 +899,7 @@ export class StorageClient {
 		readonly legalHolds: readonly string[];
 	}> {
 		validateUUID(documentId, "documentId");
+		await this.ensureActivated();
 		return this.request("POST", `/storage/v1/documents/${documentId}/legal-holds`, {
 			body: request,
 			operation: "applyLegalHold",
@@ -825,6 +916,7 @@ export class StorageClient {
 	 */
 	async releaseLegalHold(documentId: string, holdId: string): Promise<void> {
 		validateUUID(documentId, "documentId");
+		await this.ensureActivated();
 		return this.request("DELETE", `/storage/v1/documents/${documentId}/legal-holds/${holdId}`, {
 			operation: "releaseLegalHold",
 			telemetryRoute: "/storage/v1/documents/:documentId/legal-holds/:holdId",
@@ -851,6 +943,7 @@ export class StorageClient {
 		};
 	}> {
 		validateUUID(documentId, "documentId");
+		await this.ensureActivated();
 		return this.request("POST", `/storage/v1/documents/${documentId}/lifecycle/transitions`, {
 			body: request,
 			operation: "scheduleLifecycleTransition",
@@ -858,6 +951,365 @@ export class StorageClient {
 			headers: {
 				"x-tenant-id": this.config.tenantId,
 			},
+		});
+	}
+
+	async createClassificationPolicy(policy: CreateClassificationPolicyRequest): Promise<{
+		readonly id: string;
+		readonly name: string;
+		readonly classificationLevel: ClassificationLevel;
+		readonly piiDetectionEnabled: boolean;
+		readonly createdAt: string;
+	}> {
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/classification/policies", {
+			body: policy,
+			operation: "createClassificationPolicy",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async listClassificationPolicies(options?: {
+		readonly enabled?: boolean;
+	}): Promise<{ readonly policies: readonly ClassificationPolicySummary[] }> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options?.enabled !== undefined) params.set("enabled", String(options.enabled));
+		const query = params.toString();
+		return this.request("GET", `/storage/v1/classification/policies${query ? `?${query}` : ""}`, {
+			operation: "listClassificationPolicies",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async classifyObject(
+		objectId: string,
+		classification: Omit<ClassifyObjectRequest, "objectId">,
+	): Promise<{
+		readonly id: string;
+		readonly objectId: string;
+		readonly classificationLevel: ClassificationLevel;
+		readonly piiDetected: boolean;
+		readonly piiTypesCount: number;
+		readonly classifiedAt: string;
+	}> {
+		validateUUID(objectId, "objectId");
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/classification/objects", {
+			body: { objectId, ...classification },
+			operation: "classifyObject",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async getObjectClassification(objectId: string): Promise<ObjectClassification> {
+		validateUUID(objectId, "objectId");
+		await this.ensureActivated();
+		return this.request("GET", `/storage/v1/classification/objects/${objectId}`, {
+			operation: "getObjectClassification",
+			telemetryRoute: "/storage/v1/classification/objects/:objectId",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async startClassificationScan(scope: StartClassificationScanRequest): Promise<{
+		readonly id: string;
+		readonly scanType: "full" | "incremental" | "pii_only" | "reclassify";
+		readonly status: "in_progress";
+		readonly startedAt: string;
+	}> {
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/classification/scans", {
+			body: scope,
+			operation: "startClassificationScan",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async detectPII(content: string, contentType?: string): Promise<DetectPiiResult> {
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/classification/detect-pii", {
+			body: { content, contentType },
+			operation: "detectPII",
+		});
+	}
+
+	async getClassificationStats(): Promise<ClassificationStats> {
+		await this.ensureActivated();
+		return this.request("GET", "/storage/v1/classification/stats", {
+			operation: "getClassificationStats",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async createRetentionPolicy(policy: CreateRetentionPolicyRequest): Promise<{
+		readonly id: string;
+		readonly name: string;
+		readonly retentionType: RetentionType;
+		readonly retentionDays: number | null;
+		readonly deletionType: DeletionType;
+		readonly createdAt: string;
+	}> {
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/retention/policies", {
+			body: policy,
+			operation: "createRetentionPolicy",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async listRetentionPolicies(options?: {
+		readonly enabled?: boolean;
+	}): Promise<{ readonly policies: readonly RetentionPolicySummary[] }> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options?.enabled !== undefined) params.set("enabled", String(options.enabled));
+		const query = params.toString();
+		return this.request("GET", `/storage/v1/retention/policies${query ? `?${query}` : ""}`, {
+			operation: "listRetentionPolicies",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async placeHold(
+		objectId: string,
+		hold: Omit<PlaceHoldRequest, "objectId">,
+	): Promise<{
+		readonly id: string;
+		readonly objectId: string;
+		readonly holdType: LegalHoldType;
+		readonly legalCaseId: string | null;
+		readonly createdBy: string;
+		readonly createdAt: string;
+	}> {
+		validateUUID(objectId, "objectId");
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/retention/holds", {
+			body: { objectId, ...hold },
+			operation: "placeHold",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async releaseHold(
+		holdId: string,
+		releaseReason: string,
+	): Promise<{
+		readonly id: string;
+		readonly status: "released";
+		readonly releasedAt: string;
+		readonly releasedBy: string;
+		readonly releaseReason: string;
+	}> {
+		validateUUID(holdId, "holdId");
+		await this.ensureActivated();
+		return this.request("POST", `/storage/v1/retention/holds/${holdId}/release`, {
+			body: { releaseReason },
+			operation: "releaseHold",
+			telemetryRoute: "/storage/v1/retention/holds/:holdId/release",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async scheduleDelete(
+		objectId: string,
+		schedule: Omit<ScheduleDeleteRequest, "objectId">,
+	): Promise<{
+		readonly id: string;
+		readonly objectId: string;
+		readonly status: "pending" | "pending_approval";
+		readonly scheduledAt: string;
+		readonly deletionType: DeletionType;
+		readonly approvalRequired: boolean;
+	}> {
+		validateUUID(objectId, "objectId");
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/retention/deletions", {
+			body: { objectId, ...schedule },
+			operation: "scheduleDelete",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async evaluateRetention(
+		objectId: string,
+		options?: { readonly objectPath?: string; readonly metadata?: Record<string, unknown> },
+	): Promise<EvaluateRetentionResult> {
+		validateUUID(objectId, "objectId");
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/retention/evaluate", {
+			body: { objectId, ...options },
+			operation: "evaluateRetention",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async createReplicationConfig(config: CreateReplicationConfigRequest): Promise<{
+		readonly id: string;
+		readonly name: string;
+		readonly sourceRegion: string;
+		readonly targetRegions: readonly string[];
+		readonly replicationMode: ReplicationMode;
+		readonly createdAt: string;
+	}> {
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/replication/configurations", {
+			body: config,
+			operation: "createReplicationConfig",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async listReplicationConfigs(options?: {
+		readonly enabled?: boolean;
+		readonly sourceRegion?: string;
+	}): Promise<{ readonly configurations: readonly ReplicationConfigSummary[] }> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options?.enabled !== undefined) params.set("enabled", String(options.enabled));
+		if (options?.sourceRegion) params.set("sourceRegion", options.sourceRegion);
+		const query = params.toString();
+		return this.request(
+			"GET",
+			`/storage/v1/replication/configurations${query ? `?${query}` : ""}`,
+			{
+				operation: "listReplicationConfigs",
+				headers: { "x-qnsp-tenant-id": this.config.tenantId },
+			},
+		);
+	}
+
+	async replicateObject(
+		objectId: string,
+		regions: readonly string[],
+		options?: {
+			readonly sizeBytes?: number;
+			readonly sourceChecksum?: string;
+			readonly configurationId?: string;
+			readonly priority?: "low" | "normal" | "high" | "critical";
+		},
+	): Promise<{
+		readonly objectId: string;
+		readonly replications: readonly {
+			readonly id: string;
+			readonly targetRegion: string;
+			readonly status: "pending";
+		}[];
+		readonly initiatedAt: string;
+	}> {
+		validateUUID(objectId, "objectId");
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/replication/objects", {
+			body: {
+				objectId,
+				targetRegions: regions,
+				sizeBytes: options?.sizeBytes ?? 0,
+				sourceChecksum: options?.sourceChecksum,
+				configurationId: options?.configurationId,
+				priority: options?.priority ?? "normal",
+			},
+			operation: "replicateObject",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async getReplicationStatus(objectId: string): Promise<{
+		readonly objectId: string;
+		readonly replications: readonly ObjectReplicationStatus[];
+	}> {
+		validateUUID(objectId, "objectId");
+		await this.ensureActivated();
+		return this.request("GET", `/storage/v1/replication/objects/${objectId}/status`, {
+			operation: "getReplicationStatus",
+			telemetryRoute: "/storage/v1/replication/objects/:objectId/status",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async getReplicationMetrics(options?: {
+		readonly sourceRegion?: string;
+		readonly targetRegion?: string;
+		readonly periodDays?: number;
+	}): Promise<ReplicationMetrics> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options?.sourceRegion) params.set("sourceRegion", options.sourceRegion);
+		if (options?.targetRegion) params.set("targetRegion", options.targetRegion);
+		if (options?.periodDays !== undefined) params.set("periodDays", String(options.periodDays));
+		const query = params.toString();
+		return this.request("GET", `/storage/v1/replication/metrics${query ? `?${query}` : ""}`, {
+			operation: "getReplicationMetrics",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async getRegionHealth(): Promise<ReplicationHealth> {
+		await this.ensureActivated();
+		return this.request("GET", "/storage/v1/replication/health", {
+			operation: "getRegionHealth",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async createTieringPolicy(policy: CreateTieringPolicyRequest): Promise<{
+		readonly id: string;
+		readonly tenantId: string;
+		readonly name: string;
+		readonly enabled: boolean;
+		readonly rulesCount: number;
+		readonly createdAt: string;
+	}> {
+		await this.ensureActivated();
+		return this.request("POST", "/storage/v1/tiering/policies", {
+			body: policy,
+			operation: "createTieringPolicy",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async listTieringPolicies(): Promise<{ readonly policies: readonly TieringPolicy[] }> {
+		await this.ensureActivated();
+		return this.request("GET", "/storage/v1/tiering/policies", {
+			operation: "listTieringPolicies",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async evaluateTiering(
+		policyId: string,
+		options?: { readonly dryRun?: boolean },
+	): Promise<EvaluateTieringResult> {
+		validateUUID(policyId, "policyId");
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+		if (options?.dryRun !== undefined) params.set("dryRun", String(options.dryRun));
+		const query = params.toString();
+		return this.request(
+			"POST",
+			`/storage/v1/tiering/policies/${policyId}/evaluate${query ? `?${query}` : ""}`,
+			{
+				operation: "evaluateTiering",
+				telemetryRoute: "/storage/v1/tiering/policies/:policyId/evaluate",
+				headers: { "x-qnsp-tenant-id": this.config.tenantId },
+			},
+		);
+	}
+
+	async getTieringStats(): Promise<TieringStats> {
+		await this.ensureActivated();
+		return this.request("GET", "/storage/v1/tiering/stats", {
+			operation: "getTieringStats",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
+		});
+	}
+
+	async getTieringRecommendations(): Promise<{
+		readonly recommendations: readonly TieringRecommendation[];
+	}> {
+		await this.ensureActivated();
+		return this.request("GET", "/storage/v1/tiering/recommendations", {
+			operation: "getTieringRecommendations",
+			headers: { "x-qnsp-tenant-id": this.config.tenantId },
 		});
 	}
 
@@ -871,4 +1323,5 @@ export class StorageClient {
 
 export * from "./events.js";
 export * from "./observability.js";
+export * from "./types.js";
 export * from "./validation.js";

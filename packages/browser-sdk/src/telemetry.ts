@@ -11,6 +11,8 @@
  * @module
  */
 
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
+
 /**
  * A single telemetry event emitted by the browser-sdk.
  */
@@ -59,8 +61,6 @@ export interface BrowserSdkTelemetryConfig {
 	 */
 	readonly onFlush?: () => void | Promise<void>;
 }
-
-const SDK_VERSION = "0.1.0";
 
 let telemetryConfig: BrowserSdkTelemetryConfig | null = null;
 
@@ -122,7 +122,7 @@ export function recordTelemetryEvent(
 		success,
 		runtime,
 		timestamp: new Date().toISOString(),
-		sdkVersion: SDK_VERSION,
+		sdkVersion: SDK_PACKAGE_VERSION,
 		...(error !== undefined ? { error } : {}),
 	};
 

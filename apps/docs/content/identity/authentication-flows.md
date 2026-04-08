@@ -27,6 +27,34 @@ Returns access token + refresh token.
 2. Client signs with authenticator
 3. `POST /auth/webauthn/authenticate/complete` — verify and get tokens
 
+### OAuth / Social Sign-In (GitHub, Google)
+
+One-click sign-up and sign-in via GitHub or Google. Handled entirely by the Cloud Portal BFF — no direct auth-service API calls required from the client.
+
+1. User navigates to `GET /api/auth/oauth/{provider}` (`provider` = `github` or `google`)
+2. BFF generates a CSRF state (HMAC-SHA256 nonce) and sets `qnsp_oauth_state` cookie (HttpOnly, SameSite=Lax, 10 min TTL)
+3. BFF redirects to the provider's authorization endpoint:
+   - **GitHub**: `https://github.com/login/oauth/authorize` — scopes `user:email read:user`
+   - **Google**: `https://accounts.google.com/o/oauth2/v2/auth` — scopes `openid email profile`
+4. Provider redirects to `GET /api/auth/oauth/{provider}/callback?code=…&state=…`
+5. BFF verifies the CSRF state against the cookie, exchanges the `code` for an access token, and fetches the user profile from the provider API
+6. **Returning user**: identity lookup via `POST /auth/oauth/identity` → session issued
+7. **New user**: tenant + user provisioned via billing-service, OAuth identity linked via `POST /auth/oauth/identity/link`, then session issued
+8. BFF calls `POST /auth/oauth/session` → receives PQC-signed JWT (ML-DSA) + refresh token
+9. Session cookies written; user redirected to `/dashboard`
+
+**Environment variables** (Cloud Portal):
+| Variable | Description |
+|---|---|
+| `CLOUD_OAUTH_GITHUB_CLIENT_ID` | GitHub OAuth app client ID |
+| `CLOUD_OAUTH_GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret |
+| `CLOUD_OAUTH_GOOGLE_CLIENT_ID` | Google OAuth app client ID |
+| `CLOUD_OAUTH_GOOGLE_CLIENT_SECRET` | Google OAuth app client secret |
+| `CLOUD_OAUTH_SESSION_SECRET` | HMAC secret for CSRF state signing |
+| `CLOUD_PORTAL_URL` | Callback base URL (default: `https://cloud.qnsp.cuilabs.io`) |
+
+**Sign up / sign in at:** [cloud.qnsp.cuilabs.io/auth](https://cloud.qnsp.cuilabs.io/auth)
+
 ### Federated flow (OIDC)
 1. Redirect to IdP
 2. IdP callback with code

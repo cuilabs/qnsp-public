@@ -1,7 +1,7 @@
 ---
 title: AI SDK (@qnsp/ai-sdk)
-version: 0.1.0
-last_updated: 2026-01-04
+version: 0.2.0
+last_updated: 2026-03-20
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -181,6 +181,261 @@ try {
 }
 ```
 
+## Model Registry
+
+Register, version, and manage AI models throughout their lifecycle:
+
+```ts
+// Register a new model
+const model = await ai.registerModel({
+	tenantId: "<tenant_uuid>",
+	name: "customer-churn-predictor",
+	version: "1.0.0",
+	provider: "pytorch",
+	modelType: "classification",
+	servingConfig: {
+		framework: "pytorch",
+		runtimeImage: "qnsp/pytorch-serve:2.0",
+		minInstances: 1,
+		maxInstances: 10,
+	},
+	tags: ["production", "ml-ops"],
+});
+
+// List models with filters
+const { models, total } = await ai.listModels({
+	tenantId: "<tenant_uuid>",
+	status: "active",
+	provider: "pytorch",
+	limit: 50,
+});
+
+// Get model details
+const modelDetails = await ai.getModel("<model_uuid>");
+
+// Activate a model for production use
+await ai.activateModel("<model_uuid>", {
+	activationNote: "Passed all validation tests",
+});
+
+// Deprecate a model
+await ai.deprecateModel("<model_uuid>", {
+	deprecationReason: "Superseded by v2.0",
+	replacementModelId: "<new_model_uuid>",
+	sunsetDate: "2026-06-01",
+});
+```
+
+## Model Deployments
+
+Deploy models to specific environments:
+
+```ts
+// Create a deployment
+const deployment = await ai.createDeployment({
+	tenantId: "<tenant_uuid>",
+	modelId: "<model_uuid>",
+	name: "churn-predictor-prod",
+	environment: "production",
+	resources: {
+		cpu: 4,
+		memoryMb: 16384,
+		gpu: 1,
+	},
+	autoscaling: {
+		minReplicas: 2,
+		maxReplicas: 20,
+		targetCpuUtilization: 70,
+		scaleDownDelaySeconds: 300,
+	},
+});
+
+// List deployments
+const { deployments } = await ai.listDeployments({
+	tenantId: "<tenant_uuid>",
+	environment: "production",
+	status: "running",
+});
+
+// Get deployment details
+const deploymentDetails = await ai.getDeployment("<deployment_uuid>");
+
+// Stop a deployment
+await ai.stopDeployment("<deployment_uuid>", {
+	reason: "Scheduled maintenance",
+});
+```
+
+## Cost Optimization
+
+Monitor and optimize AI inference costs:
+
+```ts
+// Get cost summary
+const summary = await ai.getCostSummary({ tenantId: "<tenant_uuid>" });
+console.log(summary);
+// {
+//   currentPeriodCost: 1250.50,
+//   previousPeriodCost: 1180.25,
+//   projectedMonthlyCost: 2500.00,
+//   costTrend: "increasing",
+//   topCostDrivers: [...]
+// }
+
+// Get detailed cost analytics
+const analytics = await ai.getCostAnalytics({
+	tenantId: "<tenant_uuid>",
+	startDate: "2026-03-01",
+	endDate: "2026-03-20",
+	groupBy: "model",
+});
+
+// Create a budget
+const budget = await ai.createBudget({
+	tenantId: "<tenant_uuid>",
+	name: "Q1 AI Inference Budget",
+	budgetType: "monthly",
+	amount: 5000,
+	alertThresholds: [50, 75, 90, 100],
+	notificationChannels: ["email", "slack"],
+});
+
+// List budgets
+const { budgets } = await ai.listBudgets({ tenantId: "<tenant_uuid>" });
+
+// Get cost alerts
+const { alerts } = await ai.getCostAlerts({
+	tenantId: "<tenant_uuid>",
+	severity: "high",
+	acknowledged: false,
+});
+
+// Acknowledge an alert
+await ai.acknowledgeCostAlert("<alert_uuid>");
+
+// Get optimization recommendations
+const { recommendations } = await ai.getOptimizationRecommendations({
+	tenantId: "<tenant_uuid>",
+	status: "pending",
+});
+
+// Accept a recommendation
+await ai.acceptRecommendation("<recommendation_uuid>", {
+	implementationNote: "Applying during next maintenance window",
+});
+```
+
+## Bias Monitoring
+
+Detect and track bias in AI model outputs:
+
+```ts
+// Create a bias evaluation
+const evaluation = await ai.createBiasEvaluation({
+	tenantId: "<tenant_uuid>",
+	modelId: "<model_uuid>",
+	name: "Q1 Fairness Audit",
+	evaluationType: "demographic_parity",
+	protectedAttributes: ["gender", "age_group", "ethnicity"],
+	targetMetrics: ["accuracy", "false_positive_rate", "false_negative_rate"],
+});
+
+// Start the evaluation
+await ai.startEvaluation("<evaluation_uuid>");
+
+// List evaluations
+const { evaluations } = await ai.listEvaluations({
+	tenantId: "<tenant_uuid>",
+	status: "completed",
+});
+
+// Get evaluation details
+const evaluationDetails = await ai.getEvaluation("<evaluation_uuid>");
+
+// Get bias incidents
+const { incidents } = await ai.getBiasIncidents({
+	tenantId: "<tenant_uuid>",
+	severity: "high",
+	status: "open",
+});
+
+// Record a bias incident manually
+await ai.recordBiasIncident({
+	tenantId: "<tenant_uuid>",
+	modelId: "<model_uuid>",
+	incidentType: "disparate_impact",
+	severity: "medium",
+	description: "Higher rejection rate for age group 50+",
+	affectedAttribute: "age_group",
+	affectedGroup: "50+",
+});
+
+// Get fairness metrics
+const { metrics } = await ai.getFairnessMetrics({
+	tenantId: "<tenant_uuid>",
+	modelId: "<model_uuid>",
+});
+
+// Get bias monitoring summary
+const biasSummary = await ai.getBiasSummary({ tenantId: "<tenant_uuid>" });
+```
+
+## Prompt Injection Detection
+
+Detect and prevent prompt injection attacks:
+
+```ts
+// Create a detection pattern
+const pattern = await ai.createDetectionPattern({
+	tenantId: "<tenant_uuid>",
+	name: "System Prompt Override",
+	patternType: "regex",
+	pattern: "ignore\\s+(previous|above|all)\\s+instructions",
+	attackCategory: "instruction_override",
+	severity: "critical",
+	enabled: true,
+});
+
+// List patterns
+const { patterns } = await ai.listPatterns({
+	tenantId: "<tenant_uuid>",
+	enabled: true,
+});
+
+// Get pattern details
+const patternDetails = await ai.getPattern("<pattern_uuid>");
+
+// Delete a pattern
+await ai.deletePattern("<pattern_uuid>");
+
+// Get injection incidents
+const { incidents: injectionIncidents } = await ai.getInjectionIncidents({
+	tenantId: "<tenant_uuid>",
+	severity: "critical",
+	since: "2026-03-01",
+});
+
+// Get injection statistics
+const stats = await ai.getInjectionStats({
+	tenantId: "<tenant_uuid>",
+	startDate: "2026-03-01",
+	endDate: "2026-03-20",
+	groupBy: "attack_category",
+});
+
+// Get injection summary
+const injectionSummary = await ai.getInjectionSummary({ tenantId: "<tenant_uuid>" });
+
+// Configure detection settings
+await ai.configureDetection({
+	tenantId: "<tenant_uuid>",
+	detectionMode: "enforce",
+	sensitivityLevel: "high",
+	blockOnDetection: true,
+	logAllAttempts: true,
+});
+```
+
 ## Key APIs
 
 ### Artifacts
@@ -188,7 +443,7 @@ try {
 
 ### Workloads
 - `AiOrchestratorClient.submitWorkload(input)` - Submit workload
-- `AiOrchestratorClient.deployModel(request)` - Deploy model
+- `AiOrchestratorClient.deployModel(request)` - Deploy model (legacy)
 - `AiOrchestratorClient.getWorkload(workloadId)` - Get status
 - `AiOrchestratorClient.listWorkloads(params?)` - List workloads
 - `AiOrchestratorClient.cancelWorkload(input)` - Cancel workload
@@ -197,9 +452,61 @@ try {
 - `AiOrchestratorClient.invokeInference(request)` - Invoke inference
 - `AiOrchestratorClient.streamInferenceEvents(workloadId)` - Stream events
 
+### Model Registry
+- `AiOrchestratorClient.registerModel(request)` - Register a new model
+- `AiOrchestratorClient.listModels(params?)` - List models with filters
+- `AiOrchestratorClient.getModel(modelId)` - Get model details
+- `AiOrchestratorClient.updateModel(modelId, request)` - Update model
+- `AiOrchestratorClient.activateModel(modelId, request)` - Activate model
+- `AiOrchestratorClient.deprecateModel(modelId, request)` - Deprecate model
+- `AiOrchestratorClient.createDeployment(request)` - Create deployment
+- `AiOrchestratorClient.listDeployments(params?)` - List deployments
+- `AiOrchestratorClient.getDeployment(deploymentId)` - Get deployment
+- `AiOrchestratorClient.stopDeployment(deploymentId, request)` - Stop deployment
+
+### Cost Optimization
+- `AiOrchestratorClient.getCostSummary(params)` - Get cost summary
+- `AiOrchestratorClient.getCostAnalytics(params)` - Get cost analytics
+- `AiOrchestratorClient.createBudget(request)` - Create budget
+- `AiOrchestratorClient.listBudgets(params?)` - List budgets
+- `AiOrchestratorClient.getBudget(budgetId)` - Get budget
+- `AiOrchestratorClient.deleteBudget(budgetId)` - Delete budget
+- `AiOrchestratorClient.getCostAlerts(params?)` - Get cost alerts
+- `AiOrchestratorClient.acknowledgeCostAlert(alertId)` - Acknowledge alert
+- `AiOrchestratorClient.getOptimizationRecommendations(params?)` - Get recommendations
+- `AiOrchestratorClient.acceptRecommendation(recommendationId, request)` - Accept recommendation
+
+### Bias Monitoring
+- `AiOrchestratorClient.createBiasEvaluation(request)` - Create evaluation
+- `AiOrchestratorClient.startEvaluation(evaluationId)` - Start evaluation
+- `AiOrchestratorClient.listEvaluations(params?)` - List evaluations
+- `AiOrchestratorClient.getEvaluation(evaluationId)` - Get evaluation
+- `AiOrchestratorClient.getBiasIncidents(params?)` - Get incidents
+- `AiOrchestratorClient.recordBiasIncident(request)` - Record incident
+- `AiOrchestratorClient.getFairnessMetrics(params)` - Get fairness metrics
+- `AiOrchestratorClient.getBiasSummary(params)` - Get bias summary
+
+### Prompt Injection
+- `AiOrchestratorClient.createDetectionPattern(request)` - Create pattern
+- `AiOrchestratorClient.listPatterns(params?)` - List patterns
+- `AiOrchestratorClient.getPattern(patternId)` - Get pattern
+- `AiOrchestratorClient.deletePattern(patternId)` - Delete pattern
+- `AiOrchestratorClient.getInjectionIncidents(params?)` - Get incidents
+- `AiOrchestratorClient.getInjectionStats(params)` - Get statistics
+- `AiOrchestratorClient.getInjectionSummary(params)` - Get summary
+- `AiOrchestratorClient.configureDetection(request)` - Configure detection
+
 ### Types
 - `SubmitWorkloadRequest` - Workload configuration
 - `ModelDeploymentRequest` - Model deployment config
 - `InferenceRequest` - Inference input
 - `InferenceStreamEvent` - Streaming event
 - `TierError` - Tier access error
+- `Model` - Model entity
+- `Deployment` - Deployment entity
+- `CostSummary` - Cost summary data
+- `Budget` - Budget configuration
+- `BiasEvaluation` - Bias evaluation
+- `BiasIncident` - Bias incident
+- `DetectionPattern` - Injection detection pattern
+- `InjectionIncident` - Injection incident

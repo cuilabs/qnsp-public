@@ -32,6 +32,14 @@
  * @module
  */
 
+// SDK activation types (re-exported from @qnsp/sdk-activation)
+export type {
+	SdkActivationConfig,
+	SdkActivationLimits,
+	SdkActivationResponse,
+	SdkIdentifier,
+} from "@qnsp/sdk-activation";
+export { SdkActivationError_ } from "@qnsp/sdk-activation";
 // Client-side encryption (CSE) helpers
 export {
 	type CseEnvelope,
@@ -40,14 +48,15 @@ export {
 	encryptBeforeUpload,
 	serializeCseEnvelope,
 } from "./encrypt.js";
-
 // Re-export core types for convenience
 export type { PqcAlgorithm, PqcKeyPair, PqcProvider } from "./pqc-types.js";
 // Provider setup and auto-detection
 export {
 	detectRuntime,
 	getActiveProvider,
+	getLastActivation,
 	getSupportedAlgorithms,
+	type InitializePqcProviderOptions,
 	initializePqcProvider,
 	isProviderInitialized,
 	NOBLE_SUPPORTED_ALGORITHMS,

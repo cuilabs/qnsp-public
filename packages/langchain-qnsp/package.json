@@ -1,0 +1,69 @@
+{
+	"name": "@qnsp/langchain-qnsp",
+	"version": "0.1.1",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"license": "Apache-2.0",
+	"description": "LangChain tools for QNSP — governed agents with PQC-encrypted secrets, quantum-safe signing, and immutable audit trails.",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"test:integration": "vitest run --config vitest.integration.config.ts",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@langchain/core": "^0.3.0",
+		"@qnsp/vault-sdk": "workspace:*",
+		"@qnsp/kms-client": "workspace:*",
+		"@qnsp/audit-sdk": "workspace:*",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"vitest": "4.1.2"
+	},
+	"peerDependencies": {
+		"@langchain/core": ">=0.3.0"
+	},
+	"engines": {
+		"node": ">=24.12.0"
+	},
+	"keywords": [
+		"qnsp",
+		"langchain",
+		"pqc",
+		"post-quantum",
+		"ai-agents",
+		"governed-ai",
+		"vault",
+		"kms",
+		"audit",
+		"quantum-safe",
+		"typescript"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/langchain-qnsp"
+	},
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"files": [
+		"dist/**/*",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	]
+}

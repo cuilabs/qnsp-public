@@ -1,0 +1,75 @@
+{
+	"name": "@qnsp/cryptography",
+	"version": "0.1.0",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"description": "Post-quantum cryptography (PQC) primitives for Node.js: ML-KEM, ML-DSA, SLH-DSA, FN-DSA, HQC — all 90 NIST PQC algorithms via liboqs. Free tier at cloud.qnsp.cuilabs.io.",
+	"keywords": [
+		"qnsp",
+		"pqc",
+		"post-quantum",
+		"post-quantum-cryptography",
+		"cryptography",
+		"nist",
+		"fips-203",
+		"fips-204",
+		"fips-205",
+		"ml-kem",
+		"ml-dsa",
+		"slh-dsa",
+		"kyber",
+		"dilithium",
+		"sphincs",
+		"liboqs",
+		"quantum-safe",
+		"quantum-resistant",
+		"typescript",
+		"nodejs"
+	],
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/cryptography"
+	},
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./providers": {
+			"types": "./dist/providers/index.d.ts",
+			"default": "./dist/providers/index.js"
+		},
+		"./testing/providers": {
+			"types": "./dist/testing/providers.d.ts",
+			"default": "./dist/testing/providers.js"
+		}
+	},
+	"dependencies": {
+		"@cuilabs/liboqs-native": "workspace:*",
+		"@noble/hashes": "^2.0.1",
+		"@noble/post-quantum": "^0.6.0",
+		"zod": "^4.3.6"
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"dev": "tsx watch src/index.ts",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"smoke": "pnpm run build && node dist/smoke/liboqs-smoke.js",
+		"typecheck": "tsc --project tsconfig.json --noEmit",
+		"rotate-pqc-cert": "node dist/tls/rotate-pqc-cert.js"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"vitest": "4.1.2"
+	}
+}

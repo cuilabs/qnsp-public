@@ -8,8 +8,11 @@
 
 import { performance } from "node:perf_hooks";
 
+import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+
 import type { KmsClientTelemetry, KmsClientTelemetryConfig } from "./observability.js";
 import { createKmsClientTelemetry, isKmsClientTelemetry } from "./observability.js";
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 import { validateUUID } from "./validation.js";
 
 /**
@@ -160,10 +163,14 @@ export interface KmsServiceClient {
 		wrappedKey: string; // Base64-encoded
 		keyId: string;
 		associatedData?: string; // Base64-encoded
+		providerHint?: string; // HSM provider that performed the wrap
 	}): Promise<{
 		dataKey: string; // Base64-encoded
 	}>;
 }
+
+/** Default QNSP cloud API base URL. Get a free API key at https://cloud.qnsp.cuilabs.io/signup */
+export const QNSP_CLOUD_URL = "https://api.qnsp.cuilabs.io";
 
 export interface HttpKmsServiceClientAuthConfig {
 	readonly getAuthHeader: () => Promise<string | undefined>;
@@ -183,6 +190,19 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 	private readonly retryDelayMs: number;
 	private readonly telemetry: KmsClientTelemetry | null;
 	private readonly targetService: string;
+	private activationPromise: Promise<void> | null = null;
+	private readonly activationConfig: SdkActivationConfig | null;
+	private resolvedTenantId: string | null = null;
+
+	private async ensureActivated(): Promise<void> {
+		if (!this.activationConfig) return;
+		if (!this.activationPromise) {
+			this.activationPromise = activateSdk(this.activationConfig).then((response) => {
+				this.resolvedTenantId = response.tenantId;
+			});
+		}
+		return this.activationPromise;
+	}
 
 	private static isPrivateIpv4(hostname: string): boolean {
 		const m = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
@@ -244,7 +264,7 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 			throw new Error(
 				"QNSP KMS Client: apiToken is required. " +
 					"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-					"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+					"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 					"Docs: https://docs.qnsp.cuilabs.io/sdk/kms-client",
 			);
 		}
@@ -253,7 +273,7 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 				throw new Error(
 					"QNSP KMS Client: apiToken is required. " +
 						"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-						"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+						"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 						"Docs: https://docs.qnsp.cuilabs.io/sdk/kms-client",
 				);
 			}
@@ -278,6 +298,17 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 		} catch {
 			this.targetService = "kms-service";
 		}
+
+		// Only activate for external consumers (apiToken). Internal service-to-service
+		// calls use getAuthHeaderFn and skip activation.
+		this.activationConfig = this.apiToken
+			? {
+					apiKey: this.apiToken,
+					sdkId: "kms-client",
+					sdkVersion: SDK_PACKAGE_VERSION,
+					platformUrl: this.baseUrl,
+				}
+			: null;
 	}
 
 	private async buildAuthHeader(): Promise<string | undefined> {
@@ -334,6 +365,7 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 		provider: string;
 	}> {
 		validateUUID(input.tenantId, "tenantId");
+		await this.ensureActivated();
 
 		const url = new URL(`/kms/v1/keys/${input.keyId}/wrap`, this.baseUrl);
 		const headers: Record<string, string> = {
@@ -342,6 +374,11 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 		const authHeader = await this.buildAuthHeader();
 		if (authHeader) {
 			headers["authorization"] = authHeader;
+		}
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
 		}
 
 		const route = "/kms/v1/keys/:keyId/wrap";
@@ -411,10 +448,12 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 		wrappedKey: string;
 		keyId: string;
 		associatedData?: string;
+		providerHint?: string;
 	}): Promise<{
 		dataKey: string;
 	}> {
 		validateUUID(input.tenantId, "tenantId");
+		await this.ensureActivated();
 
 		const url = new URL(`/kms/v1/keys/${input.keyId}/unwrap`, this.baseUrl);
 		const headers: Record<string, string> = {
@@ -423,6 +462,11 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 		const authHeader = await this.buildAuthHeader();
 		if (authHeader) {
 			headers["authorization"] = authHeader;
+		}
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
 		}
 
 		const route = "/kms/v1/keys/:keyId/unwrap";
@@ -441,6 +485,7 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 						tenantId: input.tenantId,
 						wrappedKey: input.wrappedKey,
 						...(input.associatedData ? { associatedData: input.associatedData } : {}),
+						...(input.providerHint ? { providerHint: input.providerHint } : {}),
 					}),
 				},
 				0,
@@ -476,6 +521,17 @@ export class HttpKmsServiceClient implements KmsServiceClient {
 			}
 		}
 	}
+}
+
+/**
+ * Factory: create a KMS client pointed at the QNSP cloud.
+ * Equivalent to `new HttpKmsServiceClient(QNSP_CLOUD_URL, apiToken, options)`.
+ */
+export function createKmsClient(
+	apiToken: string,
+	options?: KmsClientOptions,
+): HttpKmsServiceClient {
+	return new HttpKmsServiceClient(QNSP_CLOUD_URL, apiToken, options);
 }
 
 export * from "./observability.js";

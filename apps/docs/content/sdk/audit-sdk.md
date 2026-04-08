@@ -1,7 +1,7 @@
 ---
 title: Audit SDK (@qnsp/audit-sdk)
-version: 0.1.0
-last_updated: 2026-02-16
+version: 0.4.0
+last_updated: 2026-03-20
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -99,6 +99,96 @@ while (cursor) {
 }
 ```
 
+## Real-Time Streaming
+
+Stream audit events in real-time via webhooks or WebSockets:
+
+```ts
+// Create a streaming subscription
+const subscription = await audit.createSubscription({
+	name: "Security Events",
+	description: "Stream security-related audit events",
+	filters: {
+		topics: ["auth.login", "auth.logout", "access.denied"],
+		severities: ["warning", "critical"],
+	},
+	webhookUrl: "https://example.com/webhooks/audit",
+	websocketEnabled: true,
+	batchSize: 100,
+	batchIntervalMs: 5000,
+});
+
+// List subscriptions
+const { items } = await audit.listSubscriptions({ status: "active" });
+
+// Update subscription
+await audit.updateSubscription(subscription.id, {
+	status: "paused",
+});
+
+// Get streaming metrics
+const metrics = await audit.getStreamingMetrics({
+	subscriptionId: subscription.id,
+	since: "2026-03-01T00:00:00Z",
+});
+console.log(metrics.eventsDelivered, metrics.deliveryLatencyP50Ms);
+
+// Delete subscription
+await audit.deleteSubscription(subscription.id);
+```
+
+## Retention Management
+
+Configure audit event lifecycle and cleanup policies:
+
+```ts
+// Create a retention policy
+const policy = await audit.createRetentionPolicy({
+	name: "Standard Retention",
+	rules: [
+		{
+			name: "Archive old events",
+			filters: {
+				olderThanDays: 365,
+				sourceServices: ["storage-service"],
+			},
+			action: "archive",
+			archiveDestination: "s3://audit-archive/",
+		},
+		{
+			name: "Delete very old",
+			filters: {
+				olderThanDays: 2555, // 7 years
+			},
+			action: "delete",
+		},
+	],
+	schedule: {
+		cronExpression: "0 2 * * 0", // Weekly Sunday 2am
+		timezone: "UTC",
+	},
+});
+
+// List retention policies
+const policies = await audit.listRetentionPolicies({ status: "active" });
+
+// Preview cleanup (dry run)
+const preview = await audit.previewCleanup({ policyId: policy.id });
+console.log(`Would affect ${preview.estimatedEventsAffected} events`);
+
+// Execute cleanup
+const result = await audit.executeCleanup({
+	policyId: policy.id,
+	dryRun: false,
+});
+
+// Get retention metrics
+const retentionMetrics = await audit.getRetentionMetrics({
+	since: "2026-01-01T00:00:00Z",
+});
+console.log(retentionMetrics.totalBytesReclaimed);
+```
+
 ## PQC Algorithm Information
 
 The Audit SDK exports the full 90-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
@@ -142,12 +232,28 @@ console.log(ALGORITHM_TO_NIST);
 - `AuditClient.ingestEvents(request)` - Batch ingest (1-100 events)
 - `AuditClient.listEvents(request?)` - Query with filters and pagination
 
+### Real-Time Streaming
+- `AuditClient.createSubscription(request)` - Create streaming subscription
+- `AuditClient.listSubscriptions(request?)` - List subscriptions
+- `AuditClient.updateSubscription(id, request)` - Update subscription
+- `AuditClient.deleteSubscription(id)` - Delete subscription
+- `AuditClient.getStreamingMetrics(request?)` - Get delivery metrics
+
+### Retention
+- `AuditClient.createRetentionPolicy(request)` - Create retention policy
+- `AuditClient.listRetentionPolicies(request?)` - List policies
+- `AuditClient.updateRetentionPolicy(id, request)` - Update policy
+- `AuditClient.deleteRetentionPolicy(id)` - Delete policy
+- `AuditClient.executeCleanup(request)` - Run cleanup
+- `AuditClient.previewCleanup(request)` - Preview cleanup (dry run)
+- `AuditClient.getRetentionMetrics(request?)` - Get retention metrics
+
 ### Utilities
 - `toNistAlgorithmName(algorithm)` - Convert internal to NIST name
 - `ALGORITHM_TO_NIST` - Algorithm name mapping
 
 ### Types
 - `AuditEvent` - Full event with signatures and chain hashes
-- `IngestEventsRequest` - Batch ingest request
-- `ListEventsRequest` - Query filters
-- `ListEventsResult` - Paginated results
+- `StreamingSubscription` - Real-time subscription configuration
+- `RetentionPolicy` - Lifecycle management policy
+- `RetentionCleanupResult` - Cleanup execution result

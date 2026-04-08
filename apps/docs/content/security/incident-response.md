@@ -65,7 +65,7 @@ How QNSP handles security incidents.
 ## Reporting incidents
 
 Report security concerns:
-- Email: security@qnsp.io
+- Email: qnsp-security@cuilabs.io
 - Portal: https://cloud.qnsp.cuilabs.io/security
 
 ## Customer responsibilities

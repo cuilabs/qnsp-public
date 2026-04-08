@@ -43,8 +43,8 @@ import {
   generateEncryptionKeyPair,
 } from "@qnsp/browser-sdk";
 
-// Initialize the PQC provider (auto-detects runtime)
-await initializePqcProvider();
+// Initialize the PQC provider with your QNSP API key
+await initializePqcProvider({ apiKey: "YOUR_API_KEY" });
 
 // Generate ML-KEM key pair
 const { publicKey, privateKey } = await generateEncryptionKeyPair("kyber-768");
@@ -74,8 +74,8 @@ import {
 // Detect runtime environment
 const runtime = detectRuntime(); // "browser" | "edge" | "node"
 
-// Initialize provider
-await initializePqcProvider();
+// Initialize provider with your QNSP API key
+await initializePqcProvider({ apiKey: "YOUR_API_KEY" });
 
 // Check initialization status
 console.log(isProviderInitialized()); // true
@@ -182,7 +182,7 @@ The noble provider uses `@noble/post-quantum` which is a pure JavaScript impleme
 import { initializePqcProvider, encryptBeforeUpload, generateEncryptionKeyPair } from "@qnsp/browser-sdk";
 import { StorageClient } from "@qnsp/storage-sdk";
 
-await initializePqcProvider();
+await initializePqcProvider({ apiKey: "YOUR_API_KEY" });
 
 // Generate keys
 const { publicKey, privateKey } = await generateEncryptionKeyPair("kyber-768");
@@ -208,7 +208,7 @@ const upload = await storage.initiateUpload({
 ## Key APIs
 
 ### Provider Management
-- `initializePqcProvider()` — Initialize the noble PQC provider
+- `initializePqcProvider({ apiKey })` — Initialize the noble PQC provider with API key
 - `isProviderInitialized()` — Check if provider is ready
 - `getActiveProvider()` — Get the active `PqcProvider` instance
 - `detectRuntime()` — Detect current runtime environment

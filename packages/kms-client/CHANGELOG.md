@@ -1,5 +1,35 @@
 # @qnsp/kms-client
 
+## 0.2.4
+
+### Patch Changes
+
+- 2b24dc5: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- 1ac5429: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- 3e2e418: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- 27b9194: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- dbee41f: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- 1ad6813: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- 54f677d: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- d311fc1: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- 8b8c331: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- dbfd5fd: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- d588b14: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- e88fb5d: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
+- Add optional `providerHint` parameter to `unwrapKey` for multi-HSM provider affinity routing. When wrapping a key, the response includes the `provider` name. Callers can store this and pass it back as `providerHint` on unwrap to ensure the same HSM provider handles both operations. Backward-compatible — omitting `providerHint` preserves existing round-robin failover behavior.
+- aaa11cc: docs: add GitHub and Google OAuth sign-up links and update platform sign-in references across all published SDKs; add OAuth/Social Sign-In section to @qnsp/auth-sdk; add README to @qnsp/agent
+- Updated dependencies [1ac5429]
+- Updated dependencies [1ac5429]
+- Updated dependencies [59ec933]
+- Updated dependencies [1ad6813]
+- Updated dependencies [54f677d]
+- Updated dependencies [d311fc1]
+- Updated dependencies [8b8c331]
+- Updated dependencies [dbfd5fd]
+- Updated dependencies [e88fb5d]
+- Updated dependencies [aaa11cc]
+  - @qnsp/sdk-activation@0.1.3
+
 ## 0.2.0
 
 ### Minor Changes

@@ -21,12 +21,12 @@ Resource quotas and limits.
 
 ## Tier-based quotas
 
-| Resource | Developer | Business | Enterprise |
-|----------|-----------|----------|------------|
-| Keys | 100 | 1,000 | Unlimited |
-| Secrets | 1,000 | 10,000 | Unlimited |
-| Storage | 10 GB | 100 GB | Custom |
-| API calls/month | 100K | 1M | Custom |
+| Resource | Free | Developer | Business | Enterprise |
+|----------|------|-----------|----------|------------|
+| KMS keys | 20 | 30–125 | 300–1K | 2K–5K |
+| Vault secrets | 25 | 75–500 | 1K–4K | 8K–20K |
+| Storage | 10 GB | 100–500 GB | 5–15 TB | 20–25 TB |
+| API calls/month | 50K | 100K–750K | 1.5M–10M | 15M–30M |
 
 ## Checking quotas
 

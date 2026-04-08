@@ -1,7 +1,8 @@
 # @qnsp/auth-sdk
 
-TypeScript client for the QNSP Auth service. Provides login flows, refresh tokens, FIDO2/WebAuthn
-passkeys, MFA, SAML/OIDC federation, and service-to-service token issuance.
+TypeScript SDK client for the QNSP auth-service API. Provides authentication, token management, WebAuthn, MFA, and federation.
+
+Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 
 ## Installation
 
@@ -9,66 +10,60 @@ passkeys, MFA, SAML/OIDC federation, and service-to-service token issuance.
 pnpm add @qnsp/auth-sdk
 ```
 
-## Authentication
+## Quick Start
 
-Most methods require an **API key / service token** generated from the Auth service (or issued via the
-cloud portal). Provide it through the `apiKey` option when instantiating `AuthClient`. Service clients
-can also call `ServiceTokenClient` with their service ID/secret to mint PQC-signed access tokens.
-
-```ts
-import { AuthClient } from "@qnsp/auth-sdk";
-
-const auth = new AuthClient({
-  baseUrl: "https://auth.qnsp.cuilabs.io",
-  apiKey: process.env.QNSP_SERVICE_TOKEN!,
-  timeoutMs: 15_000,
-});
-```
-
-## Tier requirements
-
-Authentication is available on **all tiers**. Higher tiers unlock more tenants and advanced federation
-options, but the SDK does not enforce tier checks. Backend services evaluate quotas via shared kernel
-limits.
-
-## Usage example
-
-```ts
+```typescript
 import { AuthClient } from "@qnsp/auth-sdk";
 
 const auth = new AuthClient({
   baseUrl: "https://api.qnsp.cuilabs.io",
-  apiKey: process.env.QNSP_SERVICE_TOKEN,
+  apiKey: "YOUR_API_KEY",
 });
 
-// Email/password login with optional TOTP
-const { accessToken, refreshToken } = await auth.login({
-  email: "dev@example.com",
-  password: "P@ssw0rd!",
-  tenantId: "tenant_123",
+const tokens = await auth.login({
+  email: "user@example.com",
+  password: "••••••••",
+  tenantId: "your-tenant-id",
 });
 
-// Start WebAuthn passkey registration
-const registration = await auth.startWebAuthnRegistration({
-  userId: "user_456",
-  tenantId: "tenant_123",
-});
+const refreshed = await auth.refreshToken({ refreshToken: tokens.refreshToken!.token });
 ```
 
-## Telemetry
+## OAuth / Social Sign-In
 
-Pass `telemetry` (either an instance or `createAuthClientTelemetry` config) to emit OpenTelemetry
-metrics such as request durations, failures, and retry counts. This data feeds the Auth dashboards in
-`docs/observability/portal-dashboards.md`.
+QNSP supports one-click sign-up and sign-in via GitHub and Google. OAuth is handled by the QNSP Cloud Portal BFF — no SDK code required for the OAuth flow itself.
 
-## Related documentation
+**Sign up or sign in at:** [cloud.qnsp.cuilabs.io/auth](https://cloud.qnsp.cuilabs.io/auth)
 
-- [Developer onboarding guide](../../docs/guides/developer-onboarding.md#sdk-quick-links)
-- [SDK inventory](../../docs/technical/SDK-INVENTORY.md)
-- [Tier limits](../shared-kernel/src/tier-limits.ts)
+Supported providers:
+- **GitHub** — authorizes via `github.com/login/oauth/authorize`, scopes: `user:email read:user`
+- **Google** — authorizes via `accounts.google.com/o/oauth2/v2/auth`, scopes: `openid email profile`
+
+After OAuth sign-in completes, QNSP issues a PQC-signed JWT (ML-DSA) and a refresh token — identical to password-based sessions. Use the `AuthClient` for all subsequent token operations (refresh, revoke, introspect).
+
+```typescript
+const refreshed = await auth.refreshToken({ refreshToken: storedRefreshToken });
+```
+
+For WebAuthn passkey authentication:
+
+```typescript
+const challenge = await auth.startPasskeyAuthentication({ tenantId: "your-tenant-id" });
+const assertion = await navigator.credentials.get({ publicKey: challenge.publicKeyOptions });
+const session = await auth.completePasskeyAuthentication({ tenantId: "your-tenant-id", assertion });
+```
+
+## Documentation
+
+- [SDK Reference](https://docs.qnsp.cuilabs.io/sdk/auth-sdk)
+- [API Documentation](https://docs.qnsp.cuilabs.io/api)
+- [Getting Started](https://docs.qnsp.cuilabs.io/quickstart)
+
+## Requirements
+
+- Node.js >= 24.12.0 (`engines` in `package.json`; QNSP monorepo baseline)
+- A QNSP account and API key — [sign up free](https://cloud.qnsp.cuilabs.io/auth) with GitHub, Google, or email
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [`LICENSE`](./LICENSE).
-
-© 2025 QNSP - CUI LABS, Singapore
+[Apache-2.0](./LICENSE)

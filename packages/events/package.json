@@ -1,0 +1,64 @@
+{
+	"name": "@qnsp/events",
+	"version": "0.1.0",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"description": "Event envelope schemas and cloud-native messaging contracts for the QNSP post-quantum security platform. Get a free API key at cloud.qnsp.cuilabs.io.",
+	"keywords": [
+		"qnsp",
+		"pqc",
+		"post-quantum",
+		"post-quantum-cryptography",
+		"events",
+		"event-driven",
+		"cloud-events",
+		"messaging",
+		"typescript",
+		"nodejs",
+		"quantum-safe",
+		"zero-trust"
+	],
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/events"
+	},
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./spine-envelope.js": {
+			"types": "./dist/spine-envelope.d.ts",
+			"default": "./dist/spine-envelope.js"
+		},
+		"./registry.js": {
+			"types": "./dist/registry.d.ts",
+			"default": "./dist/registry.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"dev": "tsx watch src/index.ts",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@opentelemetry/api": "^1.9.1",
+		"@qnsp/observability": "workspace:*",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"vitest": "4.1.2"
+	}
+}

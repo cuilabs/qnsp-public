@@ -3,6 +3,7 @@ export type PricingTier =
 	| "dev-starter"
 	| "dev-pro"
 	| "dev-elite"
+	| "dev-team"
 	| "business-team"
 	| "business-advanced"
 	| "business-elite"
@@ -24,25 +25,25 @@ export interface TierLimits {
 export const TIER_LIMITS: Record<PricingTier, TierLimits> = {
 	free: {
 		storageGB: 5,
-		apiCalls: 2_000,
+		apiCalls: 10_000,
 		enclavesEnabled: false,
 		aiTrainingEnabled: false,
 		aiInferenceEnabled: false,
 		sseEnabled: false,
-		vaultEnabled: false,
+		vaultEnabled: true,
 	},
 	"dev-starter": {
-		storageGB: 50,
-		apiCalls: 50_000,
+		storageGB: 100,
+		apiCalls: 100_000,
 		enclavesEnabled: false,
 		aiTrainingEnabled: false,
 		aiInferenceEnabled: false,
 		sseEnabled: false,
-		vaultEnabled: false,
+		vaultEnabled: true,
 	},
 	"dev-pro": {
-		storageGB: 200,
-		apiCalls: 250_000,
+		storageGB: 250,
+		apiCalls: 500_000,
 		enclavesEnabled: false,
 		aiTrainingEnabled: false,
 		aiInferenceEnabled: true,
@@ -51,15 +52,15 @@ export const TIER_LIMITS: Record<PricingTier, TierLimits> = {
 	},
 	"dev-elite": {
 		storageGB: 500,
-		apiCalls: 500_000,
+		apiCalls: 750_000,
 		enclavesEnabled: false,
 		aiTrainingEnabled: false,
 		aiInferenceEnabled: true,
 		sseEnabled: true,
 		vaultEnabled: true,
 	},
-	"business-team": {
-		storageGB: 500,
+	"dev-team": {
+		storageGB: 1_000,
 		apiCalls: 1_000_000,
 		enclavesEnabled: false,
 		aiTrainingEnabled: false,
@@ -67,17 +68,17 @@ export const TIER_LIMITS: Record<PricingTier, TierLimits> = {
 		sseEnabled: true,
 		vaultEnabled: true,
 	},
-	"business-advanced": {
-		storageGB: 2_000,
-		apiCalls: 5_000_000,
+	"business-team": {
+		storageGB: 5_000,
+		apiCalls: 1_500_000,
 		enclavesEnabled: false,
 		aiTrainingEnabled: false,
 		aiInferenceEnabled: true,
 		sseEnabled: true,
 		vaultEnabled: true,
 	},
-	"business-elite": {
-		storageGB: 3_500,
+	"business-advanced": {
+		storageGB: 10_000,
 		apiCalls: 7_500_000,
 		enclavesEnabled: false,
 		aiTrainingEnabled: false,
@@ -85,9 +86,18 @@ export const TIER_LIMITS: Record<PricingTier, TierLimits> = {
 		sseEnabled: true,
 		vaultEnabled: true,
 	},
-	"enterprise-standard": {
-		storageGB: 5_000,
+	"business-elite": {
+		storageGB: 15_000,
 		apiCalls: 10_000_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"enterprise-standard": {
+		storageGB: 20_000,
+		apiCalls: 15_000_000,
 		enclavesEnabled: true,
 		aiTrainingEnabled: false,
 		aiInferenceEnabled: true,
@@ -95,8 +105,8 @@ export const TIER_LIMITS: Record<PricingTier, TierLimits> = {
 		vaultEnabled: true,
 	},
 	"enterprise-pro": {
-		storageGB: 10_000,
-		apiCalls: 25_000_000,
+		storageGB: 25_000,
+		apiCalls: 30_000_000,
 		enclavesEnabled: true,
 		aiTrainingEnabled: true,
 		aiInferenceEnabled: true,
@@ -166,7 +176,7 @@ export const FEATURE_REQUIREMENTS: Record<FeatureName, FeatureRequirement> = {
 	},
 	vault: {
 		feature: "vault",
-		minimumTier: "dev-pro",
+		minimumTier: "free",
 		description: "Secrets management with envelope encryption",
 	},
 	sse: {

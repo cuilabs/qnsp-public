@@ -1,11 +1,36 @@
 # @qnsp/cli
 
-Command-line interface for the QNSP platform - full coverage for all 13 services.
+Command-line interface for the QNSP platform — full coverage for all 13 services.
+
+## Quick Start
+
+1. **Create a QNSP account** at <https://cloud.qnsp.cuilabs.io/auth> — one click with GitHub or Google, or use email
+2. **Sign in** and copy your Tenant ID from **Settings → Tenant**
+3. **Generate an API key** at <https://cloud.qnsp.cuilabs.io/api-keys>
+4. Install and configure:
+
+```bash
+pnpm add -g @qnsp/cli
+```
+
+```bash
+export QNSP_TENANT_ID="your-tenant-id"
+export QNSP_SERVICE_ID="your-service-id"
+export QNSP_SERVICE_SECRET="your-service-secret"
+
+qnsp vault list
+qnsp kms list-keys
+qnsp audit list-events --topic storage.document.uploaded
+```
+
+## Requirements
+
+- Node.js >= 24.12.0 (`engines` in `package.json`)
 
 ## Installation
 
 ```bash
-npm install -g @qnsp/cli
+pnpm add -g @qnsp/cli
 ```
 
 ## Usage
@@ -66,6 +91,14 @@ pnpm test
 - Unit tests for config, auth, output utilities
 - Integration tests for KMS, Vault, Audit commands
 
+## Related Documentation
+
+- [API Reference](https://docs.qnsp.cuilabs.io/api)
+- [SDK Overview](https://docs.qnsp.cuilabs.io/sdk/overview)
+- [CLI Quickstart](https://docs.qnsp.cuilabs.io/cli)
+
 ## License
 
-Apache-2.0
+Licensed under the Apache License, Version 2.0. See [`LICENSE`](../../LICENSE.md).
+
+© 2026 QNSP — CUI LABS, Singapore

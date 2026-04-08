@@ -1,0 +1,61 @@
+{
+	"name": "@qnsp/observability",
+	"version": "0.1.0",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"description": "OpenTelemetry-based observability primitives for the QNSP post-quantum security platform: metrics, distributed tracing, and structured logging. Free tier at cloud.qnsp.cuilabs.io.",
+	"keywords": [
+		"qnsp",
+		"observability",
+		"opentelemetry",
+		"otel",
+		"metrics",
+		"tracing",
+		"prometheus",
+		"pqc",
+		"post-quantum",
+		"typescript",
+		"nodejs",
+		"quantum-safe"
+	],
+	"homepage": "https://cloud.qnsp.cuilabs.io",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cuilabs/qnsp",
+		"directory": "packages/observability"
+	},
+	"bugs": {
+		"url": "https://github.com/cuilabs/qnsp/issues"
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.build.json",
+		"dev": "tsx watch src/index.ts",
+		"lint": "biome check .",
+		"test": "vitest run",
+		"typecheck": "tsc --project tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@opentelemetry/api": "^1.9.1",
+		"@opentelemetry/resources": "^2.6.1",
+		"@opentelemetry/sdk-metrics": "^2.6.1",
+		"@opentelemetry/sdk-trace-node": "^2.6.1",
+		"@qnsp/shared-kernel": "workspace:*",
+		"fastify": "^5.8.4"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.2",
+		"vitest": "4.1.2"
+	}
+}

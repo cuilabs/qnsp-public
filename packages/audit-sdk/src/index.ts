@@ -1,11 +1,14 @@
 import { performance } from "node:perf_hooks";
 
+import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+
 import type {
 	AuditClientTelemetry,
 	AuditClientTelemetryConfig,
 	AuditClientTelemetryEvent,
 } from "./observability.js";
 import { createAuditClientTelemetry, isAuditClientTelemetry } from "./observability.js";
+import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 import { validateUUID } from "./validation.js";
 
 /**
@@ -136,8 +139,11 @@ export function toNistAlgorithmName(algorithm: string): string {
 	return ALGORITHM_TO_NIST[algorithm] ?? algorithm;
 }
 
+/** Default QNSP cloud API base URL. Get a free API key at https://cloud.qnsp.cuilabs.io/signup */
+export const DEFAULT_BASE_URL = "https://api.qnsp.cuilabs.io";
+
 export interface AuditClientConfig {
-	readonly baseUrl: string;
+	readonly baseUrl?: string;
 	readonly apiKey: string;
 	readonly timeoutMs?: number;
 	readonly maxRetries?: number;
@@ -214,6 +220,234 @@ export interface ListEventsResult {
 	readonly nextCursor: string | null;
 }
 
+/**
+ * Real-Time Streaming Types
+ */
+
+export type StreamingSubscriptionStatus = "active" | "paused" | "error" | "disconnected";
+
+export interface StreamingSubscriptionFilter {
+	readonly tenantIds?: readonly string[];
+	readonly sourceServices?: readonly string[];
+	readonly topics?: readonly string[];
+	readonly severities?: readonly string[];
+}
+
+export interface StreamingSubscription {
+	readonly id: string;
+	readonly name: string;
+	readonly description?: string;
+	readonly filters: StreamingSubscriptionFilter;
+	readonly webhookUrl?: string;
+	readonly websocketEnabled: boolean;
+	readonly status: StreamingSubscriptionStatus;
+	readonly batchSize: number;
+	readonly batchIntervalMs: number;
+	readonly retryPolicy: {
+		readonly maxRetries: number;
+		readonly backoffMs: number;
+		readonly maxBackoffMs: number;
+	};
+	readonly createdAt: string;
+	readonly updatedAt: string;
+	readonly lastDeliveredAt?: string;
+	readonly deliveredCount: number;
+	readonly errorCount: number;
+}
+
+export interface CreateSubscriptionRequest {
+	readonly name: string;
+	readonly description?: string;
+	readonly filters: StreamingSubscriptionFilter;
+	readonly webhookUrl?: string;
+	readonly websocketEnabled?: boolean;
+	readonly batchSize?: number;
+	readonly batchIntervalMs?: number;
+	readonly retryPolicy?: {
+		readonly maxRetries?: number;
+		readonly backoffMs?: number;
+		readonly maxBackoffMs?: number;
+	};
+}
+
+export interface UpdateSubscriptionRequest {
+	readonly name?: string;
+	readonly description?: string;
+	readonly filters?: StreamingSubscriptionFilter;
+	readonly webhookUrl?: string;
+	readonly websocketEnabled?: boolean;
+	readonly status?: StreamingSubscriptionStatus;
+	readonly batchSize?: number;
+	readonly batchIntervalMs?: number;
+	readonly retryPolicy?: {
+		readonly maxRetries?: number;
+		readonly backoffMs?: number;
+		readonly maxBackoffMs?: number;
+	};
+}
+
+export interface ListSubscriptionsRequest {
+	readonly status?: StreamingSubscriptionStatus;
+	readonly limit?: number;
+	readonly cursor?: string;
+}
+
+export interface ListSubscriptionsResult {
+	readonly items: readonly StreamingSubscription[];
+	readonly nextCursor: string | null;
+}
+
+export interface StreamingMetrics {
+	readonly subscriptionId: string;
+	readonly period: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly eventsDelivered: number;
+	readonly eventsDropped: number;
+	readonly deliveryLatencyP50Ms: number;
+	readonly deliveryLatencyP95Ms: number;
+	readonly deliveryLatencyP99Ms: number;
+	readonly webhookSuccessRate: number;
+	readonly websocketConnectionsActive: number;
+	readonly bytesTransferred: number;
+	readonly errorsByType: Record<string, number>;
+}
+
+export interface GetStreamingMetricsRequest {
+	readonly subscriptionId?: string;
+	readonly since?: string;
+	readonly until?: string;
+}
+
+/**
+ * Retention Types
+ */
+
+export type RetentionPolicyStatus = "active" | "paused" | "disabled";
+export type RetentionAction = "archive" | "delete" | "compress";
+
+export interface RetentionPolicyRule {
+	readonly name: string;
+	readonly description?: string;
+	readonly filters: {
+		readonly tenantIds?: readonly string[];
+		readonly sourceServices?: readonly string[];
+		readonly topics?: readonly string[];
+		readonly olderThanDays: number;
+	};
+	readonly action: RetentionAction;
+	readonly archiveDestination?: string;
+}
+
+export interface RetentionPolicy {
+	readonly id: string;
+	readonly name: string;
+	readonly description?: string;
+	readonly status: RetentionPolicyStatus;
+	readonly rules: readonly RetentionPolicyRule[];
+	readonly schedule: {
+		readonly cronExpression: string;
+		readonly timezone: string;
+	};
+	readonly lastExecutedAt?: string;
+	readonly nextExecutionAt?: string;
+	readonly createdAt: string;
+	readonly updatedAt: string;
+}
+
+export interface CreateRetentionPolicyRequest {
+	readonly name: string;
+	readonly description?: string;
+	readonly rules: readonly RetentionPolicyRule[];
+	readonly schedule: {
+		readonly cronExpression: string;
+		readonly timezone?: string;
+	};
+}
+
+export interface UpdateRetentionPolicyRequest {
+	readonly name?: string;
+	readonly description?: string;
+	readonly status?: RetentionPolicyStatus;
+	readonly rules?: readonly RetentionPolicyRule[];
+	readonly schedule?: {
+		readonly cronExpression?: string;
+		readonly timezone?: string;
+	};
+}
+
+export interface ListRetentionPoliciesRequest {
+	readonly status?: RetentionPolicyStatus;
+	readonly limit?: number;
+	readonly cursor?: string;
+}
+
+export interface ListRetentionPoliciesResult {
+	readonly items: readonly RetentionPolicy[];
+	readonly nextCursor: string | null;
+}
+
+export interface RetentionCleanupPreview {
+	readonly policyId: string;
+	readonly estimatedEventsAffected: number;
+	readonly estimatedBytesAffected: number;
+	readonly ruleBreakdown: readonly {
+		readonly ruleName: string;
+		readonly eventsAffected: number;
+		readonly bytesAffected: number;
+	}[];
+	readonly dryRun: true;
+}
+
+export interface RetentionCleanupResult {
+	readonly executionId: string;
+	readonly policyId: string;
+	readonly status: "running" | "completed" | "failed";
+	readonly eventsProcessed: number;
+	readonly eventsArchived: number;
+	readonly eventsDeleted: number;
+	readonly eventsCompressed: number;
+	readonly bytesReclaimed: number;
+	readonly startedAt: string;
+	readonly completedAt?: string;
+	readonly errors: readonly string[];
+}
+
+export interface ExecuteCleanupRequest {
+	readonly policyId: string;
+	readonly dryRun?: boolean;
+}
+
+export interface PreviewCleanupRequest {
+	readonly policyId: string;
+}
+
+export interface RetentionMetrics {
+	readonly period: {
+		readonly start: string;
+		readonly end: string;
+	};
+	readonly totalEventsArchived: number;
+	readonly totalEventsDeleted: number;
+	readonly totalEventsCompressed: number;
+	readonly totalBytesReclaimed: number;
+	readonly executionCount: number;
+	readonly successRate: number;
+	readonly avgExecutionTimeMs: number;
+	readonly policyMetrics: readonly {
+		readonly policyId: string;
+		readonly policyName: string;
+		readonly eventsProcessed: number;
+		readonly bytesReclaimed: number;
+	}[];
+}
+
+export interface GetRetentionMetricsRequest {
+	readonly since?: string;
+	readonly until?: string;
+}
+
 interface RequestOptions {
 	readonly body?: unknown;
 	readonly headers?: Record<string, string>;
@@ -227,6 +461,19 @@ export class AuditClient {
 	private readonly config: InternalAuditClientConfig;
 	private readonly telemetry: AuditClientTelemetry | null;
 	private readonly targetService: string;
+	private activationPromise: Promise<void> | null = null;
+	private readonly activationConfig: SdkActivationConfig | null;
+	private resolvedTenantId: string | null = null;
+
+	private async ensureActivated(): Promise<void> {
+		if (!this.activationConfig) return;
+		if (!this.activationPromise) {
+			this.activationPromise = activateSdk(this.activationConfig).then((response) => {
+				this.resolvedTenantId = response.tenantId;
+			});
+		}
+		return this.activationPromise;
+	}
 
 	private static isPrivateIpv4(hostname: string): boolean {
 		const m = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
@@ -254,12 +501,12 @@ export class AuditClient {
 			throw new Error(
 				"QNSP Audit SDK: apiKey is required. " +
 					"Get your free API key at https://cloud.qnsp.cuilabs.io/signup — " +
-					"no credit card required (FREE tier: 5 GB storage, 2,000 API calls/month). " +
+					"no credit card required (FREE tier: 10 GB storage, 50,000 API calls/month). " +
 					"Docs: https://docs.qnsp.cuilabs.io/sdk/audit-sdk",
 			);
 		}
 
-		const baseUrl = config.baseUrl.trim().replace(/\/$/, "");
+		const baseUrl = (config.baseUrl ?? DEFAULT_BASE_URL).trim().replace(/\/$/, "");
 
 		// Enforce HTTPS in production (allow HTTP only for localhost in development)
 		if (!baseUrl.startsWith("https://")) {
@@ -301,6 +548,23 @@ export class AuditClient {
 		} catch {
 			this.targetService = "audit-service";
 		}
+
+		// Skip activation for internal service-to-service calls
+		let isInternal = false;
+		try {
+			const parsed = new URL(this.config.baseUrl);
+			isInternal = AuditClient.isInternalServiceHostname(parsed.hostname);
+		} catch {
+			// ignore
+		}
+		this.activationConfig = isInternal
+			? null
+			: {
+					apiKey: config.apiKey,
+					sdkId: "audit-sdk",
+					sdkVersion: SDK_PACKAGE_VERSION,
+					platformUrl: this.config.baseUrl,
+				};
 	}
 
 	private async request<T>(method: string, path: string, options?: RequestOptions): Promise<T> {
@@ -320,6 +584,11 @@ export class AuditClient {
 		};
 
 		headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+
+		// Auto-inject tenant ID from activation response
+		if (this.resolvedTenantId) {
+			headers["x-qnsp-tenant-id"] = this.resolvedTenantId;
+		}
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs);
@@ -423,6 +692,7 @@ export class AuditClient {
 	 * Ingest audit events (1-100 events per batch).
 	 */
 	async ingestEvents(request: IngestEventsRequest): Promise<IngestEventsResponse> {
+		await this.ensureActivated();
 		if (request.events.length === 0 || request.events.length > 100) {
 			throw new Error("Events batch must contain between 1 and 100 events");
 		}
@@ -437,6 +707,7 @@ export class AuditClient {
 	 * List audit events with filtering and pagination.
 	 */
 	async listEvents(request?: ListEventsRequest): Promise<ListEventsResult> {
+		await this.ensureActivated();
 		const params = new URLSearchParams();
 
 		if (request?.tenantId !== undefined) {
@@ -464,6 +735,232 @@ export class AuditClient {
 
 		return this.request<ListEventsResult>("GET", path, {
 			operation: "listEvents",
+		});
+	}
+
+	/**
+	 * Create a real-time streaming subscription for audit events.
+	 */
+	async createSubscription(request: CreateSubscriptionRequest): Promise<StreamingSubscription> {
+		await this.ensureActivated();
+
+		return this.request<StreamingSubscription>("POST", "/audit/v1/streaming/subscriptions", {
+			body: request,
+			operation: "createSubscription",
+		});
+	}
+
+	/**
+	 * List streaming subscriptions with optional filtering.
+	 */
+	async listSubscriptions(request?: ListSubscriptionsRequest): Promise<ListSubscriptionsResult> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.status !== undefined) {
+			params.set("status", request.status);
+		}
+		if (request?.limit !== undefined) {
+			params.set("limit", String(request.limit));
+		}
+		if (request?.cursor !== undefined) {
+			params.set("cursor", request.cursor);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/audit/v1/streaming/subscriptions?${queryString}`
+			: "/audit/v1/streaming/subscriptions";
+
+		return this.request<ListSubscriptionsResult>("GET", path, {
+			operation: "listSubscriptions",
+		});
+	}
+
+	/**
+	 * Update an existing streaming subscription.
+	 */
+	async updateSubscription(
+		subscriptionId: string,
+		request: UpdateSubscriptionRequest,
+	): Promise<StreamingSubscription> {
+		validateUUID(subscriptionId, "subscriptionId");
+		await this.ensureActivated();
+
+		return this.request<StreamingSubscription>(
+			"PATCH",
+			`/audit/v1/streaming/subscriptions/${subscriptionId}`,
+			{
+				body: request,
+				operation: "updateSubscription",
+			},
+		);
+	}
+
+	/**
+	 * Delete a streaming subscription.
+	 */
+	async deleteSubscription(subscriptionId: string): Promise<void> {
+		validateUUID(subscriptionId, "subscriptionId");
+		await this.ensureActivated();
+
+		return this.request<void>("DELETE", `/audit/v1/streaming/subscriptions/${subscriptionId}`, {
+			operation: "deleteSubscription",
+		});
+	}
+
+	/**
+	 * Get streaming metrics for subscriptions.
+	 */
+	async getStreamingMetrics(request?: GetStreamingMetricsRequest): Promise<StreamingMetrics> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.subscriptionId !== undefined) {
+			validateUUID(request.subscriptionId, "subscriptionId");
+			params.set("subscriptionId", request.subscriptionId);
+		}
+		if (request?.since !== undefined) {
+			params.set("since", request.since);
+		}
+		if (request?.until !== undefined) {
+			params.set("until", request.until);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/audit/v1/streaming/metrics?${queryString}`
+			: "/audit/v1/streaming/metrics";
+
+		return this.request<StreamingMetrics>("GET", path, {
+			operation: "getStreamingMetrics",
+		});
+	}
+
+	/**
+	 * Create a retention policy for audit event lifecycle management.
+	 */
+	async createRetentionPolicy(request: CreateRetentionPolicyRequest): Promise<RetentionPolicy> {
+		await this.ensureActivated();
+
+		return this.request<RetentionPolicy>("POST", "/audit/v1/retention/policies", {
+			body: request,
+			operation: "createRetentionPolicy",
+		});
+	}
+
+	/**
+	 * List retention policies with optional filtering.
+	 */
+	async listRetentionPolicies(
+		request?: ListRetentionPoliciesRequest,
+	): Promise<ListRetentionPoliciesResult> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.status !== undefined) {
+			params.set("status", request.status);
+		}
+		if (request?.limit !== undefined) {
+			params.set("limit", String(request.limit));
+		}
+		if (request?.cursor !== undefined) {
+			params.set("cursor", request.cursor);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/audit/v1/retention/policies?${queryString}`
+			: "/audit/v1/retention/policies";
+
+		return this.request<ListRetentionPoliciesResult>("GET", path, {
+			operation: "listRetentionPolicies",
+		});
+	}
+
+	/**
+	 * Update an existing retention policy.
+	 */
+	async updateRetentionPolicy(
+		policyId: string,
+		request: UpdateRetentionPolicyRequest,
+	): Promise<RetentionPolicy> {
+		validateUUID(policyId, "policyId");
+		await this.ensureActivated();
+
+		return this.request<RetentionPolicy>("PATCH", `/audit/v1/retention/policies/${policyId}`, {
+			body: request,
+			operation: "updateRetentionPolicy",
+		});
+	}
+
+	/**
+	 * Delete a retention policy.
+	 */
+	async deleteRetentionPolicy(policyId: string): Promise<void> {
+		validateUUID(policyId, "policyId");
+		await this.ensureActivated();
+
+		return this.request<void>("DELETE", `/audit/v1/retention/policies/${policyId}`, {
+			operation: "deleteRetentionPolicy",
+		});
+	}
+
+	/**
+	 * Execute cleanup according to a retention policy.
+	 */
+	async executeCleanup(request: ExecuteCleanupRequest): Promise<RetentionCleanupResult> {
+		validateUUID(request.policyId, "policyId");
+		await this.ensureActivated();
+
+		return this.request<RetentionCleanupResult>(
+			"POST",
+			`/audit/v1/retention/policies/${request.policyId}/execute`,
+			{
+				body: { dryRun: request.dryRun ?? false },
+				operation: "executeCleanup",
+			},
+		);
+	}
+
+	/**
+	 * Preview cleanup effects without executing (dry run).
+	 */
+	async previewCleanup(request: PreviewCleanupRequest): Promise<RetentionCleanupPreview> {
+		validateUUID(request.policyId, "policyId");
+		await this.ensureActivated();
+
+		return this.request<RetentionCleanupPreview>(
+			"POST",
+			`/audit/v1/retention/policies/${request.policyId}/preview`,
+			{
+				body: {},
+				operation: "previewCleanup",
+			},
+		);
+	}
+
+	/**
+	 * Get retention metrics for monitoring cleanup operations.
+	 */
+	async getRetentionMetrics(request?: GetRetentionMetricsRequest): Promise<RetentionMetrics> {
+		await this.ensureActivated();
+		const params = new URLSearchParams();
+
+		if (request?.since !== undefined) {
+			params.set("since", request.since);
+		}
+		if (request?.until !== undefined) {
+			params.set("until", request.until);
+		}
+
+		const queryString = params.toString();
+		const path = queryString
+			? `/audit/v1/retention/metrics?${queryString}`
+			: "/audit/v1/retention/metrics";
+
+		return this.request<RetentionMetrics>("GET", path, {
+			operation: "getRetentionMetrics",
 		});
 	}
 }

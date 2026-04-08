@@ -7,7 +7,28 @@
  * Runs in Node.js (vitest) — the noble provider works identically in Node.js and browsers.
  */
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+// Mock SDK activation to avoid real HTTP calls in tests
+vi.mock("@qnsp/sdk-activation", () => ({
+	activateSdk: vi.fn().mockResolvedValue({
+		activated: true,
+		tenantId: "00000000-0000-0000-0000-000000000000",
+		tier: "free",
+		limits: {
+			storageGB: 5,
+			apiCalls: 10_000,
+			enclavesEnabled: false,
+			aiTrainingEnabled: false,
+			aiInferenceEnabled: false,
+			sseEnabled: false,
+			vaultEnabled: false,
+		},
+		activationToken: "test-activation-token",
+		expiresInSeconds: 3600,
+		activatedAt: new Date().toISOString(),
+	}),
+}));
 
 import {
 	decryptAfterDownload,
@@ -44,20 +65,20 @@ describe("@qnsp/browser-sdk", () => {
 	describe("provider initialization", () => {
 		it("initializes provider successfully", async () => {
 			expect(isProviderInitialized()).toBe(false);
-			const provider = await initializePqcProvider();
+			const provider = await initializePqcProvider({ apiKey: "test-key" });
 			expect(provider).toBeDefined();
 			expect(provider.name).toBeDefined();
 			expect(isProviderInitialized()).toBe(true);
 		});
 
 		it("returns same provider on repeated calls", async () => {
-			const provider1 = await initializePqcProvider();
-			const provider2 = await initializePqcProvider();
+			const provider1 = await initializePqcProvider({ apiKey: "test-key" });
+			const provider2 = await initializePqcProvider({ apiKey: "test-key" });
 			expect(provider1).toBe(provider2);
 		});
 
 		it("getActiveProvider returns initialized provider", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const provider = getActiveProvider();
 			expect(provider).toBeDefined();
 			expect(provider.name).toBeDefined();
@@ -68,7 +89,7 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("resetProvider clears state", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			expect(isProviderInitialized()).toBe(true);
 			resetProvider();
 			expect(isProviderInitialized()).toBe(false);
@@ -76,7 +97,10 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("initializes with specific algorithm subset", async () => {
-			const provider = await initializePqcProvider(["kyber-768"]);
+			const provider = await initializePqcProvider({
+				apiKey: "test-key",
+				algorithms: ["kyber-768"],
+			});
 			expect(provider).toBeDefined();
 		});
 	});
@@ -105,7 +129,7 @@ describe("@qnsp/browser-sdk", () => {
 
 	describe("key pair generation", () => {
 		it("generates ML-KEM encryption key pair", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateEncryptionKeyPair("kyber-768");
 			expect(keyPair.algorithm).toBe("kyber-768");
 			expect(keyPair.publicKey).toBeInstanceOf(Uint8Array);
@@ -115,7 +139,7 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("generates ML-DSA signing key pair", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateSigningKeyPair("dilithium-3");
 			expect(keyPair.algorithm).toBe("dilithium-3");
 			expect(keyPair.publicKey).toBeInstanceOf(Uint8Array);
@@ -125,14 +149,14 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("rejects non-KEM algorithm for encryption key pair", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(generateEncryptionKeyPair("dilithium-2" as PqcAlgorithm)).rejects.toThrow(
 				/not a supported KEM algorithm/,
 			);
 		});
 
 		it("rejects non-signature algorithm for signing key pair", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(generateSigningKeyPair("kyber-512" as PqcAlgorithm)).rejects.toThrow(
 				/not a supported signature algorithm/,
 			);
@@ -144,7 +168,7 @@ describe("@qnsp/browser-sdk", () => {
 
 		for (const algorithm of kemAlgorithms) {
 			it(`${algorithm}: encrypt → decrypt recovers plaintext`, async () => {
-				await initializePqcProvider();
+				await initializePqcProvider({ apiKey: "test-key" });
 				const keyPair = await generateEncryptionKeyPair(algorithm);
 
 				const plaintext = new TextEncoder().encode("QNSP browser-side PQC encryption test");
@@ -164,7 +188,7 @@ describe("@qnsp/browser-sdk", () => {
 		}
 
 		it("encrypts large data (1 MB)", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateEncryptionKeyPair("kyber-768");
 
 			const plaintext = new Uint8Array(1024 * 1024);
@@ -180,7 +204,7 @@ describe("@qnsp/browser-sdk", () => {
 		}, 30_000);
 
 		it("different encryptions produce different ciphertexts", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateEncryptionKeyPair("kyber-768");
 			const plaintext = new TextEncoder().encode("same data");
 
@@ -196,7 +220,7 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("decryption with wrong key fails", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair1 = await generateEncryptionKeyPair("kyber-768");
 			const keyPair2 = await generateEncryptionKeyPair("kyber-768");
 
@@ -211,7 +235,7 @@ describe("@qnsp/browser-sdk", () => {
 
 	describe("CSE error handling", () => {
 		it("rejects non-KEM algorithm", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(
 				encryptBeforeUpload(
 					new Uint8Array([1]),
@@ -222,21 +246,21 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("rejects empty plaintext", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(
 				encryptBeforeUpload(new Uint8Array(0), new Uint8Array([1]), "kyber-768"),
 			).rejects.toThrow(/must not be empty/);
 		});
 
 		it("rejects empty public key", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(
 				encryptBeforeUpload(new Uint8Array([1]), new Uint8Array(0), "kyber-768"),
 			).rejects.toThrow(/must not be empty/);
 		});
 
 		it("rejects empty private key for decryption", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateEncryptionKeyPair("kyber-768");
 			const plaintext = new TextEncoder().encode("test");
 			const envelope = await encryptBeforeUpload(plaintext, keyPair.publicKey, "kyber-768");
@@ -249,7 +273,7 @@ describe("@qnsp/browser-sdk", () => {
 
 	describe("digital signatures", () => {
 		it("ML-DSA sign → verify round-trip", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateSigningKeyPair("dilithium-3");
 			const data = new TextEncoder().encode("QNSP document integrity verification");
 
@@ -269,7 +293,7 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("verify rejects tampered data", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateSigningKeyPair("dilithium-2");
 			const data = new TextEncoder().encode("original data");
 
@@ -286,7 +310,7 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("verify rejects wrong public key", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair1 = await generateSigningKeyPair("dilithium-5");
 			const keyPair2 = await generateSigningKeyPair("dilithium-5");
 			const data = new TextEncoder().encode("signed by key 1");
@@ -303,7 +327,7 @@ describe("@qnsp/browser-sdk", () => {
 		});
 
 		it("SLH-DSA sign → verify round-trip", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateSigningKeyPair("sphincs-sha2-128f-simple");
 			const data = new TextEncoder().encode("hash-based signature test");
 
@@ -322,42 +346,42 @@ describe("@qnsp/browser-sdk", () => {
 
 	describe("signature error handling", () => {
 		it("rejects non-signature algorithm for signData", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(
 				signData(new Uint8Array([1]), new Uint8Array([1]), "kyber-768" as PqcAlgorithm),
 			).rejects.toThrow(/not a supported signature algorithm/);
 		});
 
 		it("rejects empty data for signData", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(signData(new Uint8Array(0), new Uint8Array([1]), "dilithium-2")).rejects.toThrow(
 				/must not be empty/,
 			);
 		});
 
 		it("rejects empty private key for signData", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(signData(new Uint8Array([1]), new Uint8Array(0), "dilithium-2")).rejects.toThrow(
 				/must not be empty/,
 			);
 		});
 
 		it("rejects empty data for verifySignature", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(
 				verifySignature(new Uint8Array(0), new Uint8Array([1]), new Uint8Array([1]), "dilithium-2"),
 			).rejects.toThrow(/must not be empty/);
 		});
 
 		it("rejects empty signature for verifySignature", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(
 				verifySignature(new Uint8Array([1]), new Uint8Array(0), new Uint8Array([1]), "dilithium-2"),
 			).rejects.toThrow(/must not be empty/);
 		});
 
 		it("rejects empty public key for verifySignature", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			await expect(
 				verifySignature(new Uint8Array([1]), new Uint8Array([1]), new Uint8Array(0), "dilithium-2"),
 			).rejects.toThrow(/must not be empty/);
@@ -366,7 +390,7 @@ describe("@qnsp/browser-sdk", () => {
 
 	describe("CSE envelope serialization", () => {
 		it("serialize → deserialize round-trip", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 			const keyPair = await generateEncryptionKeyPair("kyber-768");
 			const plaintext = new TextEncoder().encode("serialization test");
 
@@ -431,7 +455,7 @@ describe("@qnsp/browser-sdk", () => {
 
 	describe("end-to-end: encrypt + sign workflow", () => {
 		it("encrypts data and signs the envelope", async () => {
-			await initializePqcProvider();
+			await initializePqcProvider({ apiKey: "test-key" });
 
 			// Generate keys
 			const encKeyPair = await generateEncryptionKeyPair("kyber-768");

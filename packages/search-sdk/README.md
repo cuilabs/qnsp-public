@@ -1,7 +1,8 @@
 # @qnsp/search-sdk
 
-TypeScript client for the QNSP Search service. Provides document indexing, vector search, cursor
-pagination, and SSE (Searchable Symmetric Encryption) helpers for zero-trust tenants.
+TypeScript SDK for QNSP search-service (indexing, querying, SSE token helpers).
+
+Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 
 ## Installation
 
@@ -9,76 +10,34 @@ pagination, and SSE (Searchable Symmetric Encryption) helpers for zero-trust ten
 pnpm add @qnsp/search-sdk
 ```
 
-## Authentication & encryption keys
+## Quick Start
 
-- **API token** – Issue a service token from `auth-service` (or cloud portal API Keys) and pass it via
-  the `apiToken` option. The SDK automatically attaches `Authorization: Bearer <token>`.
-- **SSE key (optional)** – Provide `sseKey` (Uint8Array or base64 string) to derive encrypted tokens.
-  Without this key the SDK can still perform plaintext queries but cannot index/search encrypted data.
-
-```ts
+```typescript
 import { SearchClient } from "@qnsp/search-sdk";
 
 const search = new SearchClient({
-  baseUrl: "https://api.qnsp.cuilabs.io/proxy/search",
-  apiToken: process.env.QNSP_SERVICE_TOKEN,
-  sseKey: Buffer.from(process.env.QNSP_SSE_KEY_BASE64!, "base64"),
+  baseUrl: "https://api.qnsp.cuilabs.io",
+  apiKey: "YOUR_API_KEY",
 });
+
+await search.indexDocuments("my-index", [
+  { id: "doc-1", content: "quantum-safe storage overview" },
+]);
+
+const results = await search.query("my-index", { text: "post-quantum encryption" });
 ```
 
-## Tier requirements
+## Documentation
 
-| Capability | Minimum tier | Notes |
-|------------|--------------|-------|
-| Plaintext indexing & search | `free` | Available to all tenants |
-| SSE-encrypted indexing/search | `dev-pro` | Requires `sseKey` and tier flag in backend |
+- [SDK Reference](https://docs.qnsp.cuilabs.io/sdk/search-sdk)
+- [API Documentation](https://docs.qnsp.cuilabs.io/api)
+- [Getting Started](https://docs.qnsp.cuilabs.io/quickstart)
 
-If you pass `tier` through your own wrapper (recommended), call `isFeatureEnabled("sse", tier)` from
-`@qnsp/shared-kernel` before constructing the client with an SSE key.
+## Requirements
 
-## Usage example
-
-```ts
-import { SearchClient } from "@qnsp/search-sdk";
-
-const client = new SearchClient({
-  baseUrl: "https://api.qnsp.cuilabs.io/proxy/search",
-  apiToken: process.env.QNSP_SERVICE_TOKEN,
-  sseKey: Buffer.from(process.env.QNSP_SSE_KEY!, "base64"),
-});
-
-// Index a document with SSE tokens
-await client.indexDocumentWithAutoSse({
-  tenantId: "tenant_123",
-  documentId: "doc_456",
-  sourceService: "storage-service",
-  tags: ["classified"],
-  metadata: { region: "ap-sg" },
-  title: "Quantum brief",
-  body: "Encrypted content",
-});
-
-// Query with automatic SSE derivation
-const results = await client.searchWithAutoSse({
-  tenantId: "tenant_123",
-  query: "confidential incident report",
-  limit: 10,
-});
-```
-
-## Telemetry
-
-Wrap the optional `fetchImpl` with your OpenTelemetry instrumentation or pipe the SDK through an
-OTLP-aware proxy. Each request contains sufficient context (route name, target service) for metrics.
-
-## Related documentation
-
-- [Developer onboarding: SDK quick links](../../docs/guides/developer-onboarding.md#sdk-quick-links)
-- [Search service plan](../../docs/service-plans/storage-service-plan.md)
-- [Pricing & tier limits](../shared-kernel/src/tier-limits.ts)
+- Node.js >= 24.12.0 (`engines` in `package.json`; QNSP monorepo baseline)
+- A QNSP account and API key — [sign up free](https://cloud.qnsp.cuilabs.io/auth) with GitHub, Google, or email
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [`LICENSE`](./LICENSE).
-
-© 2025 QNSP - CUI LABS, Singapore
+[Apache-2.0](./LICENSE)

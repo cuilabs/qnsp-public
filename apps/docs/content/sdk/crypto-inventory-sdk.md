@@ -1,7 +1,7 @@
 ---
 title: Crypto Inventory SDK (@qnsp/crypto-inventory-sdk)
-version: 0.1.0
-last_updated: 2026-02-16
+version: 0.2.0
+last_updated: 2026-03-20
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -182,6 +182,254 @@ console.log(ALGORITHM_TO_NIST);
 // }
 ```
 
+## Algorithm Deprecation
+
+Manage deprecation policies for cryptographic algorithms and track affected assets:
+
+```ts
+// Create a deprecation policy
+const policy = await inventory.createDeprecationPolicy({
+	tenantId: "<tenant_uuid>",
+	algorithm: "rsa-2048",
+	status: "deprecated",
+	severity: "high",
+	deprecationDate: "2026-01-01",
+	sunsetDate: "2027-01-01",
+	replacementAlgorithm: "ML-KEM-768",
+	rationale: "RSA-2048 vulnerable to future quantum attacks",
+	complianceFrameworks: ["NIST-PQC", "FIPS-203"],
+	notifyAffectedTenants: true,
+});
+
+// List deprecation policies
+const { policies, total } = await inventory.listDeprecationPolicies({
+	tenantId: "<tenant_uuid>",
+	severity: "high",
+	status: "deprecated",
+});
+
+// Get policy details
+const policyDetails = await inventory.getDeprecationPolicy("<policy_uuid>");
+
+// Update a policy
+await inventory.updateDeprecationPolicy("<policy_uuid>", {
+	sunsetDate: "2027-06-01",
+	rationale: "Extended sunset date per customer feedback",
+});
+
+// Delete a policy
+await inventory.deleteDeprecationPolicy("<policy_uuid>");
+
+// Get affected assets
+const { assets: affectedAssets } = await inventory.getAffectedAssets({
+	tenantId: "<tenant_uuid>",
+	severity: "critical",
+	acknowledged: false,
+});
+
+// Acknowledge deprecation for assets
+const ack = await inventory.acknowledgeDeprecation({
+	tenantId: "<tenant_uuid>",
+	assetIds: ["<asset_uuid_1>", "<asset_uuid_2>"],
+	acknowledgmentNote: "Migration planned for Q2",
+	plannedMigrationDate: "2026-06-01",
+});
+console.log(`Acknowledged ${ack.acknowledged} of ${ack.total} assets`);
+
+// Get deprecation summary
+const summary = await inventory.getDeprecationSummary("<tenant_uuid>");
+console.log(summary);
+// {
+//   tenantId: "<tenant_uuid>",
+//   totalAffectedAssets: 45,
+//   totalAcknowledged: 30,
+//   unacknowledgedCount: 15,
+//   bySeverity: {
+//     critical: { total: 10, acknowledged: 8 },
+//     high: { total: 20, acknowledged: 15 },
+//     ...
+//   },
+//   byStatus: { deprecated: 35, legacy: 10 },
+//   upcomingSunsets: [
+//     { algorithm: "rsa-2048", sunsetDate: "2027-01-01", affectedAssets: 25 }
+//   ]
+// }
+```
+
+## Hardware Inventory
+
+Register and manage hardware security modules (HSMs), TPMs, and other cryptographic hardware:
+
+```ts
+// Register hardware
+const device = await inventory.registerHardware({
+	tenantId: "<tenant_uuid>",
+	name: "Primary HSM Cluster",
+	hardwareType: "hsm",
+	vendor: "Thales",
+	model: "Luna Network HSM 7",
+	serialNumber: "SN-12345678",
+	firmwareVersion: "7.8.0",
+	location: "us-east-1",
+	networkAddress: "10.0.1.50",
+	complianceLevel: "fips_140_3_l3",
+	certificationExpiry: "2028-06-15",
+	maxKeyCapacity: 10000,
+	supportedAlgorithms: ["ML-KEM-768", "ML-DSA-65", "AES-256-GCM"],
+	pqcCapable: true,
+});
+
+// List hardware
+const { devices } = await inventory.listHardware({
+	tenantId: "<tenant_uuid>",
+	hardwareType: "hsm",
+	status: "active",
+	pqcCapable: true,
+});
+
+// Get hardware details
+const deviceDetails = await inventory.getHardware("<device_uuid>");
+
+// Update hardware
+await inventory.updateHardware("<device_uuid>", {
+	firmwareVersion: "7.9.0",
+	status: "active",
+});
+
+// Delete hardware
+await inventory.deleteHardware("<device_uuid>");
+
+// Record health check
+await inventory.recordHealthCheck("<device_uuid>", {
+	healthStatus: "healthy",
+	responseTimeMs: 12,
+	keySlotUtilization: 45.5,
+	memoryUtilization: 62.3,
+	cpuUtilization: 28.1,
+	temperature: 42.5,
+	errorCount: 0,
+});
+
+// Get health history
+const { healthChecks } = await inventory.getHardwareHealth("<device_uuid>", {
+	since: "2026-03-01",
+	limit: 100,
+});
+
+// Get inventory summary
+const inventorySummary = await inventory.getInventorySummary("<tenant_uuid>");
+console.log(inventorySummary);
+// {
+//   tenantId: "<tenant_uuid>",
+//   totalDevices: 12,
+//   activeDevices: 10,
+//   pqcReadyDevices: 8,
+//   byType: {
+//     hsm: { total: 4, healthy: 4, pqcCapable: 3 },
+//     tpm: { total: 6, healthy: 5, pqcCapable: 4 },
+//     ...
+//   },
+//   byStatus: { active: 10, standby: 1, maintenance: 1 },
+//   byHealth: { healthy: 9, warning: 2, critical: 1 },
+//   keyCapacity: {
+//     totalSlots: 40000,
+//     usedSlots: 18000,
+//     availableSlots: 22000,
+//     utilizationPercent: 45
+//   },
+//   expiringCertifications: [
+//     { id: "<device_uuid>", name: "HSM-2", certificationExpiry: "2026-06-15", complianceLevel: "fips_140_3_l3" }
+//   ]
+// }
+```
+
+## PQC Readiness
+
+Assess and track your organization's readiness for post-quantum cryptography:
+
+```ts
+// Get overall readiness score
+const score = await inventory.getReadinessScore("<tenant_uuid>");
+console.log(score);
+// {
+//   tenantId: "<tenant_uuid>",
+//   overallScore: 72,
+//   maxScore: 100,
+//   percentage: 72,
+//   level: "progressing",  // "exemplary" | "advanced" | "progressing" | "developing" | "initial"
+//   categoryScores: [...],
+//   calculatedAt: "2026-03-20T10:00:00Z",
+//   trendDirection: "improving",
+//   trendPercentage: 5.2
+// }
+
+// Get category-specific score
+const categoryScore = await inventory.getCategoryScore(
+	"<tenant_uuid>",
+	"key_management"
+);
+console.log(categoryScore);
+// {
+//   category: "key_management",
+//   score: 85,
+//   maxScore: 100,
+//   percentage: 85,
+//   level: "advanced",
+//   findings: [
+//     { findingType: "strength", description: "All KEM keys using ML-KEM", impact: "high" },
+//     { findingType: "weakness", description: "5 keys still using RSA-2048", impact: "medium", affectedAssets: 5 },
+//     { findingType: "recommendation", description: "Enable automatic key rotation", impact: "low" }
+//   ]
+// }
+
+// Get score history for trend analysis
+const { history } = await inventory.getScoreHistory({
+	tenantId: "<tenant_uuid>",
+	since: "2026-01-01",
+	limit: 30,
+});
+
+// Get prioritized recommendations
+const recommendations = await inventory.getRecommendations("<tenant_uuid>");
+console.log(recommendations);
+// {
+//   tenantId: "<tenant_uuid>",
+//   currentScore: 72,
+//   currentLevel: "progressing",
+//   recommendations: [
+//     {
+//       priority: "critical",
+//       category: "certificate_infrastructure",
+//       title: "Migrate TLS certificates to hybrid algorithms",
+//       description: "15 certificates still using RSA-2048 for key exchange",
+//       estimatedImpact: 8,
+//       affectedAssets: 15
+//     },
+//     ...
+//   ],
+//   totalRecommendations: 12
+// }
+
+// Get benchmark comparison
+const benchmark = await inventory.getBenchmark("<tenant_uuid>");
+console.log(benchmark);
+// {
+//   tenantId: "<tenant_uuid>",
+//   yourScore: { percentage: 72, level: "progressing" },
+//   benchmark: {
+//     totalOrganizations: 500,
+//     percentile25: 45,
+//     percentile50: 62,
+//     percentile75: 78,
+//     percentile90: 89,
+//     averageScore: 61,
+//     topScore: 98
+//   },
+//   yourPercentile: 68,
+//   comparedToAverage: 11
+// }
+```
+
 ## Key APIs
 
 ### Asset Management
@@ -197,6 +445,33 @@ console.log(ALGORITHM_TO_NIST);
 - `CryptoInventoryClient.discoverAssets(request?)` - Trigger asset discovery
 - `CryptoInventoryClient.getDiscoveryRuns(tenantId?, limit?)` - Get discovery history
 
+### Algorithm Deprecation
+- `CryptoInventoryClient.createDeprecationPolicy(request)` - Create deprecation policy
+- `CryptoInventoryClient.listDeprecationPolicies(params?)` - List policies
+- `CryptoInventoryClient.getDeprecationPolicy(policyId)` - Get policy details
+- `CryptoInventoryClient.updateDeprecationPolicy(policyId, request)` - Update policy
+- `CryptoInventoryClient.deleteDeprecationPolicy(policyId)` - Delete policy
+- `CryptoInventoryClient.getAffectedAssets(params?)` - Get affected assets
+- `CryptoInventoryClient.acknowledgeDeprecation(request)` - Acknowledge deprecation
+- `CryptoInventoryClient.getDeprecationSummary(tenantId)` - Get deprecation summary
+
+### Hardware Inventory
+- `CryptoInventoryClient.registerHardware(request)` - Register hardware device
+- `CryptoInventoryClient.listHardware(params?)` - List hardware
+- `CryptoInventoryClient.getHardware(hardwareId)` - Get hardware details
+- `CryptoInventoryClient.updateHardware(hardwareId, request)` - Update hardware
+- `CryptoInventoryClient.deleteHardware(hardwareId)` - Delete hardware
+- `CryptoInventoryClient.recordHealthCheck(hardwareId, request)` - Record health check
+- `CryptoInventoryClient.getHardwareHealth(hardwareId, params?)` - Get health history
+- `CryptoInventoryClient.getInventorySummary(tenantId)` - Get inventory summary
+
+### PQC Readiness
+- `CryptoInventoryClient.getReadinessScore(tenantId)` - Get overall readiness score
+- `CryptoInventoryClient.getCategoryScore(tenantId, category)` - Get category score
+- `CryptoInventoryClient.getScoreHistory(params)` - Get score history
+- `CryptoInventoryClient.getRecommendations(tenantId)` - Get recommendations
+- `CryptoInventoryClient.getBenchmark(tenantId)` - Get benchmark comparison
+
 ### Utilities
 - `toNistAlgorithmName(algorithm)` - Convert internal to NIST name
 - `ALGORITHM_TO_NIST` - Algorithm name mapping
@@ -207,3 +482,13 @@ console.log(ALGORITHM_TO_NIST);
 - `DiscoveryRun` - Discovery run status
 - `AssetType` - "certificate" | "key" | "secret"
 - `AssetSource` - "kms" | "vault" | "edge-gateway" | "external"
+- `DeprecationPolicy` - Algorithm deprecation policy
+- `AffectedAsset` - Asset affected by deprecation
+- `DeprecationSummary` - Deprecation overview
+- `HardwareDevice` - Hardware security device
+- `HealthCheckRecord` - Hardware health record
+- `HardwareInventorySummary` - Hardware inventory overview
+- `PqcReadinessScore` - PQC readiness assessment
+- `CategoryScore` - Category-specific readiness
+- `ReadinessRecommendation` - Prioritized recommendation
+- `ReadinessBenchmark` - Industry benchmark comparison

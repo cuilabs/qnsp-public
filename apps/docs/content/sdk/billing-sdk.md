@@ -1,7 +1,7 @@
 ---
 title: Billing SDK (@qnsp/billing-sdk)
-version: 0.1.0
-last_updated: 2026-01-04
+version: 0.3.0
+last_updated: 2026-03-20
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Billing SDK (`@qnsp/billing-sdk`)
 
-TypeScript client for `billing-service`. Provides usage metering and invoice management.
+TypeScript client for `billing-service`. Provides usage metering, invoice management, revenue analytics, and payment recovery.
 
 ## Install
 
@@ -105,6 +105,168 @@ while (cursor) {
 }
 ```
 
+## Revenue Analytics
+
+Analyze revenue across tenants and services:
+
+```ts
+// Revenue by tenant
+const byTenant = await billing.getRevenueByTenant({
+	since: "2026-01-01T00:00:00Z",
+	sortBy: "revenue",
+	sortOrder: "desc",
+	limit: 50,
+});
+console.log(byTenant.summary.totalRevenueCents);
+
+// Revenue by service
+const byService = await billing.getRevenueByService({
+	since: "2026-01-01T00:00:00Z",
+});
+for (const svc of byService.items) {
+	console.log(svc.service, svc.percentOfTotal);
+}
+
+// Revenue summary with time series
+const summary = await billing.getRevenueSummary({
+	since: "2026-01-01T00:00:00Z",
+	groupBy: "month",
+});
+console.log(summary.totalRevenueCents, summary.growthPercent);
+
+// MRR metrics
+const mrr = await billing.getMRRMetrics();
+console.log(mrr.currentMrrCents, mrr.netMrrChangeCents, mrr.growthRate);
+```
+
+## Usage Forecasting
+
+Predict future usage and billing:
+
+```ts
+// Usage forecast
+const usageForecast = await billing.getUsageForecast({
+	tenantId: "<tenant_uuid>",
+	meterType: "storage_bytes",
+	horizonDays: 30,
+});
+for (const prediction of usageForecast.predictions) {
+	console.log(prediction.date, prediction.predictedValue);
+}
+
+// Billing forecast
+const billingForecast = await billing.getBillingForecast({
+	tenantId: "<tenant_uuid>",
+	horizonMonths: 3,
+});
+for (const month of billingForecast.predictions) {
+	console.log(month.month, month.predictedAmountCents);
+}
+
+// Capacity forecast with recommendations
+const capacity = await billing.getCapacityForecast({
+	meterType: "ai_inference",
+	thresholdPercent: 80,
+});
+for (const rec of capacity.recommendations) {
+	console.log(rec.type, rec.urgency, rec.description);
+}
+```
+
+## Dunning (Payment Recovery)
+
+Manage failed payments and recovery:
+
+```ts
+// Configure dunning schedule
+const schedule = await billing.configureDunning({
+	name: "Standard Recovery",
+	stages: [
+		{ stage: "reminder", daysAfterDue: 3, actions: ["email"] },
+		{ stage: "warning", daysAfterDue: 7, actions: ["email", "in_app"] },
+		{ stage: "final_notice", daysAfterDue: 14, actions: ["email", "phone"] },
+		{ stage: "suspension", daysAfterDue: 30, actions: ["suspend"] },
+	],
+	isDefault: true,
+});
+
+// Check dunning status
+const status = await billing.getDunningStatus("<tenant_uuid>");
+console.log(status.status, status.totalOutstandingCents);
+
+// Retry a failed payment
+const retry = await billing.retryPayment({
+	paymentId: "<payment_uuid>",
+	forceRetry: true,
+});
+if (retry.success) {
+	console.log("Payment recovered:", retry.transactionId);
+}
+
+// Resolve dunning case
+await billing.resolveDunning({
+	paymentId: "<payment_uuid>",
+	resolution: "waived",
+	note: "One-time courtesy waiver",
+});
+
+// Get dunning metrics
+const metrics = await billing.getDunningMetrics();
+console.log(metrics.recoveryRate, metrics.totalRecoveredCents);
+```
+
+## Credits System
+
+Manage promotional credits and refunds:
+
+```ts
+// Create a credit
+const credit = await billing.createCredit({
+	tenantId: "<tenant_uuid>",
+	type: "promotional",
+	amountCents: 5000, // $50
+	description: "Welcome credit",
+	expiresAt: "2026-12-31T23:59:59Z",
+});
+
+// Check balance
+const balance = await billing.getCreditBalance("<tenant_uuid>");
+console.log(balance.totalAvailableCents);
+
+// Apply credit to invoice
+const applied = await billing.applyCredit({
+	tenantId: "<tenant_uuid>",
+	invoiceId: "<invoice_uuid>",
+	amountCents: 2500,
+});
+console.log(applied.remainingInvoiceAmountCents);
+
+// Create a promotion
+const promo = await billing.createPromotion({
+	code: "WELCOME50",
+	name: "Welcome Offer",
+	creditAmountCents: 5000,
+	maxRedemptions: 1000,
+	validUntil: "2026-06-30T23:59:59Z",
+	eligibility: { newTenantsOnly: true },
+});
+
+// Redeem a promotion
+const redemption = await billing.redeemPromotion({
+	tenantId: "<tenant_uuid>",
+	promotionCode: "WELCOME50",
+});
+if (redemption.success) {
+	console.log("Credit applied:", redemption.credit?.amountCents);
+}
+
+// Get credit history
+const history = await billing.getCreditHistory({
+	tenantId: "<tenant_uuid>",
+	limit: 50,
+});
+```
+
 ## Key APIs
 
 ### Usage Metering
@@ -114,8 +276,36 @@ while (cursor) {
 - `BillingClient.createInvoice(request)` - Create invoice from line items
 - `BillingClient.listInvoices(tenantId, options?)` - List tenant invoices
 
+### Revenue Analytics
+- `BillingClient.getRevenueByTenant(request?)` - Revenue breakdown by tenant
+- `BillingClient.getRevenueByService(request?)` - Revenue breakdown by service
+- `BillingClient.getRevenueSummary(request?)` - Revenue summary with trends
+- `BillingClient.getMRRMetrics(request?)` - Monthly recurring revenue metrics
+
+### Usage Forecasting
+- `BillingClient.getUsageForecast(request?)` - Predict usage trends
+- `BillingClient.getBillingForecast(request?)` - Predict billing amounts
+- `BillingClient.getCapacityForecast(request?)` - Capacity planning forecasts
+
+### Dunning
+- `BillingClient.configureDunning(request)` - Configure recovery schedule
+- `BillingClient.retryPayment(request)` - Retry failed payment
+- `BillingClient.resolveDunning(request)` - Resolve dunning case
+- `BillingClient.getDunningStatus(tenantId)` - Get tenant dunning status
+- `BillingClient.getDunningMetrics(request?)` - Get recovery metrics
+
+### Credits
+- `BillingClient.createCredit(request)` - Create a credit
+- `BillingClient.getCreditBalance(tenantId)` - Get available credits
+- `BillingClient.applyCredit(request)` - Apply credit to invoice
+- `BillingClient.createPromotion(request)` - Create promotion code
+- `BillingClient.redeemPromotion(request)` - Redeem promotion
+- `BillingClient.getCreditHistory(request)` - Get credit transactions
+
 ### Types
 - `Meter` - Usage meter with security envelope
 - `Invoice` - Invoice with line items and totals
-- `InvoiceLineItem` - Individual line item
-- `BillingSecurityEnvelope` - PQC security metadata
+- `RevenueSummary` - Revenue analytics data
+- `DunningSchedule` - Payment recovery configuration
+- `Credit` - Credit balance entry
+- `Promotion` - Promotional offer

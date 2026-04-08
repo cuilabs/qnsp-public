@@ -134,7 +134,7 @@ Yes. You can upgrade anytime through the cloud portal with immediate effect. Dow
 |---------|--------------|-------------|
 | Storage | Free | Quantum-secure storage (all tiers) |
 | Search | Free | Full-text and vector search (all tiers) |
-| Vault | Dev Pro | Secrets management with envelope encryption |
+| Vault | Free | Secrets management with envelope encryption |
 | SSE | Dev Pro | Server-side encryption for search |
 | AI Inference | Dev Pro | AI inference (non-enclave) |
 | Enclaves | Enterprise Standard | Secure enclave execution (8 hardware types) |
@@ -315,7 +315,7 @@ Yes. Enterprise and government customers can deploy QNSP in private/VPC environm
 - Data residency controls
 - Offline signing workflows
 
-Contact enterprise@cuilabs.io for self-hosted deployment options.
+Contact qnsp-sales@cuilabs.io for self-hosted deployment options.
 
 ### Does QNSP support multi-region deployments?
 
@@ -392,7 +392,7 @@ QNSP follows FedRAMP roadmap requirements and supports IL5/FedRAMP High alignmen
 - ITAR program support (deployment-specific)
 - Data residency guarantees
 
-Contact enterprise@cuilabs.io for government deployment options.
+Contact qnsp-sales@cuilabs.io for government deployment options.
 
 ### What compliance certifications does QNSP have?
 
@@ -575,7 +575,7 @@ See [Getting Started Guide](/getting-started/overview) for detailed walkthrough.
 
 ### How do I request enterprise features?
 
-**Enterprise Inquiries**: enterprise@cuilabs.io
+**Enterprise Inquiries**: qnsp-sales@cuilabs.io
 
 **Include in your request**:
 - Intended workload (AI, data, identity, search)
@@ -591,6 +591,6 @@ See [Getting Started Guide](/getting-started/overview) for detailed walkthrough.
 
 - **General inquiries**: contact@cuilabs.io
 - **Security issues**: qnsp-security@cuilabs.io
-- **Enterprise sales**: enterprise@cuilabs.io
+- **Enterprise sales**: qnsp-sales@cuilabs.io
 - **Technical support**: [cloud.qnsp.cuilabs.io/support](https://cloud.qnsp.cuilabs.io/support)
 
