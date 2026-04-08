@@ -17,6 +17,18 @@
 		".": {
 			"import": "./dist/index.js",
 			"types": "./dist/index.d.ts"
+		},
+		"./tools": {
+			"import": "./dist/tools.js",
+			"types": "./dist/tools.d.ts"
+		},
+		"./session": {
+			"import": "./dist/session.js",
+			"types": "./dist/session.d.ts"
+		},
+		"./api-client": {
+			"import": "./dist/api-client.js",
+			"types": "./dist/api-client.d.ts"
 		}
 	},
 	"scripts": {
