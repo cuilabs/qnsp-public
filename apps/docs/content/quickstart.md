@@ -64,5 +64,6 @@ console.log(secret.id);
 
 - [API Reference](./api) — Full endpoint listing
 - [SDK Overview](./sdk/overview) — All available SDKs
+- [MCP Server](./sdk/mcp-server) — Connect AI assistants to QNSP
 - [Getting Started Guide](./getting-started/overview) — Deeper walkthrough including auth flows
 - [cURL Quickstart](./getting-started/quickstart-curl) — Step-by-step API calls without an SDK

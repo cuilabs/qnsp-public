@@ -26,6 +26,9 @@ const DEFAULT_MODULE_ID = "@cuilabs/liboqs-native";
 const DEFAULT_HASH_ALGORITHM = "sha3-256";
 
 const require = createRequire(import.meta.url);
+const runtimeImport = new Function("modulePath", "return import(modulePath);") as (
+	modulePath: string,
+) => Promise<{ default?: LiboqsModule } | LiboqsModule>;
 
 let liboqsPackageVersion: string | undefined;
 let liboqsPackageAuthor: string | undefined;
@@ -311,6 +314,10 @@ interface LiboqsCapabilities {
 	readonly signatures: Set<SignatureAlgorithm>;
 }
 
+interface DefaultModuleNamespace {
+	readonly default?: LiboqsModule;
+}
+
 /**
  * All PQC algorithms supported by QNSP via liboqs.
  * This list is derived from the keys of KEM_ALGORITHM_MAP and SIGNATURE_ALGORITHM_MAP.
@@ -323,9 +330,19 @@ function normalizeUint8Array(value: Uint8Array): Uint8Array {
 	return value instanceof Uint8Array ? value : Uint8Array.from(value);
 }
 
+function resolveImportedModule(imported: LiboqsModule | DefaultModuleNamespace): LiboqsModule {
+	if ("default" in imported && imported.default) {
+		return imported.default;
+	}
+	return imported as LiboqsModule;
+}
+
 async function defaultLoadModule(moduleId: string): Promise<LiboqsModule> {
-	const imported = await import(moduleId);
-	return (imported.default ?? imported) as LiboqsModule;
+	const imported: LiboqsModule | DefaultModuleNamespace =
+		moduleId === DEFAULT_MODULE_ID
+			? ((await import("@cuilabs/liboqs-native")) as LiboqsModule | DefaultModuleNamespace)
+			: await runtimeImport(moduleId);
+	return resolveImportedModule(imported);
 }
 
 function ensureKemAlgorithm(algorithm: PqcAlgorithm): asserts algorithm is KemAlgorithm {

@@ -1,7 +1,7 @@
 ---
 title: SDK Overview
 version: 0.3.0
-last_updated: 2026-03-20
+last_updated: 2026-04-11
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,34 +10,45 @@ source_files:
   - /packages/kms-client/package.json
   - /packages/storage-sdk/package.json
   - /packages/crypto-inventory-sdk/package.json
-  - /packages/observability-sdk/package.json
-  - /packages/security-monitoring-sdk/package.json
+  - /packages/browser-sdk/package.json
+  - /packages/mcp-server/package.json
 ---
 
 # SDK Overview
 
-QNSP provides official TypeScript/Node.js SDKs for platform services. All SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
+QNSP provides official TypeScript/Node.js SDKs and developer tooling for platform services. The service SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
 
-## Available SDKs
+## Service SDKs
 
 From `packages/*/package.json`:
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `@qnsp/auth-sdk` | 0.3.0 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
-| `@qnsp/vault-sdk` | 0.3.0 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
-| `@qnsp/kms-client` | 0.2.0 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
-| `@qnsp/storage-sdk` | 0.3.0 | Storage client with data classification, retention policies, cross-region replication |
-| `@qnsp/audit-sdk` | 0.3.0 | Audit client with real-time streaming, retention automation, conformance results |
-| `@qnsp/access-control-sdk` | 0.3.0 | Policy simulation, JIT access management, cross-tenant analysis |
-| `@qnsp/billing-sdk` | 0.2.0 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
-| `@qnsp/search-sdk` | 0.2.0 | Search client with query analytics, synonym management, multi-tenant isolation |
-| `@qnsp/tenant-sdk` | 0.3.0 | Tenant client with health dashboard, quota forecasting, onboarding automation |
-| `@qnsp/ai-sdk` | 0.2.0 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
-| `@qnsp/crypto-inventory-sdk` | 0.3.0 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
-| `@qnsp/observability-sdk` | 0.1.0 | Cost attribution, anomaly detection, custom dashboards, SLO tracking |
-| `@qnsp/security-monitoring-sdk` | 0.1.0 | Threat intelligence, automated response, attack paths, compliance mapping |
-| `@qnsp/browser-sdk` | 0.2.0 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
+| `@qnsp/auth-sdk` | 0.3.4 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
+| `@qnsp/vault-sdk` | 0.3.4 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
+| `@qnsp/kms-client` | 0.2.4 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
+| `@qnsp/storage-sdk` | 0.3.4 | Storage client with data classification, retention policies, cross-region replication |
+| `@qnsp/audit-sdk` | 0.3.4 | Audit client with real-time streaming, retention automation, conformance results |
+| `@qnsp/access-control-sdk` | 0.3.4 | Policy simulation, JIT access management, cross-tenant analysis |
+| `@qnsp/billing-sdk` | 0.2.4 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
+| `@qnsp/search-sdk` | 0.2.5 | Search client with query analytics, synonym management, multi-tenant isolation |
+| `@qnsp/tenant-sdk` | 0.3.4 | Tenant client with health dashboard, quota forecasting, onboarding automation |
+| `@qnsp/ai-sdk` | 0.1.6 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
+| `@qnsp/crypto-inventory-sdk` | 0.3.4 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
+| `@qnsp/browser-sdk` | 0.1.2 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
+
+## Developer tooling
+
+These packages are part of the public integration surface, but they are not the per-service SDK clients listed above:
+
+| Package | Version | Description |
+|---------|---------|-------------|
+| `@qnsp/cli` | 0.1.6 | Command-line automation and CI/CD workflows |
+| `@qnsp/mcp-server` | 0.1.0 | Official MCP server for AI assistants using QNSP tools |
+| `@qnsp/sdk-activation` | 0.1.3 | Shared activation and entitlement bootstrap used by SDK packages |
+| `@qnsp/langchain-qnsp` | 0.1.1 | LangChain integration package |
+| `@qnsp/llamaindex-qnsp` | 0.2.0 | LlamaIndex integration package |
+| `@qnsp/autogen-qnsp` | 0.2.0 | AutoGen integration package |
 
 ## Individual SDK docs
 
@@ -52,9 +63,8 @@ From `packages/*/package.json`:
 - [`@qnsp/tenant-sdk`](./tenant-sdk) — Health dashboard, quota forecasting
 - [`@qnsp/ai-sdk`](./ai-sdk) — Model registry, bias monitoring, prompt injection
 - [`@qnsp/crypto-inventory-sdk`](./crypto-inventory-sdk) — Certificate lifecycle, PQC readiness
-- [`@qnsp/observability-sdk`](./observability-sdk) — Cost attribution, anomaly detection, dashboards
-- [`@qnsp/security-monitoring-sdk`](./security-monitoring-sdk) — Threat intelligence, automated response
 - [`@qnsp/browser-sdk`](./browser-sdk) — Browser-side PQC operations
+- [`@qnsp/mcp-server`](./mcp-server) — MCP integration for AI assistants
 
 ## Requirements
 
@@ -156,7 +166,7 @@ All SDKs now support tenant crypto policy integration. This allows services to:
 
 ### Algorithm Name Conversion
 
-All SDKs export the full 90-algorithm NIST name mapping covering 14 PQC families: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
+All SDKs export the full 93-algorithm NIST name mapping covering 14 PQC families: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```typescript
 import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/tenant-sdk";
@@ -165,7 +175,7 @@ import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/tenant-sdk";
 const nistName = toNistAlgorithmName("kyber-768"); // "ML-KEM-768"
 const sigName = toNistAlgorithmName("dilithium-3"); // "ML-DSA-65"
 
-// Full mapping covers all 90 PQC algorithms. Representative entries:
+// Full mapping covers all 93 PQC algorithms. Representative entries:
 console.log(ALGORITHM_TO_NIST);
 // {
 //   "kyber-512": "ML-KEM-512",        // FIPS 203
@@ -188,7 +198,7 @@ console.log(ALGORITHM_TO_NIST);
 //   "cross-rsdp-128-balanced": "CROSS-RSDP-128-balanced",
 //   "ov-Is": "UOV-Is",
 //   "snova-24-5-4": "SNOVA-24-5-4",
-//   ... // 90 algorithms total
+//   ... // 93 algorithms total
 // }
 ```
 
@@ -226,12 +236,11 @@ See the [Tenant Crypto Policy Guide](/architecture/tenant-crypto-policy) for det
 - **Cost Optimization** (`@qnsp/ai-sdk`): Token usage analytics and budget alerts
 - **Prompt Injection** (`@qnsp/ai-sdk`): Real-time attack detection and blocking
 
-### Observability & Security
+### AI Tooling & Automation
 
-- **Cost Attribution** (`@qnsp/observability-sdk`): Granular cost allocation
-- **Anomaly Detection** (`@qnsp/observability-sdk`): ML-driven baseline deviation alerts
-- **Threat Intelligence** (`@qnsp/security-monitoring-sdk`): External threat feed integration
-- **Automated Response** (`@qnsp/security-monitoring-sdk`): SOAR-style playbooks
+- **MCP Server** (`@qnsp/mcp-server`): Expose tenant-scoped QNSP tools to AI assistants
+- **CLI Automation** (`@qnsp/cli`): Script CI/CD workflows and operational tasks
+- **Framework Integrations** (`@qnsp/langchain-qnsp`, `@qnsp/llamaindex-qnsp`, `@qnsp/autogen-qnsp`): Connect QNSP services into agent frameworks
 
 ### Billing & Tenant Management
 

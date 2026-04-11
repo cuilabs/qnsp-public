@@ -29,7 +29,7 @@ const PACKAGE_VERSION = "0.1.0";
 function registerTools(server: McpServer, ctx: ToolContext): void {
 	server.tool(
 		"qnsp_kms_generate_key",
-		"Generate a new post-quantum cryptographic key pair. Supports ML-KEM (Kyber), ML-DSA (Dilithium), Falcon, SPHINCS+, and 90+ more PQC algorithms per NIST FIPS 203/204/205.",
+		"Generate a new post-quantum cryptographic key pair. Supports ML-KEM (Kyber), ML-DSA (Dilithium), Falcon, SPHINCS+, and the full 93-algorithm QNSP PQC catalog.",
 		{
 			algorithm: tools.kmsGenerateKeySchema.shape.algorithm,
 			label: tools.kmsGenerateKeySchema.shape.label,
