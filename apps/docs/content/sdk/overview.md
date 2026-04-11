@@ -65,6 +65,10 @@ These packages are part of the public integration surface, but they are not the 
 - [`@qnsp/crypto-inventory-sdk`](./crypto-inventory-sdk) — Certificate lifecycle, PQC readiness
 - [`@qnsp/browser-sdk`](./browser-sdk) — Browser-side PQC operations
 - [`@qnsp/mcp-server`](./mcp-server) — MCP integration for AI assistants
+- [`@qnsp/langchain-qnsp`](./langchain-qnsp) — LangChain toolkit for vault, KMS, and audit
+- [`@qnsp/llamaindex-qnsp`](./llamaindex-qnsp) — LlamaIndex vector-store adapter for encrypted search
+- [`@qnsp/autogen-qnsp`](./autogen-qnsp) — AutoGen executor for QNSP AI orchestration
+- [`@qnsp/resilience`](./resilience) — Shared resilience primitives used by QNSP clients
 
 ## Requirements
 

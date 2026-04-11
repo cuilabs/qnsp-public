@@ -306,7 +306,7 @@ await tenants.rollbackTenantCryptoPolicyV1(
 
 ## Algorithm Name Conversion
 
-Convert between internal and NIST standardized names. The Tenant SDK exports the full 90-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
+Convert between internal and NIST standardized names. The Tenant SDK exports the full 93-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```ts
 import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/tenant-sdk";
@@ -315,7 +315,7 @@ import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/tenant-sdk";
 const nistName = toNistAlgorithmName("kyber-768"); // "ML-KEM-768"
 const nistSig = toNistAlgorithmName("dilithium-3"); // "ML-DSA-65"
 
-// Full mapping covers all 90 PQC algorithms. Representative entries:
+// Full mapping covers all 93 PQC algorithms. Representative entries:
 console.log(ALGORITHM_TO_NIST);
 // {
 //   "kyber-512": "ML-KEM-512",        // FIPS 203
@@ -338,7 +338,7 @@ console.log(ALGORITHM_TO_NIST);
 //   "cross-rsdp-128-balanced": "CROSS-RSDP-128-balanced",
 //   "ov-Is": "UOV-Is",
 //   "snova-24-5-4": "SNOVA-24-5-4",
-//   ... // 90 algorithms total
+//   ... // 93 algorithms total
 // }
 ```
 
