@@ -12,7 +12,7 @@ export { TierError };
 
 /**
  * Check if the current tier has access to SSE features.
- * SSE requires dev-pro tier or higher.
+ * SSE access follows the shared billing-backed tier contract.
  * @throws TierError if tier doesn't have SSE access
  */
 export function checkSseAccess(tier: PricingTier): void {

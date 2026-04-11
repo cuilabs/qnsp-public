@@ -38,7 +38,7 @@ function gateError(feature: string, tier: string): ToolResult {
 				type: "text",
 				text:
 					`This feature requires a higher tier. Current tier: ${tier}. ` +
-					`Upgrade at https://cloud.qnsp.cuilabs.io/settings/billing to access ${feature}.`,
+					`Upgrade at https://cloud.qnsp.cuilabs.io/billing to access ${feature}.`,
 			},
 		],
 		isError: true,
@@ -61,7 +61,8 @@ export async function kmsGenerateKey(
 	ctx: ToolContext,
 	input: z.infer<typeof kmsGenerateKeySchema>,
 ): Promise<ToolResult> {
-	const { data } = await ctx.api.post("/proxy/kms/kms/v1/keys", {
+	const { data } = await ctx.api.post("/proxy/kms/v1/keys", {
+		tenantId: ctx.gate.tenantId,
 		algorithm: input.algorithm,
 		label: input.label ?? `mcp-${Date.now()}`,
 		metadata: input.metadata ?? {},
@@ -78,7 +79,9 @@ export async function kmsListKeys(
 	input: z.infer<typeof kmsListKeysSchema>,
 ): Promise<ToolResult> {
 	const limit = input.limit ?? 20;
-	const { data } = await ctx.api.get(`/proxy/kms/kms/v1/keys?limit=${limit}`);
+	const { data } = await ctx.api.get(
+		`/proxy/kms/v1/keys?tenantId=${ctx.gate.tenantId}&limit=${limit}`,
+	);
 	return json(data);
 }
 
@@ -90,7 +93,9 @@ export async function kmsGetKey(
 	ctx: ToolContext,
 	input: z.infer<typeof kmsGetKeySchema>,
 ): Promise<ToolResult> {
-	const { data } = await ctx.api.get(`/proxy/kms/kms/v1/keys/${input.keyId}`);
+	const { data } = await ctx.api.get(
+		`/proxy/kms/v1/keys/${input.keyId}?tenantId=${ctx.gate.tenantId}`,
+	);
 	return json(data);
 }
 
@@ -102,7 +107,10 @@ export async function kmsRotateKey(
 	ctx: ToolContext,
 	input: z.infer<typeof kmsRotateKeySchema>,
 ): Promise<ToolResult> {
-	const { data } = await ctx.api.post(`/proxy/kms/kms/v1/keys/${input.keyId}/rotate`);
+	const { data } = await ctx.api.post(`/proxy/kms/v1/keys/${input.keyId}/rotate`, {
+		tenantId: ctx.gate.tenantId,
+		reason: "MCP rotation",
+	});
 	return json(data);
 }
 
@@ -121,9 +129,10 @@ export async function vaultCreateSecret(
 	if (!ctx.gate.hasFeature("vaultEnabled")) {
 		return gateError("Quantum-Safe Vault", ctx.gate.tier);
 	}
-	const { data } = await ctx.api.post("/proxy/vault/vault/v1/secrets", {
+	const { data } = await ctx.api.post("/proxy/vault/v1/secrets", {
+		tenantId: ctx.gate.tenantId,
 		name: input.name,
-		value: input.value,
+		payload: Buffer.from(input.value).toString("base64"),
 		metadata: input.metadata ?? {},
 	});
 	return json(data);
@@ -140,7 +149,7 @@ export async function vaultGetSecret(
 	if (!ctx.gate.hasFeature("vaultEnabled")) {
 		return gateError("Quantum-Safe Vault", ctx.gate.tier);
 	}
-	const { data } = await ctx.api.get(`/proxy/vault/vault/v1/secrets/${input.secretId}`);
+	const { data } = await ctx.api.get(`/proxy/vault/v1/secrets/${input.secretId}`);
 	return json(data);
 }
 
@@ -156,7 +165,9 @@ export async function vaultListSecrets(
 		return gateError("Quantum-Safe Vault", ctx.gate.tier);
 	}
 	const limit = input.limit ?? 20;
-	const { data } = await ctx.api.get(`/proxy/vault/vault/v1/secrets?limit=${limit}`);
+	const { data } = await ctx.api.get(
+		`/proxy/vault/v1/secrets?tenantId=${ctx.gate.tenantId}&limit=${limit}`,
+	);
 	return json(data);
 }
 
@@ -173,9 +184,10 @@ export async function cryptoScan(
 	ctx: ToolContext,
 	input: z.infer<typeof cryptoScanSchema>,
 ): Promise<ToolResult> {
-	const { data } = await ctx.api.post("/proxy/crypto/crypto/v1/scan", {
-		scope: input.scope ?? "full",
-	});
+	const scope = input.scope ?? "full";
+	const { data } = await ctx.api.get(
+		`/proxy/crypto/v1/discovery/jobs?tenantId=${ctx.gate.tenantId}&limit=10&scope=${encodeURIComponent(scope)}`,
+	);
 	return json(data);
 }
 
@@ -188,7 +200,9 @@ export async function cryptoInventory(
 	input: z.infer<typeof cryptoInventorySchema>,
 ): Promise<ToolResult> {
 	const limit = input.limit ?? 50;
-	const { data } = await ctx.api.get(`/proxy/crypto/crypto/v1/inventory?limit=${limit}`);
+	const { data } = await ctx.api.get(
+		`/proxy/crypto/v1/discovery/jobs?tenantId=${ctx.gate.tenantId}&limit=${limit}`,
+	);
 	return json(data);
 }
 
@@ -198,7 +212,7 @@ export async function cryptoReadiness(
 	ctx: ToolContext,
 	_input: z.infer<typeof cryptoReadinessSchema>,
 ): Promise<ToolResult> {
-	const { data } = await ctx.api.get("/proxy/crypto/crypto/v1/readiness");
+	const { data } = await ctx.api.get(`/proxy/crypto/v1/readiness?tenantId=${ctx.gate.tenantId}`);
 	return json(data);
 }
 
@@ -217,8 +231,9 @@ export async function auditQuery(
 	const params = new URLSearchParams();
 	if (input.topic) params.set("topic", input.topic);
 	if (input.sourceService) params.set("sourceService", input.sourceService);
+	params.set("tenantId", ctx.gate.tenantId);
 	params.set("limit", String(input.limit ?? 20));
-	const { data } = await ctx.api.get(`/proxy/audit/audit/v1/events?${params.toString()}`);
+	const { data } = await ctx.api.get(`/proxy/audit/v1/events?${params.toString()}`);
 	return json(data);
 }
 
@@ -236,10 +251,11 @@ export async function searchQuery(
 	if (!ctx.gate.hasFeature("sseEnabled")) {
 		return gateError("Encrypted Search (SSE-X)", ctx.gate.tier);
 	}
-	const { data } = await ctx.api.post("/proxy/search/search/v1/query", {
-		query: input.query,
-		limit: input.limit ?? 10,
-	});
+	const params = new URLSearchParams();
+	params.set("tenantId", ctx.gate.tenantId);
+	params.set("q", input.query);
+	params.set("limit", String(input.limit ?? 10));
+	const { data } = await ctx.api.get(`/proxy/search/v1/documents?${params.toString()}`);
 	return json(data);
 }
 
@@ -251,7 +267,7 @@ export async function tenantInfo(
 	ctx: ToolContext,
 	_input: z.infer<typeof tenantInfoSchema>,
 ): Promise<ToolResult> {
-	const { data } = await ctx.api.get(`/proxy/tenant/tenant/v1/tenants/${ctx.gate.tenantId}`);
+	const { data } = await ctx.api.get(`/proxy/tenant/v1/tenants/${ctx.gate.tenantId}`);
 	return json(data);
 }
 
@@ -265,7 +281,7 @@ export async function billingStatus(
 		tenantId: ctx.gate.tenantId,
 		tier: ctx.gate.tier,
 		limits: ctx.gate.limits,
-		upgradeUrl: "https://cloud.qnsp.cuilabs.io/settings/billing",
+		upgradeUrl: "https://cloud.qnsp.cuilabs.io/billing",
 	});
 }
 

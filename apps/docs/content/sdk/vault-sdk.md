@@ -452,7 +452,7 @@ console.log(ALGORITHM_TO_NIST);
 //   "cross-rsdp-128-balanced": "CROSS-RSDP-128-balanced",
 //   "ov-Is": "UOV-Is",
 //   "snova-24-5-4": "SNOVA-24-5-4",
-//   ... // 90 algorithms total
+//   ... // 93 algorithms total
 // }
 ```
 
@@ -466,11 +466,11 @@ import { VaultClient, TierError } from "@qnsp/vault-sdk";
 try {
 	const vault = new VaultClient({
 		baseUrl: "http://localhost:8090",
-		tier: "free", // Will throw TierError
+		tier: "free",
 	});
 } catch (error) {
 	if (error instanceof TierError) {
-		console.log("Vault requires dev-pro tier or higher");
+		console.log("Vault access follows your billing-backed entitlement tier");
 	}
 }
 ```

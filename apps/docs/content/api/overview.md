@@ -1,7 +1,7 @@
 ---
 title: API Overview
-version: 0.0.4
-last_updated: 2026-01-26
+version: 0.0.5
+last_updated: 2026-04-11
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 source_files:
@@ -42,8 +42,8 @@ From `apps/*/src/config/env.ts`:
 
 In production, clients should treat **edge-gateway** as the single entrypoint.
 
-- Most internal services are reached via `GET/POST /proxy/<service>/<service-native-prefix>/*`.
-- Example: crypto inventory routes are exposed through edge as `GET /proxy/crypto/crypto/v1/assets`.
+- Most internal services are reached via `GET/POST /proxy/<service>/v1/*`.
+- Example: crypto inventory routes are exposed through edge as `GET /proxy/crypto/v1/assets`.
 - Health checks for all services are available via `GET /proxy/<service>/health` and `GET /edge/<service>/health`.
 
 `platform-api` is deployed in production and routed through edge-gateway at `/proxy/platform/*`.
@@ -105,7 +105,7 @@ GET /platform/v1/crypto/policy
 ```
 
 - Without tenant context, returns the platform-wide policy attestation.
-- With `X-Tenant-Id` header, returns the tenant’s **v1** policy (ETag in response headers).
+- With `X-QNSP-Tenant-Id` or `X-Tenant-Id` header, returns the tenant’s **v1** policy (ETag in response headers).
 
 ## Request format
 

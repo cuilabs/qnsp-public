@@ -29,7 +29,7 @@ const PACKAGE_VERSION = "0.1.0";
 function registerTools(server: McpServer, ctx: ToolContext): void {
 	server.tool(
 		"qnsp_kms_generate_key",
-		"Generate a new post-quantum cryptographic key pair. Supports ML-KEM (Kyber), ML-DSA (Dilithium), Falcon, SPHINCS+, and 80+ more PQC algorithms per NIST FIPS 203/204/205.",
+		"Generate a new post-quantum cryptographic key pair. Supports ML-KEM (Kyber), ML-DSA (Dilithium), Falcon, SPHINCS+, and 90+ more PQC algorithms per NIST FIPS 203/204/205.",
 		{
 			algorithm: tools.kmsGenerateKeySchema.shape.algorithm,
 			label: tools.kmsGenerateKeySchema.shape.label,
@@ -57,7 +57,7 @@ function registerTools(server: McpServer, ctx: ToolContext): void {
 	);
 	server.tool(
 		"qnsp_vault_create_secret",
-		"Store a secret in the quantum-safe encrypted vault. Requires dev-pro tier or higher.",
+		"Store a secret in the quantum-safe encrypted vault.",
 		{
 			name: tools.vaultCreateSecretSchema.shape.name,
 			value: tools.vaultCreateSecretSchema.shape.value,

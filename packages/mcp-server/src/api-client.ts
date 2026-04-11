@@ -54,7 +54,9 @@ export class ApiClient {
 		const url = `${this.baseUrl}${path}`;
 		const headers: Record<string, string> = {
 			authorization: `Bearer ${this.apiKey}`,
+			"x-qnsp-tenant": this.tenantId,
 			"x-qnsp-tenant-id": this.tenantId,
+			"x-tenant-id": this.tenantId,
 			"content-type": "application/json",
 			"user-agent": "qnsp-mcp-server/0.1.0",
 		};

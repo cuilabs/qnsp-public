@@ -72,6 +72,7 @@
 	"dependencies": {
 		"@opentelemetry/api": "^1.9.1",
 		"@qnsp/cryptography": "workspace:*",
+		"@qnsp/pricing": "workspace:*",
 		"@qnsp/resilience": "workspace:*",
 		"nodemailer": "^8.0.4",
 		"pg": "^8.20.0",

@@ -255,7 +255,7 @@ const PQC_FIPS_LABEL_BY_ALGORITHM: Partial<Record<PqcAlgorithm, string>> = {
 /**
  * Comprehensive mapping from internal algorithm names to NIST/standards display names.
  * Exported as the canonical reference for all SDKs and services.
- * Covers all 90 PQC algorithms supported by QNSP.
+ * Covers all 93 PQC algorithms currently supported by QNSP.
  */
 export const ALGORITHM_NIST_NAMES: Readonly<Record<string, string>> =
 	PQC_FIPS_LABEL_BY_ALGORITHM as Record<string, string>;

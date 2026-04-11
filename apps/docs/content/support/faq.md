@@ -1,7 +1,7 @@
 ---
 title: Frequently Asked Questions
-version: 0.0.1
-last_updated: 2026-02-14
+version: 0.0.2
+last_updated: 2026-04-11
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 
@@ -109,9 +109,10 @@ In practice, the performance impact is negligible for most workloads (<5% overhe
 The free tier is **free forever** for everyone—from individual users to global enterprises. No credit card required, no time limits.
 
 **Free tier includes**:
-- 5GB quantum-secure storage
-- 2,000 API calls/month
-- PQC storage + limited KMS (1 key, 5,000 ops/month)
+- 10GB quantum-secure storage
+- 50,000 API calls/month
+- PQC storage + limited KMS (20 keys, 20,000 ops/month)
+- 25 vault secrets and 3 API keys
 - Full access to all 12 TypeScript SDKs
 - Community support
 
@@ -128,7 +129,7 @@ Yes. You can upgrade anytime through the cloud portal with immediate effect. Dow
 ### What features require paid tiers?
 
 
-**Feature tier requirements** (from `packages/shared-kernel/src/tier-limits.ts`):
+**Feature tier requirements** (aligned with the shared SDK gate contract):
 
 | Feature | Minimum Tier | Description |
 |---------|--------------|-------------|
@@ -163,19 +164,20 @@ All SDKs are free and included with every tier. View them at [npmjs.com/org/qnsp
 
 | Tier | Storage | API Calls/Month | Price |
 |------|---------|-----------------|-------|
-| Free | 5GB | 2,000 | $0 forever |
-| Dev Starter | 50GB | 50,000 | $99/mo |
-| Dev Pro | 200GB | 250,000 | $450/mo |
-| Dev Elite | 500GB | 500,000 | $599/mo |
-| Business Team | 500GB | 1M | $1,499/mo |
-| Business Advanced | 2TB | 5M | $3,999/mo |
-| Business Elite | 3.5TB | 7.5M | $5,999/mo |
-| Enterprise Standard | 5TB | 10M | $7,999/mo |
-| Enterprise Pro | 10TB | 25M | $14,999/mo |
+| Free | 10GB | 50,000 | $0 forever |
+| Dev Starter | 100GB | 100,000 | $149/mo |
+| Dev Pro | 250GB | 500,000 | $590/mo |
+| Dev Elite | 500GB | 750,000 | $790/mo |
+| Dev Team | 1TB | 1M | $1,499/mo |
+| Business Team | 5TB | 1.5M | $2,199/mo |
+| Business Advanced | 10TB | 7.5M | $5,499/mo |
+| Business Elite | 15TB | 10M | $8,499/mo |
+| Enterprise Standard | 20TB | 15M | $12,999/mo |
+| Enterprise Pro | 25TB | 30M | $19,999/mo |
 | Enterprise Elite | Unlimited | Unlimited | Custom |
 | Specialized | Custom | Custom | Custom |
 
-Annual plans offer 15-20% savings. Enterprise Elite and Specialized tiers include custom configurations.
+Annual pricing is catalog-defined per tier. Enterprise Elite and Specialized tiers include custom configurations.
 
 ## Technical Implementation
 
@@ -593,4 +595,3 @@ See [Getting Started Guide](/getting-started/overview) for detailed walkthrough.
 - **Security issues**: qnsp-security@cuilabs.io
 - **Enterprise sales**: qnsp-sales@cuilabs.io
 - **Technical support**: [cloud.qnsp.cuilabs.io/support](https://cloud.qnsp.cuilabs.io/support)
-
