@@ -72,6 +72,9 @@ This document lists all environment variables used across QNSP services.
 - `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret (optional)
 - `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key (optional)
 
+### GitHub Marketplace
+- `GITHUB_MARKETPLACE_WEBHOOK_SECRET` - GitHub Marketplace webhook signing secret used to verify `X-Hub-Signature-256` on `marketplace_purchase` deliveries (optional, but required to enable the route)
+
 ### AWS Marketplace
 - `AWS_MARKETPLACE_PRODUCT_CODE` - AWS Marketplace product code (optional)
 - `AWS_MARKETPLACE_REGION` - AWS region for Marketplace (default: us-east-1)
