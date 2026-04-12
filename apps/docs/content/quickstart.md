@@ -1,8 +1,8 @@
 ---
 title: "Quickstart"
 description: "Get started with QNSP in under 10 minutes — create a tenant, obtain an API token, and make your first secure API call."
-version: 0.0.1
-last_updated: 2026-04-01
+version: 0.0.2
+last_updated: 2026-04-13
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 ---
@@ -12,7 +12,14 @@ Get from zero to a working QNSP integration in under 10 minutes.
 
 ## 1. Create an account
 
-Sign up at [cloud.qnsp.cuilabs.io/auth](https://cloud.qnsp.cuilabs.io/auth) — one click with **GitHub** or **Google**, or register with email. Your workspace (tenant) is provisioned automatically on first sign-in.
+Sign up at [cloud.qnsp.cuilabs.io/auth](https://cloud.qnsp.cuilabs.io/auth).
+
+Available paths today:
+- One-click social sign-in with **GitHub**, **Google**, **Microsoft**, **GitLab**, or **Bitbucket**
+- Email + password signup for a new workspace
+- Enterprise SSO with **Microsoft Entra ID**, **Okta**, **Auth0**, **Google Workspace**, **AWS IAM Identity Center**, or a tenant-configured **SAML 2.0 / OIDC** provider
+
+Your workspace (tenant) is provisioned automatically on first sign-in for self-serve signup flows. If you are joining an existing organization, use **Continue with your company SSO** or your existing tenant login flow instead of creating a second workspace.
 
 ## 2. Generate an API key
 

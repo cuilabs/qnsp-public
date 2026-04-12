@@ -1,12 +1,12 @@
 ---
 title: SAML Federation
-version: 0.0.1
-last_updated: 2025-12-24
+version: 0.0.2
+last_updated: 2026-04-13
 copyright: 2025 CUI Labs. All rights reserved.
 ---
 # SAML Federation
 
-QNSP supports SAML 2.0 for enterprise SSO.
+QNSP supports SAML 2.0 for enterprise SSO and authenticated identity linking.
 
 ## Configuration
 
@@ -28,20 +28,26 @@ Register a SAML federation provider:
 
 ## Flow
 
-1. Your SSO integration produces a validated assertion payload.
-2. Submit the assertion to QNSP:
+1. QNSP initiates a SAML flow against the configured provider and receives a signed assertion at its ACS endpoint.
+2. QNSP validates:
+   - XML signature
+   - issuer
+   - audience
+   - recipient / destination
+   - `InResponseTo`
+   - replay protection
+   - assertion time bounds with clock-skew tolerance
+3. The validated assertion is processed by QNSP:
    ```
-   POST /auth/federation/saml/assertion
+   POST /auth/federation/saml/acs
    {
      "providerId": "saml-main",
-     "externalUserId": "<external_user_id>",
-     "email": "user@example.com",
-     "tenantId": "<tenant_uuid>",
-     "roles": ["member"],
-     "attributes": {}
+     "samlResponse": "<base64_assertion>",
+     "relayState": "<optional_relay_state>",
+     "linkMode": false
    }
    ```
-3. QNSP issues access + refresh tokens.
+4. QNSP either issues access + refresh tokens for sign-in or binds the SAML identity to the current authenticated QNSP user when `linkMode=true`.
 
 ## Attribute mapping
 
@@ -64,4 +70,7 @@ GET /auth/federation/:providerId/metadata?type=saml
 ## Security
 
 - Assertions must be signed
+- Replay detection is enforced
+- Audience, recipient, destination, and `InResponseTo` are validated
+- Metadata refresh and certificate rollover are supported
 - Encryption supported but optional

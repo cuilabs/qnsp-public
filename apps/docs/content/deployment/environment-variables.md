@@ -1,7 +1,7 @@
 ---
 title: Environment Variables
-version: 0.0.1
-last_updated: 2026-01-16
+version: 0.0.2
+last_updated: 2026-04-13
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 
@@ -59,6 +59,24 @@ This document lists all environment variables used across QNSP services.
 - `TP_GATE_JWT_SECRET` - JWT secret for preview invite tokens (required)
 - `CLOUD_PORTAL_URL` - Cloud portal base URL (default: https://cloud.qnsp.cuilabs.io)
 
+### OAuth and Identity Federation
+- `CLOUD_OAUTH_SESSION_SECRET` - CSRF/session protection secret for social OAuth start/callback flows
+- `CLOUD_OAUTH_GITHUB_CLIENT_ID` - GitHub OAuth app client ID
+- `CLOUD_OAUTH_GITHUB_CLIENT_SECRET` - GitHub OAuth app client secret
+- `CLOUD_OAUTH_GITHUB_CALLBACK_URL` - Optional GitHub callback override
+- `CLOUD_OAUTH_GOOGLE_CLIENT_ID` - Google OAuth app client ID
+- `CLOUD_OAUTH_GOOGLE_CLIENT_SECRET` - Google OAuth app client secret
+- `CLOUD_OAUTH_GOOGLE_CALLBACK_URL` - Optional Google callback override
+- `CLOUD_OAUTH_MICROSOFT_CLIENT_ID` - Microsoft OAuth app client ID
+- `CLOUD_OAUTH_MICROSOFT_CLIENT_SECRET` - Microsoft OAuth app client secret
+- `CLOUD_OAUTH_MICROSOFT_CALLBACK_URL` - Optional Microsoft callback override
+- `CLOUD_OAUTH_GITLAB_CLIENT_ID` - GitLab OAuth app client ID
+- `CLOUD_OAUTH_GITLAB_CLIENT_SECRET` - GitLab OAuth app client secret
+- `CLOUD_OAUTH_GITLAB_CALLBACK_URL` - Optional GitLab callback override
+- `CLOUD_OAUTH_BITBUCKET_CLIENT_ID` - Bitbucket OAuth app client ID
+- `CLOUD_OAUTH_BITBUCKET_CLIENT_SECRET` - Bitbucket OAuth app client secret
+- `CLOUD_OAUTH_BITBUCKET_CALLBACK_URL` - Optional Bitbucket callback override
+
 ## Billing Service (`apps/billing-service`)
 
 ### Database
@@ -73,7 +91,16 @@ This document lists all environment variables used across QNSP services.
 - `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key (optional)
 
 ### GitHub Marketplace
-- `GITHUB_MARKETPLACE_WEBHOOK_SECRET` - GitHub Marketplace webhook signing secret used to verify `X-Hub-Signature-256` on `marketplace_purchase` deliveries (optional, but required to enable the route)
+- `GITHUB_MARKETPLACE_WEBHOOK_SECRET` - GitHub Marketplace webhook signing secret used to verify `X-Hub-Signature-256` on GitHub Marketplace deliveries including `ping` and `marketplace_purchase` (optional, but required to enable the route)
+
+## Auth Service (`apps/auth-service`)
+
+### Federation Background Work
+- `AUTH_FEDERATION_EMBEDDED_WORKERS_ENABLED` - Run SCIM and metadata refresh loops inside auth-service instead of a separate worker (default: `true`)
+- `AUTH_FEDERATION_SCIM_WORKER_ENABLED` - Enable SCIM import job processing (default: `true`)
+- `AUTH_FEDERATION_SCIM_WORKER_INTERVAL_MS` - SCIM import polling interval in ms
+- `AUTH_FEDERATION_SAML_METADATA_REFRESH_ENABLED` - Enable SAML metadata refresh polling (default: `true`)
+- `AUTH_FEDERATION_SAML_METADATA_REFRESH_INTERVAL_MS` - SAML metadata refresh interval in ms
 
 ### AWS Marketplace
 - `AWS_MARKETPLACE_PRODUCT_CODE` - AWS Marketplace product code (optional)

@@ -1,7 +1,7 @@
 ---
 title: Getting Started Overview
-version: 0.0.2
-last_updated: 2026-01-16
+version: 0.0.3
+last_updated: 2026-04-13
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0 (SDK packages) / BSL-1.1 (core platform)
 source_files:
@@ -20,7 +20,7 @@ QNSP was conceived, architected, and engineered starting in Dec 2020. The curren
 
 ## What QNSP Provides
 
-- **Identity & Auth**: PQC-signed JWTs (ML-DSA), refresh tokens, service accounts, RBAC, WebAuthn passkeys, OAuth social sign-in (GitHub, Google)
+- **Identity & Auth**: PQC-signed JWTs (ML-DSA), refresh tokens, service accounts, RBAC, WebAuthn passkeys, social OAuth (GitHub, Google, Microsoft, GitLab, Bitbucket), enterprise OIDC/SAML federation, linked external identities
 - **KMS**: Key generation, rotation, BYOK import
 - **Secrets**: Secure storage with TTL and rotation
 - **Storage**: Encryption at rest

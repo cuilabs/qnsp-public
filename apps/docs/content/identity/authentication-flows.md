@@ -1,7 +1,7 @@
 ---
 title: Authentication Flows
-version: 0.0.1
-last_updated: 2025-12-24
+version: 0.0.2
+last_updated: 2026-04-13
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 # Authentication Flows
@@ -27,38 +27,77 @@ Returns access token + refresh token.
 2. Client signs with authenticator
 3. `POST /auth/webauthn/authenticate/complete` — verify and get tokens
 
-### OAuth / Social Sign-In (GitHub, Google)
+### OAuth / Social Sign-In
+One-click sign-up and sign-in via GitHub, Google, Microsoft, GitLab, or Bitbucket. Handled entirely by the Cloud Portal BFF — no direct auth-service API calls required from the client.
 
-One-click sign-up and sign-in via GitHub or Google. Handled entirely by the Cloud Portal BFF — no direct auth-service API calls required from the client.
-
-1. User navigates to `GET /api/auth/oauth/{provider}` (`provider` = `github` or `google`)
+1. User navigates to `GET /api/auth/oauth/{provider}`
 2. BFF generates a CSRF state (HMAC-SHA256 nonce) and sets `qnsp_oauth_state` cookie (HttpOnly, SameSite=Lax, 10 min TTL)
-3. BFF redirects to the provider's authorization endpoint:
+3. For authenticated linking flows, the BFF also sets short-lived intent cookies so the callback knows whether this is:
+   - a login/signup flow, or
+   - a link-external-identity flow from profile settings
+4. BFF redirects to the provider's authorization endpoint:
    - **GitHub**: `https://github.com/login/oauth/authorize` — scopes `user:email read:user`
    - **Google**: `https://accounts.google.com/o/oauth2/v2/auth` — scopes `openid email profile`
-4. Provider redirects to `GET /api/auth/oauth/{provider}/callback?code=…&state=…`
-5. BFF verifies the CSRF state against the cookie, exchanges the `code` for an access token, and fetches the user profile from the provider API
-6. **Returning user**: identity lookup via `POST /auth/oauth/identity` → session issued
-7. **New user**: tenant + user provisioned via billing-service, OAuth identity linked via `POST /auth/oauth/identity/link`, then session issued
-8. BFF calls `POST /auth/oauth/session` → receives PQC-signed JWT (ML-DSA) + refresh token
-9. Session cookies written; user redirected to `/dashboard`
+   - **Microsoft**: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize`
+   - **GitLab**: `https://gitlab.com/oauth/authorize`
+   - **Bitbucket**: `https://bitbucket.org/site/oauth2/authorize`
+5. Provider redirects to `GET /api/auth/oauth/{provider}/callback?code=…&state=…`
+6. BFF verifies the CSRF state against the cookie, exchanges the `code` for an access token, and fetches the user profile from the provider API
+7. **Returning user**: identity lookup via `GET /auth/oauth/identity` → session issued
+8. **New user**: tenant + user provisioned via billing-service, identity linked via `POST /auth/oauth/identity`, then session issued
+9. **Authenticated link flow**: the provider identity is bound to the current QNSP user without provisioning a new tenant or rotating the active session
+10. BFF calls `POST /auth/oauth/session` for login/signup flows → receives PQC-signed JWT (ML-DSA) + refresh token
+11. Session cookies written; user redirected to `/dashboard` or back to `/profile?tab=accounts` for link flows
 
 **Environment variables** (Cloud Portal):
 | Variable | Description |
 |---|---|
 | `CLOUD_OAUTH_GITHUB_CLIENT_ID` | GitHub OAuth app client ID |
 | `CLOUD_OAUTH_GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret |
+| `CLOUD_OAUTH_GITHUB_CALLBACK_URL` | Optional GitHub callback override |
 | `CLOUD_OAUTH_GOOGLE_CLIENT_ID` | Google OAuth app client ID |
 | `CLOUD_OAUTH_GOOGLE_CLIENT_SECRET` | Google OAuth app client secret |
+| `CLOUD_OAUTH_GOOGLE_CALLBACK_URL` | Optional Google callback override |
+| `CLOUD_OAUTH_MICROSOFT_CLIENT_ID` | Microsoft OAuth app client ID |
+| `CLOUD_OAUTH_MICROSOFT_CLIENT_SECRET` | Microsoft OAuth app client secret |
+| `CLOUD_OAUTH_MICROSOFT_CALLBACK_URL` | Optional Microsoft callback override |
+| `CLOUD_OAUTH_GITLAB_CLIENT_ID` | GitLab OAuth app client ID |
+| `CLOUD_OAUTH_GITLAB_CLIENT_SECRET` | GitLab OAuth app client secret |
+| `CLOUD_OAUTH_GITLAB_CALLBACK_URL` | Optional GitLab callback override |
+| `CLOUD_OAUTH_BITBUCKET_CLIENT_ID` | Bitbucket OAuth app client ID |
+| `CLOUD_OAUTH_BITBUCKET_CLIENT_SECRET` | Bitbucket OAuth app client secret |
+| `CLOUD_OAUTH_BITBUCKET_CALLBACK_URL` | Optional Bitbucket callback override |
 | `CLOUD_OAUTH_SESSION_SECRET` | HMAC secret for CSRF state signing |
 | `CLOUD_PORTAL_URL` | Callback base URL (default: `https://cloud.qnsp.cuilabs.io`) |
 
 **Sign up / sign in at:** [cloud.qnsp.cuilabs.io/auth](https://cloud.qnsp.cuilabs.io/auth)
 
-### Federated flow (OIDC)
-1. Redirect to IdP
-2. IdP callback with code
-3. `POST /auth/federation/oidc/callback` — exchange for QNSP tokens
+### Enterprise Federation (OIDC / SAML)
+QNSP supports workforce federation for:
+- Microsoft Entra ID
+- Okta
+- Auth0
+- Google Workspace
+- AWS IAM Identity Center
+- Tenant-configured SAML 2.0 or OIDC providers
+
+Flow:
+1. User selects **Continue with your company SSO**
+2. QNSP performs tenant discovery by verified email domain first, then tenant/workspace identifier
+3. If multiple workforce providers exist for the tenant, QNSP presents a provider selector instead of guessing
+4. QNSP starts the provider-specific OIDC or SAML flow
+5. Auth-service validates the callback/assertion and either:
+   - issues QNSP tokens for sign-in, or
+   - links the external identity to the currently authenticated QNSP user when the flow was initiated from profile settings
+
+### Linked External Identities
+Authenticated users can manage linked identities from **Profile → Linked Accounts** in the Cloud Portal.
+
+Supported linking paths:
+- Social OAuth: GitHub, Google, Microsoft, GitLab, Bitbucket
+- Workforce SSO: Entra ID, Okta, Auth0, Google Workspace, AWS IAM Identity Center, and configured tenant SAML/OIDC providers
+
+Unlinking removes the external identity binding without deleting the QNSP user account or tenant membership.
 
 ## Service authentication
 
