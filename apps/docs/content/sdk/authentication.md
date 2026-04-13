@@ -28,8 +28,18 @@ const token = await auth.login({
 });
 ```
 
+### Tenant API keys
+Use tenant API keys for workload and data-plane access only: SDKs, CI jobs, agents, and backend
+services calling product APIs such as Vault, KMS, Storage, Audit, Search, and AI. Do not use
+tenant API keys for billing, identity, or tenant administration.
+
+### Personal access tokens (PATs)
+Use PATs when a human is acting programmatically as themselves from the CLI, local scripts, or
+debugging workflows. PATs are user-scoped, revocable, auditable, and should be short-lived.
+
 ### Service token (service accounts)
-For server-to-server integrations, request a service token and use it as a Bearer token.
+For server-to-server integrations that need a durable machine identity, request a service token and
+use it as a Bearer token.
 
 ```typescript
 import { requestServiceToken } from "@qnsp/auth-sdk";
@@ -56,3 +66,10 @@ const vault = new VaultClient({
 ## Refresh tokens
 
 If you use refresh tokens, call `auth.refreshToken(...)` and update the `apiKey` you pass to other clients.
+
+## Recommended credential model
+
+- Tenant API keys: tenant-scoped workload access to product APIs
+- PATs: user-scoped programmatic access for CLI and debugging
+- Service accounts: durable machine identities for enterprise automation
+- Ops/control credentials: internal QNSP-only control-plane access, never customer-facing
