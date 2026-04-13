@@ -1,7 +1,7 @@
 ---
 title: System Overview
 version: 0.1.0
-last_updated: 2026-03-20
+last_updated: 2026-04-14
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: BSL-1.1
 source_files:
@@ -20,7 +20,7 @@ source_files:
 
 # System Overview
 
-QNSP is a microservice-based platform exposing tenant-scoped security primitives via an API-first model. All services integrate with tenant-crypto-policy-client for consistent algorithm selection based on tenant billing tiers and custom crypto policies. The platform is migrating from legacy v0 tiers to v1 profiles + tiers (evidence-first model).
+QNSP is a microservice-based platform exposing tenant-scoped security primitives via an API-first model. All services integrate with tenant-crypto-policy-client for consistent algorithm selection based on tenant billing tiers and custom crypto policies. The platform is migrating from legacy v0 tiers to v1 profiles + tiers (evidence-first model), and the live cloud path now integrates with XIIS for remote-provider trust posture, assurance verification, and release enforcement.
 
 As of March 2026, the platform comprises 13 core services with expanded capabilities including risk-based authentication, just-in-time access, AI orchestration with bias monitoring, dynamic secrets, real-time audit streaming, and comprehensive observability.
 
@@ -32,6 +32,15 @@ As of March 2026, the platform comprises 13 core services with expanded capabili
 4. Service validates authorization and processes request
 5. Service queries tenant crypto policy for algorithm selection
 6. Response returns through edge gateway
+
+## XIIS Control-Plane Integration
+
+QNSP now integrates with XIIS as an external assurance and trust-verification control plane.
+
+- `apps/cloud` calls XIIS for control-plane health, remote-provider posture, assurance report verification, and release-bundle enforcement.
+- XIIS-backed data is surfaced in trust summary and exported evidence packs.
+- XIIS verifier routes in the cloud portal accept authenticated verification requests for attestation, environment attestation, and runtime evidence.
+- Frontend products consume `XIIS_CONTROL_PLANE_URL` and `XIIS_CONTROL_PLANE_API_TOKEN` to enable live XIIS-backed verification paths.
 
 ## Tenant Crypto Policy Integration
 

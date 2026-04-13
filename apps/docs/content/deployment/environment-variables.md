@@ -14,6 +14,7 @@ This document lists all environment variables used across QNSP services.
 ### Authentication & Access
 - `WEB_EDGE_GATEWAY_URL` - Edge Gateway URL (required)
 - `XIIS_CONTROL_PLANE_URL` - XIIS control plane base URL for cross-product control-plane integrations (optional)
+- `XIIS_CONTROL_PLANE_API_TOKEN` - XIIS control plane bearer token used by live XIIS verification, trust, and evidence endpoints (optional, but required to enable authenticated XIIS calls)
 - `WEB_PLATFORM_API_TOKEN` - Platform API access token (optional)
 - `WEB_TENANT_SERVICE_URL` - Tenant Service URL (optional, derived from edge-gateway)
 - `WEB_BILLING_SERVICE_URL` - Billing Service URL (optional, derived from edge-gateway)
@@ -56,6 +57,7 @@ This document lists all environment variables used across QNSP services.
 - `WEB_BILLING_SERVICE_URL` - Billing Service URL (optional, derived from edge-gateway)
 - `WEB_AUTH_SERVICE_URL` - Auth Service URL (optional, derived from edge-gateway)
 - `XIIS_CONTROL_PLANE_URL` - XIIS control plane base URL for cross-product control-plane integrations (optional)
+- `XIIS_CONTROL_PLANE_API_TOKEN` - XIIS control plane bearer token used for trust summary, evidence verification, and XIIS-backed assurance calls (optional, but required to enable authenticated XIIS calls)
 
 ### Invite and access gate (optional)
 - `TP_GATE_JWT_SECRET` - JWT secret for preview invite tokens (required)
@@ -103,6 +105,10 @@ This document lists all environment variables used across QNSP services.
 - `AUTH_FEDERATION_SCIM_WORKER_INTERVAL_MS` - SCIM import polling interval in ms
 - `AUTH_FEDERATION_SAML_METADATA_REFRESH_ENABLED` - Enable SAML metadata refresh polling (default: `true`)
 - `AUTH_FEDERATION_SAML_METADATA_REFRESH_INTERVAL_MS` - SAML metadata refresh interval in ms
+
+### XIIS Integration
+- `XIIS_CONTROL_PLANE_URL` - XIIS control plane base URL used by QNSP frontends for live trust, evidence, and verifier integrations
+- `XIIS_CONTROL_PLANE_API_TOKEN` - XIIS control plane bearer token used to authenticate release assurance, attestation verification, environment verification, and remote provider checks
 
 ### AWS Marketplace
 - `AWS_MARKETPLACE_PRODUCT_CODE` - AWS Marketplace product code (optional)
