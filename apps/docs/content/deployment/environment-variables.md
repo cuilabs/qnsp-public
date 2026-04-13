@@ -13,6 +13,7 @@ This document lists all environment variables used across QNSP services.
 
 ### Authentication & Access
 - `WEB_EDGE_GATEWAY_URL` - Edge Gateway URL (required)
+- `XIIS_CONTROL_PLANE_URL` - XIIS control plane base URL for cross-product control-plane integrations (optional)
 - `WEB_PLATFORM_API_TOKEN` - Platform API access token (optional)
 - `WEB_TENANT_SERVICE_URL` - Tenant Service URL (optional, derived from edge-gateway)
 - `WEB_BILLING_SERVICE_URL` - Billing Service URL (optional, derived from edge-gateway)
@@ -54,6 +55,7 @@ This document lists all environment variables used across QNSP services.
 - `WEB_TENANT_SERVICE_URL` - Tenant Service URL (optional, derived from edge-gateway)
 - `WEB_BILLING_SERVICE_URL` - Billing Service URL (optional, derived from edge-gateway)
 - `WEB_AUTH_SERVICE_URL` - Auth Service URL (optional, derived from edge-gateway)
+- `XIIS_CONTROL_PLANE_URL` - XIIS control plane base URL for cross-product control-plane integrations (optional)
 
 ### Invite and access gate (optional)
 - `TP_GATE_JWT_SECRET` - JWT secret for preview invite tokens (required)
