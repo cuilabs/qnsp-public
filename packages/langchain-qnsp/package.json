@@ -22,10 +22,10 @@
 		"typecheck": "tsc --project tsconfig.json --noEmit"
 	},
 	"dependencies": {
-		"@langchain/core": "^0.3.0",
-		"@qnsp/vault-sdk": "workspace:*",
-		"@qnsp/kms-client": "workspace:*",
+		"@langchain/core": "^0.3.80",
 		"@qnsp/audit-sdk": "workspace:*",
+		"@qnsp/kms-client": "workspace:*",
+		"@qnsp/vault-sdk": "workspace:*",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {

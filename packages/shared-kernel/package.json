@@ -74,7 +74,7 @@
 		"@qnsp/cryptography": "workspace:*",
 		"@qnsp/pricing": "workspace:*",
 		"@qnsp/resilience": "workspace:*",
-		"nodemailer": "^8.0.4",
+		"nodemailer": "^8.0.5",
 		"pg": "^8.20.0",
 		"sql.js": "^1.14.1",
 		"zod": "^4.3.6"
