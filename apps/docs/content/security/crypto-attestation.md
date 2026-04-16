@@ -42,7 +42,7 @@ interface CryptoPolicyConfig {
 
 ### Policy Presets
 
-QNSP provides two policy presets:
+QNSP provides four policy presets:
 
 **Default Policy** - PQC preferred, classical fallback allowed
 - All NIST-final PQC algorithms allowed
@@ -54,6 +54,18 @@ QNSP provides two policy presets:
 - Classical algorithms forbidden
 - NIST-final status required
 - Minimum security level: 3
+
+**Maximum Policy** - Highest-security PQC only
+- Level-5 PQC algorithms only
+- Classical algorithms forbidden
+- NIST-final status required
+- Minimum security level: 5
+
+**Government Policy** - FIPS-finalized level-5 PQC with hybrid transport
+- Level-5 FIPS-finalized PQC algorithms only
+- Classical algorithms forbidden
+- Hybrid transport required
+- Minimum security level: 5
 
 ## Algorithm Registry
 

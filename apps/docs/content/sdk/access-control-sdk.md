@@ -293,7 +293,7 @@ import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/access-control-sdk
 // Convert internal to NIST name
 const nistName = toNistAlgorithmName("dilithium-3"); // "ML-DSA-65"
 
-// Full mapping covers all 93 PQC algorithms. Representative entries:
+// Full mapping covers all 90 PQC algorithms. Representative entries:
 console.log(ALGORITHM_TO_NIST);
 // {
 //   "kyber-512": "ML-KEM-512",        // FIPS 203

@@ -92,7 +92,7 @@ No. QNSP is PQC-native by design. Classical fallbacks are disabled by default to
 
 PQC algorithms have larger key sizes and signatures compared to classical algorithms:
 - ML-KEM-768 public keys: ~1.2KB (vs RSA-2048: 256 bytes)
-- ML-DSA-3 signatures: ~3.3KB (vs ECDSA P-256: 64 bytes)
+- ML-DSA-65 (Dilithium-3) signatures: ~3.3KB (vs ECDSA P-256: 64 bytes)
 
 However, QNSP optimizes performance through:
 - Hardware acceleration where available
@@ -251,13 +251,13 @@ SSE ensures the search service never sees plaintext data. Available on Dev Pro t
 QNSP provides tamper-evident audit trails with:
 
 **Event Logging**:
-- 30 crypto-critical event types across 7 services
+- 59 crypto-critical event types across 12 services
 - Structured JSON format with requestId/traceId propagation
 - Severity levels: info → critical
 
 **Cryptographic Protection**:
-- Each event signed with ML-DSA-3 (Dilithium-3)
-- SHA3-512 hash chains linking events
+- Each event signed with ML-DSA-65 (Dilithium-3)
+- SHA3-256 hash chains linking events
 - Merkle tree checkpoints every N events
 - Checkpoint signatures for batch verification
 

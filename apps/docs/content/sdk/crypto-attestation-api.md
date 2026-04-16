@@ -312,6 +312,16 @@ GET /platform/v1/crypto/policy/presets
       "name": "strict",
       "description": "Strict policy - PQC required, no classical algorithms",
       "config": {...}
+    },
+    {
+      "name": "maximum",
+      "description": "Maximum policy - level-5 PQC only with no classical fallback",
+      "config": {...}
+    },
+    {
+      "name": "government",
+      "description": "Government policy - FIPS-finalized level-5 PQC with hybrid transport required",
+      "config": {...}
     }
   ]
 }
