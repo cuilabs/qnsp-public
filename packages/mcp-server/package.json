@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/mcp-server",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "QNSP MCP Server: post-quantum cryptography tools for AI assistants. Manage PQC keys, encrypted vault, crypto inventory, and compliance — all tier-gated via QNSP billing.",
 	"publishConfig": {
 		"access": "public"
@@ -8,8 +8,13 @@
 	"type": "module",
 	"license": "Apache-2.0",
 	"engines": {
-		"node": ">=24.12.0"
+		"node": ">=22.0.0"
 	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
 	"bin": {
 		"qnsp-mcp": "./dist/index.js"
 	},

@@ -1,12 +1,12 @@
 {
 	"name": "@qnsp/auth-sdk",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
-	"description": "TypeScript SDK for QNSP post-quantum authentication: PQC-signed JWTs, WebAuthn passkeys, MFA, and OIDC federation. Zero-config — defaults to cloud.qnsp.cuilabs.io. Free API key required.",
+	"description": "TypeScript SDK for QNSP post-quantum authentication: PQC-signed JWTs, WebAuthn passkeys, MFA, and OIDC federation. Zero-config \u2014 defaults to cloud.qnsp.cuilabs.io. Free API key required.",
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
@@ -36,7 +36,7 @@
 		"vitest": "4.1.2"
 	},
 	"engines": {
-		"node": ">=24.12.0"
+		"node": ">=22.0.0"
 	},
 	"keywords": [
 		"qnsp",

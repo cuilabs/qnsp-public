@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/cli",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"description": "QNSP CLI: manage keys, secrets, audit logs, and post-quantum cryptography from the terminal. Free tier at cloud.qnsp.cuilabs.io.",
 	"publishConfig": {
 		"access": "public"
@@ -8,7 +8,7 @@
 	"type": "module",
 	"license": "Apache-2.0",
 	"engines": {
-		"node": ">=24.12.0"
+		"node": ">=22.0.0"
 	},
 	"bin": {
 		"qnsp": "./dist/index.js"

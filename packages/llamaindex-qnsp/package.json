@@ -1,12 +1,12 @@
 {
 	"name": "@qnsp/llamaindex-qnsp",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
-	"description": "LlamaIndex adapters for QNSP — encrypted vector store and document storage backed by QNSP search and storage services.",
+	"description": "LlamaIndex adapters for QNSP \u2014 encrypted vector store and document storage backed by QNSP search and storage services.",
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
@@ -39,7 +39,7 @@
 		}
 	},
 	"engines": {
-		"node": ">=24.12.0"
+		"node": ">=22.0.0"
 	},
 	"keywords": [
 		"qnsp",

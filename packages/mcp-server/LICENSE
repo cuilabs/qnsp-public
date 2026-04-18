@@ -1,0 +1,8 @@
+# QNSP Licensing
+
+This repository is **multi-licensed**.
+
+- Source code under `packages/*` and selected `apps/*` directories is licensed **per package**. Refer to the `LICENSE` file inside each package directory.
+- Public SDK packages (those with `publishConfig.access: "public"`) are licensed under the **Apache License 2.0**.
+- Core platform packages (including `apps/ai-orchestrator` and `packages/kms`, and `packages/liboqs-native`) are licensed under the **Business Source License 1.1** with a Change License of **GPL-2.0-or-later**.
+- Materials under `docs/patent-ip-candidates` are **Proprietary**.
