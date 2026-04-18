@@ -337,12 +337,40 @@ function resolveImportedModule(imported: LiboqsModule | DefaultModuleNamespace):
 	return imported as LiboqsModule;
 }
 
+const LIBOQS_MISSING_MESSAGE =
+	"@cuilabs/liboqs-native is not installed. " +
+	"It is an optional dependency of @qnsp/cryptography that is only distributed via GitHub Packages. " +
+	"To enable the native liboqs provider, configure an .npmrc scope mapping " +
+	"(echo '@cuilabs:registry=https://npm.pkg.github.com' >> .npmrc) and run " +
+	"`npm install @cuilabs/liboqs-native`. " +
+	"Alternatively, use the pure-JS noble provider via " +
+	"`initializeExternalPqcProvider('noble')`, which is always available.";
+
+function isModuleNotFoundError(error: unknown): boolean {
+	if (!(error instanceof Error)) {
+		return false;
+	}
+	const code = (error as NodeJS.ErrnoException).code;
+	return (
+		code === "ERR_MODULE_NOT_FOUND" ||
+		code === "MODULE_NOT_FOUND" ||
+		code === "ERR_PACKAGE_PATH_NOT_EXPORTED"
+	);
+}
+
 async function defaultLoadModule(moduleId: string): Promise<LiboqsModule> {
-	const imported: LiboqsModule | DefaultModuleNamespace =
-		moduleId === DEFAULT_MODULE_ID
-			? ((await import("@cuilabs/liboqs-native")) as LiboqsModule | DefaultModuleNamespace)
-			: await runtimeImport(moduleId);
-	return resolveImportedModule(imported);
+	try {
+		const imported: LiboqsModule | DefaultModuleNamespace =
+			moduleId === DEFAULT_MODULE_ID
+				? ((await import("@cuilabs/liboqs-native")) as LiboqsModule | DefaultModuleNamespace)
+				: await runtimeImport(moduleId);
+		return resolveImportedModule(imported);
+	} catch (error) {
+		if (moduleId === DEFAULT_MODULE_ID && isModuleNotFoundError(error)) {
+			throw new Error(LIBOQS_MISSING_MESSAGE, { cause: error });
+		}
+		throw error;
+	}
 }
 
 function ensureKemAlgorithm(algorithm: PqcAlgorithm): asserts algorithm is KemAlgorithm {

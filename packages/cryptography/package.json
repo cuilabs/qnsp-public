@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/cryptography",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"license": "Apache-2.0",
 	"publishConfig": {
 		"access": "public"
@@ -38,6 +38,9 @@
 	"bugs": {
 		"url": "https://github.com/cuilabs/qnsp/issues"
 	},
+	"engines": {
+		"node": ">=22.0.0"
+	},
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
@@ -54,10 +57,12 @@
 		}
 	},
 	"dependencies": {
-		"@cuilabs/liboqs-native": "workspace:*",
 		"@noble/hashes": "^2.0.1",
 		"@noble/post-quantum": "^0.6.0",
 		"zod": "^4.3.6"
+	},
+	"optionalDependencies": {
+		"@cuilabs/liboqs-native": "workspace:*"
 	},
 	"scripts": {
 		"build": "tsc --project tsconfig.build.json",

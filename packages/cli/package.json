@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/cli",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "QNSP CLI: manage keys, secrets, audit logs, and post-quantum cryptography from the terminal. Free tier at cloud.qnsp.cuilabs.io.",
 	"publishConfig": {
 		"access": "public"
