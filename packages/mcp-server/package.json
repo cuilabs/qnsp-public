@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/mcp-server",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "QNSP MCP Server: post-quantum cryptography tools for AI assistants. Manage PQC keys, encrypted vault, crypto inventory, and compliance — all tier-gated via QNSP billing.",
 	"publishConfig": {
 		"access": "public"
@@ -34,7 +34,8 @@
 		"./api-client": {
 			"import": "./dist/api-client.js",
 			"types": "./dist/api-client.d.ts"
-		}
+		},
+		"./package.json": "./package.json"
 	},
 	"scripts": {
 		"build": "tsc --project tsconfig.build.json",
