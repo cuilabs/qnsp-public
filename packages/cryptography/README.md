@@ -25,23 +25,64 @@ const signature = await provider.sign({
 });
 ```
 
-### liboqs provider
+## Providers
 
-The package ships with an adapter for [`@open-quantum-safe/liboqs`](https://github.com/open-quantum-safe/liboqs). Importing `@qnsp/cryptography/providers/liboqs` automatically registers the factory under the name `liboqs`. When the optional dependency is installed, you can bootstrap it as follows:
+`@qnsp/cryptography` ships two interchangeable PQC providers. Consumers pick the
+one that matches their deployment profile.
+
+### `noble` provider (default, pure-JS, always available)
+
+The `noble` provider is backed by [`@noble/post-quantum`](https://github.com/paulmillr/noble-post-quantum)
+and ships as a regular `dependency`. It has no native build step, runs on every
+Node.js `>= 22` target, and is always available after `npm install @qnsp/cryptography`.
+
+```ts
+import { initializeExternalPqcProvider } from "@qnsp/cryptography/providers";
+
+const noble = await initializeExternalPqcProvider("noble");
+const { keyPair } = await noble.generateKeyPair({ algorithm: "ml-kem-768" });
+```
+
+### `liboqs` provider (optional, native, opt-in)
+
+For workloads that require the full 90-algorithm NIST PQC surface (HQC, FN-DSA,
+every SLH-DSA variant), the `liboqs` provider bridges to a native binding of the
+[Open Quantum Safe liboqs](https://openquantumsafe.org/) library via the private
+package `@cuilabs/liboqs-native`. This native binding is published **only to
+GitHub Packages** (not the public npm registry) and is declared as an
+`optionalDependency` of `@qnsp/cryptography`: public installs that do not have a
+`@cuilabs` scope mapping will silently skip it and the rest of the package
+continues to work through the `noble` provider.
+
+To opt in, configure a scope mapping for the `@cuilabs` org and install the
+native binding explicitly:
+
+```bash
+echo '@cuilabs:registry=https://npm.pkg.github.com' >> .npmrc
+npm install @cuilabs/liboqs-native
+```
+
+Then bootstrap the provider:
 
 ```ts
 import { initializeExternalPqcProvider } from "@qnsp/cryptography/providers";
 
 const liboqs = await initializeExternalPqcProvider("liboqs", {
-  // Optional: restrict to specific algorithms
-  algorithms: ["kyber-768", "dilithium-3"],
-  configuration: {
-    moduleId: "@open-quantum-safe/liboqs" // defaults to this value
-  }
+  algorithms: ["ml-kem-768", "ml-dsa-65"], // optional: restrict to a subset
 });
 ```
 
-The adapter dynamically loads the module, discovers the enabled Kyber and Dilithium variants, and exposes a fully functional `PqcProvider`. Seeded key generation is not supported because liboqs does not expose deterministic primitives for these algorithms.
+If you request the `liboqs` provider without installing the native binding, the
+package throws a targeted `Error` with the exact install command above and a
+pointer to fall back to `initializeExternalPqcProvider("noble")`. No raw
+`ERR_MODULE_NOT_FOUND` stack leaks to the caller.
+
+### Determinism note
+
+Neither provider supports seeded key generation for ML-KEM / ML-DSA / SLH-DSA
+because the underlying NIST specifications do not expose deterministic key
+generation primitives. Use `generateKeyPair` for production; use your own
+test fixtures for deterministic test scenarios.
 
 ## Scripts
 
