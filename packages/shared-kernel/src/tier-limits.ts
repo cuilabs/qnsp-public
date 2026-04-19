@@ -1,44 +1,164 @@
 /**
- * Tier Limits - Shared across all SDKs
+ * Tier Limits — Shared across all SDKs
  *
- * Defines what features are available at each pricing tier.
- * SDKs use this to fail fast with clear error messages before making API calls.
+ * Defines the tier-gated capabilities surfaced through the @qnsp SDK surface.
+ * SDKs use this to fail fast with clear, typed errors before making API calls.
+ *
+ * Architecture note:
+ *   This catalogue is deliberately **inlined** rather than imported from the
+ *   internal `@qnsp/pricing` package. `@qnsp/pricing` is a private workspace
+ *   package that contains the full commercial model (Stripe product ids,
+ *   per-cycle prices in cents, add-on SKUs, sales-motion signals) which must
+ *   NOT leak onto the public npm registry.
+ *
+ *   Drift with `@qnsp/pricing` is prevented at build time by
+ *   `tier-limits.drift.test.ts`, which imports `@qnsp/pricing` as a
+ *   devDependency and asserts every value in `TIER_LIMITS` matches the
+ *   internal source of truth. If marketing tweaks a tier flag there, the
+ *   drift test fails until this file is updated in lockstep.
  */
 
-import {
-	type PricingTier as BillingPricingTier,
-	type TierLimits as BillingTierLimits,
-	TIER_PRICING,
-} from "@qnsp/pricing";
+export type BillingPricingTier =
+	| "free"
+	| "dev-starter"
+	| "dev-pro"
+	| "dev-elite"
+	| "dev-team"
+	| "business-team"
+	| "business-advanced"
+	| "business-elite"
+	| "enterprise-standard"
+	| "enterprise-pro"
+	| "enterprise-elite"
+	| "specialized";
 
 export type PricingTier = BillingPricingTier | "platform";
 
-export type TierLimits = Pick<
-	BillingTierLimits,
-	| "storageGB"
-	| "apiCalls"
-	| "enclavesEnabled"
-	| "aiTrainingEnabled"
-	| "aiInferenceEnabled"
-	| "sseEnabled"
-	| "vaultEnabled"
->;
-
-function toSdkTierLimits(limits: BillingTierLimits): TierLimits {
-	return {
-		storageGB: limits.storageGB,
-		apiCalls: limits.apiCalls,
-		enclavesEnabled: limits.enclavesEnabled,
-		aiTrainingEnabled: limits.aiTrainingEnabled,
-		aiInferenceEnabled: limits.aiInferenceEnabled,
-		sseEnabled: limits.sseEnabled,
-		vaultEnabled: limits.vaultEnabled,
-	};
+export interface TierLimits {
+	readonly storageGB: number;
+	readonly apiCalls: number;
+	readonly enclavesEnabled: boolean;
+	readonly aiTrainingEnabled: boolean;
+	readonly aiInferenceEnabled: boolean;
+	readonly sseEnabled: boolean;
+	readonly vaultEnabled: boolean;
 }
 
-const BILLING_TIER_LIMITS = Object.fromEntries(
-	Object.entries(TIER_PRICING).map(([tier, pricing]) => [tier, toSdkTierLimits(pricing.limits)]),
-) as Record<BillingPricingTier, TierLimits>;
+/**
+ * Inlined projection of the internal `@qnsp/pricing` TIER_PRICING catalogue.
+ * Only the 7 fields SDK consumers need to reason about feature availability.
+ * Drift-guarded by `tier-limits.drift.test.ts` at build time.
+ */
+const BILLING_TIER_LIMITS: Record<BillingPricingTier, TierLimits> = {
+	free: {
+		storageGB: 10,
+		apiCalls: 50_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: false,
+		sseEnabled: false,
+		vaultEnabled: true,
+	},
+	"dev-starter": {
+		storageGB: 100,
+		apiCalls: 100_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: false,
+		sseEnabled: false,
+		vaultEnabled: true,
+	},
+	"dev-pro": {
+		storageGB: 250,
+		apiCalls: 500_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"dev-elite": {
+		storageGB: 500,
+		apiCalls: 750_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"dev-team": {
+		storageGB: 1_000,
+		apiCalls: 1_000_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"business-team": {
+		storageGB: 5_000,
+		apiCalls: 1_500_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"business-advanced": {
+		storageGB: 10_000,
+		apiCalls: 7_500_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"business-elite": {
+		storageGB: 15_000,
+		apiCalls: 10_000_000,
+		enclavesEnabled: false,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"enterprise-standard": {
+		storageGB: 20_000,
+		apiCalls: 15_000_000,
+		enclavesEnabled: true,
+		aiTrainingEnabled: false,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"enterprise-pro": {
+		storageGB: 25_000,
+		apiCalls: 30_000_000,
+		enclavesEnabled: true,
+		aiTrainingEnabled: true,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	"enterprise-elite": {
+		storageGB: -1,
+		apiCalls: -1,
+		enclavesEnabled: true,
+		aiTrainingEnabled: true,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+	specialized: {
+		storageGB: -1,
+		apiCalls: -1,
+		enclavesEnabled: true,
+		aiTrainingEnabled: true,
+		aiInferenceEnabled: true,
+		sseEnabled: true,
+		vaultEnabled: true,
+	},
+};
 
 /**
  * Internal QNSP platform tier — for QNSP staff, ops admins, and super admins only.
