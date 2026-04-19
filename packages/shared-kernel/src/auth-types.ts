@@ -4,6 +4,9 @@ import { TOKEN_AUDIENCES, type TokenAudience } from "./constants.js";
 
 export const authSubjectSchema = z.object({
 	id: z.string().uuid(),
+	identityId: z.string().uuid().optional(),
+	userId: z.string().uuid().optional(),
+	email: z.string().email().optional(),
 	tenantId: z.string().optional(),
 	roles: z.array(z.string()).default([]),
 	tenantPlan: z.string().optional(),

@@ -1,5 +1,6 @@
 export * from "./api-key-auth.js";
 export * from "./auth.js";
+export * from "./auth-claims.js";
 export * from "./canonical-json.js";
 export * from "./constants.js";
 export * from "./entitlement-limits.js";
