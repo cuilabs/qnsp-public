@@ -1,7 +1,7 @@
 ---
 title: Getting Started Overview
 version: 0.0.3
-last_updated: 2026-04-13
+last_updated: 2026-04-22
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0 (SDK packages) / BSL-1.1 (core platform)
 source_files:
@@ -11,7 +11,7 @@ source_files:
 
 # Overview
 
-QNSP is an API-first platform providing tenant-scoped security primitives: identity, key management, secrets, encrypted storage, and audit.
+QNSP is an API-first platform providing tenant-scoped security primitives: identity, key management, secrets, encrypted storage, audit, and crypto posture workflows.
 
 QNSP was conceived, architected, and engineered starting in Dec 2020. The current monorepo was bootstrapped in Nov 2025.
 
@@ -25,6 +25,16 @@ QNSP was conceived, architected, and engineered starting in Dec 2020. The curren
 - **Secrets**: Secure storage with TTL and rotation
 - **Storage**: Encryption at rest
 - **Audit**: Immutable event logs and Merkle checkpointing
+- **Crypto Posture**: Discovery, exposure analysis, migration planning, readiness, and evidence workflows
+
+## How customers typically start
+
+There are two common starting paths:
+
+- **Build-first**: create a tenant, generate credentials, and integrate QNSP SDKs or APIs into a new workload
+- **Migration-first**: connect external sources, run discovery, analyze exposure, then cut production trust dependencies over to QNSP
+
+The migration path is documented in [Migration Journey to QNSP](/migration/journey).
 
 ## Service Map
 
@@ -53,3 +63,4 @@ Ports derived from `apps/*/src/config/env.ts`:
 - [Authentication Prerequisites](./authentication-prerequisites)
 - [Quickstart with curl](./quickstart-curl)
 - [API Reference](/api/overview)
+- [Migration Journey](/migration/journey)

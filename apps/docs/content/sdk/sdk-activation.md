@@ -2,13 +2,15 @@
 title: "SDK Activation"
 description: "How QNSP SDKs activate and verify licensing at startup — transparent to end developers, no manual steps required."
 version: 0.0.1
-last_updated: 2026-04-01
+last_updated: 2026-04-22
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 ---
 # SDK Activation
 
 All `@qnsp/*` SDKs perform a lightweight activation handshake when first initialised. This ties SDK usage to a registered QNSP account and enforces entitlement checks without requiring any additional code from the developer.
+
+This matters operationally because QNSP treats SDK use as part of the migration and consumption path. Activation is how the platform binds SDK traffic to a real tenant, plan, and entitlement set instead of allowing anonymous or untracked trust operations.
 
 ## How it works
 
@@ -83,3 +85,4 @@ Static tokens are cryptographically signed and have a fixed expiry date agreed w
 - [Configuration](./configuration)
 - [Error Handling](./error-handling)
 - [API Authentication](../api/authentication)
+- [Migration Journey](../migration/journey)

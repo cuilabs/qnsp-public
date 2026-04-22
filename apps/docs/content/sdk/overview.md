@@ -1,7 +1,7 @@
 ---
 title: SDK Overview
 version: 0.3.0
-last_updated: 2026-04-11
+last_updated: 2026-04-22
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -17,6 +17,8 @@ source_files:
 # SDK Overview
 
 QNSP provides official TypeScript/Node.js SDKs and developer tooling for platform services. The service SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
+
+For migration work, the SDKs are the application cutover surface. Discovery typically starts with cloud/API connectors or QNSP agents, but migration is only complete when production trust calls move onto QNSP SDKs, APIs, or governed platform services.
 
 ## Service SDKs
 
@@ -49,6 +51,21 @@ These packages are part of the public integration surface, but they are not the 
 | `@qnsp/langchain-qnsp` | 0.1.1 | LangChain integration package |
 | `@qnsp/llamaindex-qnsp` | 0.2.0 | LlamaIndex integration package |
 | `@qnsp/autogen-qnsp` | 0.2.0 | AutoGen integration package |
+
+## How SDKs fit into the migration journey
+
+The platform journey is:
+
+**Connect → Discover → Analyze → Govern → Migrate → Validate → Operate**
+
+SDKs matter in the **Migrate** stage. They are how application traffic actually switches from legacy trust systems to QNSP.
+
+- **Connect / Discover**: use source connectors and QNSP agents to identify what exists today
+- **Analyze / Govern**: use crypto posture, policy, and readiness workflows to define the target state
+- **Migrate**: update workloads, services, CI jobs, and internal tools to call QNSP SDKs, REST APIs, or the MCP server
+- **Validate / Operate**: prove cutover with readiness evidence, CBOM, QBOM, SBOM, and continuous monitoring
+
+If workloads are still calling the old KMS, old secret store, or old certificate path, the migration is not complete even if the inventory is visible in QNSP.
 
 ## Individual SDK docs
 
@@ -119,6 +136,16 @@ await vault.createSecret({
 	payload: "<base64_payload>",
 });
 ```
+
+## Authentication model for SDK consumers
+
+Use the credential type that matches the caller:
+
+- **Tenant API keys** for workload and service data-plane access
+- **User PATs** for human CLI and local scripting
+- **Service accounts / machine identities** for durable enterprise automation
+
+Tenant API keys are the normal choice for SDK integrations. PATs are useful for local development and operator workflows, but they should not be the long-lived shared credential for production automation.
 
 ## Smoke testing SDKs
 

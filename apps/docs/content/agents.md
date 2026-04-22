@@ -2,7 +2,7 @@
 title: "Host Agents"
 description: "Deploy the QNSP Host Agent to discover cryptographic assets across your server fleet and report them to the QNSP platform."
 version: 0.1.0
-last_updated: 2026-03-06
+last_updated: 2026-04-22
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 source_files:
@@ -18,6 +18,13 @@ source_files:
 
 The QNSP Host Agent is a lightweight CLI daemon that discovers cryptographic assets on your servers — SSH keys, TLS certificates, PKCS#12/JKS keystores, and active TLS endpoints — and reports them to the QNSP platform for inventory, exposure analysis, and PQC migration planning.
 
+Host Agents are one of the two primary discovery modes in QNSP:
+
+- **Cloud/API connectors** for managed providers with usable APIs
+- **QNSP agents** for private, self-hosted, host-local, cluster-local, and on-prem environments
+
+Use agents when the assets are not fully reachable through provider APIs or when you need evidence from inside the customer environment.
+
 ## Prerequisites
 
 - Node.js 20 or later
@@ -26,6 +33,8 @@ The QNSP Host Agent is a lightweight CLI daemon that discovers cryptographic ass
 - `tenant_admin` role to register agents
 
 ## Quick Start
+
+In the migration journey, agents support the **Connect** and **Discover** stages. They do not replace application cutover. Migration is only complete once production trust dependencies are consumed from QNSP services and continuously validated by QNSP.
 
 ### 1. Register an agent
 

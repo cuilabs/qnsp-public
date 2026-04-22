@@ -113,7 +113,7 @@ The free tier is **free forever** for everyone—from individual users to global
 - 50,000 API calls/month
 - PQC storage + limited KMS (20 keys, 20,000 ops/month)
 - 25 vault secrets and 3 API keys
-- Full access to all 12 TypeScript SDKs
+- Full access to all 15 TypeScript SDKs
 - Community support
 
 Perfect for POCs, pilots, and small-scale production workloads.
@@ -143,7 +143,9 @@ Yes. You can upgrade anytime through the cloud portal with immediate effect. Dow
 
 ### What SDKs are available?
 
-QNSP provides 12 TypeScript SDKs published to npm under the `@qnsp` scope:
+QNSP provides 15 public developer packages across SDKs and tooling, with 12 core service SDKs and 3 additional developer surfaces commonly used during integration and migration.
+
+**Core service SDKs**
 
 1. **@qnsp/auth-sdk** - Authentication, FIDO2 passkeys, Personal Access Tokens (PATs), session management
 2. **@qnsp/vault-sdk** - Secrets management, credential storage, lease rotation
@@ -157,6 +159,12 @@ QNSP provides 12 TypeScript SDKs published to npm under the `@qnsp` scope:
 10. **@qnsp/audit-sdk** - Audit log querying, compliance reporting, event retrieval
 11. **@qnsp/crypto-inventory-sdk** - Crypto asset discovery, PQC migration tracking, inventory management
 12. **@qnsp/browser-sdk** - Browser-compatible PQC encryption: client-side encryption, signing, key encapsulation
+
+**Developer tooling and agent surfaces**
+
+13. **@qnsp/cli** - CLI automation, CI/CD, operator workflows
+14. **@qnsp/mcp-server** - Official MCP server for AI assistants and agent frameworks
+15. **@qnsp/agent** - Host-based discovery agent for private and on-prem environments
 
 All SDKs are free and included with every tier. View them at [npmjs.com/org/qnsp](https://www.npmjs.com/org/qnsp).
 
@@ -279,8 +287,8 @@ Cryptographic Attestation provides real-time visibility into your cryptographic 
 - Migration planning for deprecated algorithms
 
 **Access**:
-- Public endpoint: `/platform/v1/crypto/posture/public`
-- TLS evidence: `/platform/v1/crypto/tls/evidence/public`
+- Public runtime and transport posture: `/platform/v1/crypto/posture/public`
+- Public ALB transport evidence: `/platform/v1/crypto/tls/evidence/public`
 - Admin dashboard: Cloud portal → Security → Crypto Attestation
 
 ## Deployment & Operations

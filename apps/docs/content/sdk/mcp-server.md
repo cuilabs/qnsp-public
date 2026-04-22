@@ -1,7 +1,7 @@
 ---
 title: MCP Server (@qnsp/mcp-server)
 version: 0.1.0
-last_updated: 2026-04-11
+last_updated: 2026-04-22
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -14,6 +14,8 @@ source_files:
 # MCP Server (`@qnsp/mcp-server`)
 
 QNSP ships an official Model Context Protocol server for AI assistants. It exposes tenant-scoped tools for KMS, vault, audit, crypto posture, search, billing, and platform health using the same billing-backed entitlement model as the rest of the platform.
+
+The MCP server is not just a convenience wrapper. It is one of the supported consumption surfaces for moving agentic workflows onto QNSP during migration and steady-state operations.
 
 ## Package
 
@@ -68,6 +70,20 @@ The MCP server currently registers tenant-scoped tools across:
 - Tenant and billing: inspect tenant info, billing status, and limits
 - Platform operations: check platform health
 
+## Where MCP fits in the customer journey
+
+The migration journey is:
+
+**Connect → Discover → Analyze → Govern → Migrate → Validate → Operate**
+
+The MCP server primarily sits in **Migrate**, **Validate**, and **Operate**:
+
+- agents can consume QNSP trust services directly through MCP tools
+- migration workflows can inspect crypto posture and inventory from agent frameworks
+- post-cutover operations can query audit, health, readiness, and governed trust services through one assistant-facing surface
+
+The MCP server does not replace discovery connectors or host agents. It complements them by giving AI assistants a governed interface into the same tenant-scoped QNSP platform.
+
 ## Authentication and entitlements
 
 The MCP server activates against QNSP using your API key before serving tool calls.
@@ -80,6 +96,13 @@ During activation it resolves:
 - effective limits
 
 That means tool availability follows billing as the source of truth. For example, search tools remain tier-gated the same way they are in the portal and SDKs.
+
+Recommended credentials:
+
+- **Tenant API key** for assistant or workload automation
+- **User PAT** for local human-operated testing and debugging
+
+For shared or durable enterprise automation, prefer a service-account-backed or tenant-owned machine identity instead of a personal token.
 
 ## Example MCP client configuration
 
