@@ -113,23 +113,26 @@ qnsp-mcp
 
 ## Tools exposed
 
+All tools are registered with the `qnsp_` namespace prefix so they never
+collide with tools from other MCP servers an agent may have enabled.
+
 | Tool | Description | Tier |
 |---|---|---|
-| `kms_generate_key` | Generate a PQC keypair (ML-KEM, ML-DSA, SLH-DSA, Falcon). | Dev+ |
-| `kms_list_keys` | List keys in the current tenant. | Dev+ |
-| `kms_get_key` | Retrieve a key's public metadata. | Dev+ |
-| `kms_rotate_key` | Rotate a key; previous version retained for verification. | Dev+ |
-| `vault_create_secret` | Store a secret under PQC envelope encryption. | Pro+ |
-| `vault_get_secret` | Retrieve a vault secret. | Pro+ |
-| `vault_list_secrets` | List secrets in the tenant. | Pro+ |
-| `crypto_scan` | Trigger a cryptographic discovery job (CBOM). | Dev+ |
-| `crypto_inventory` | List recent inventory jobs and results. | Dev+ |
-| `crypto_readiness` | PQC-readiness scorecard for the tenant. | Dev+ |
-| `audit_query` | Query the immutable, hash-chained audit log. | Dev+ |
-| `search_query` | Searchable symmetric-encryption (SSE-X) query. | Business+ |
-| `tenant_info` | Show current tenant configuration. | Dev+ |
-| `billing_status` | Show tier, limits, and upgrade URL. | Any |
-| `platform_health` | Platform liveness and regional posture. | Any |
+| `qnsp_kms_generate_key` | Generate a PQC keypair (ML-KEM, ML-DSA, SLH-DSA, Falcon). | Dev+ |
+| `qnsp_kms_list_keys` | List keys in the current tenant. | Dev+ |
+| `qnsp_kms_get_key` | Retrieve a key's public metadata. | Dev+ |
+| `qnsp_kms_rotate_key` | Rotate a key; previous version retained for verification. | Dev+ |
+| `qnsp_vault_create_secret` | Store a secret under PQC envelope encryption. | Pro+ |
+| `qnsp_vault_get_secret` | Retrieve a vault secret. | Pro+ |
+| `qnsp_vault_list_secrets` | List secrets in the tenant. | Pro+ |
+| `qnsp_crypto_scan` | Trigger a cryptographic discovery job (CBOM). | Dev+ |
+| `qnsp_crypto_inventory` | List recent inventory jobs and results. | Dev+ |
+| `qnsp_crypto_readiness` | PQC-readiness scorecard for the tenant. | Dev+ |
+| `qnsp_audit_query` | Query the immutable, hash-chained audit log. | Dev+ |
+| `qnsp_search_query` | Searchable symmetric-encryption (SSE-X) query. | Business+ |
+| `qnsp_tenant_info` | Show current tenant configuration. | Dev+ |
+| `qnsp_billing_status` | Show tier, limits, and upgrade URL. | Any |
+| `qnsp_platform_health` | Platform liveness and regional posture. | Any |
 
 If your tier does not include a feature, the tool returns a clear upgrade
 message with a deep link to <https://cloud.qnsp.cuilabs.io/billing>.

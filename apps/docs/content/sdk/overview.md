@@ -1,6 +1,6 @@
 ---
 title: SDK Overview
-version: 0.3.0
+version: 0.3.5
 last_updated: 2026-04-22
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
@@ -26,18 +26,18 @@ From `packages/*/package.json`:
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `@qnsp/auth-sdk` | 0.3.4 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
-| `@qnsp/vault-sdk` | 0.3.4 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
-| `@qnsp/kms-client` | 0.2.4 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
-| `@qnsp/storage-sdk` | 0.3.4 | Storage client with data classification, retention policies, cross-region replication |
-| `@qnsp/audit-sdk` | 0.3.4 | Audit client with real-time streaming, retention automation, conformance results |
-| `@qnsp/access-control-sdk` | 0.3.4 | Policy simulation, JIT access management, cross-tenant analysis |
-| `@qnsp/billing-sdk` | 0.2.4 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
-| `@qnsp/search-sdk` | 0.2.5 | Search client with query analytics, synonym management, multi-tenant isolation |
-| `@qnsp/tenant-sdk` | 0.3.4 | Tenant client with health dashboard, quota forecasting, onboarding automation |
-| `@qnsp/ai-sdk` | 0.1.6 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
-| `@qnsp/crypto-inventory-sdk` | 0.3.4 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
-| `@qnsp/browser-sdk` | 0.1.2 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
+| `@qnsp/auth-sdk` | 0.3.5 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
+| `@qnsp/vault-sdk` | 0.3.8 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
+| `@qnsp/kms-client` | 0.2.5 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
+| `@qnsp/storage-sdk` | 0.3.5 | Storage client with data classification, retention policies, cross-region replication |
+| `@qnsp/audit-sdk` | 0.3.5 | Audit client with real-time streaming, retention automation, conformance results |
+| `@qnsp/access-control-sdk` | 0.3.5 | Policy simulation, JIT access management, cross-tenant analysis |
+| `@qnsp/billing-sdk` | 0.2.5 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
+| `@qnsp/search-sdk` | 0.2.9 | Search client with query analytics, synonym management, multi-tenant isolation |
+| `@qnsp/tenant-sdk` | 0.3.5 | Tenant client with health dashboard, quota forecasting, onboarding automation |
+| `@qnsp/ai-sdk` | 0.1.10 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
+| `@qnsp/crypto-inventory-sdk` | 0.3.5 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
+| `@qnsp/browser-sdk` | 0.1.3 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
 
 ## Developer tooling
 
@@ -45,12 +45,12 @@ These packages are part of the public integration surface, but they are not the 
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `@qnsp/cli` | 0.1.6 | Command-line automation and CI/CD workflows |
-| `@qnsp/mcp-server` | 0.1.0 | Official MCP server for AI assistants using QNSP tools |
-| `@qnsp/sdk-activation` | 0.1.3 | Shared activation and entitlement bootstrap used by SDK packages |
-| `@qnsp/langchain-qnsp` | 0.1.1 | LangChain integration package |
-| `@qnsp/llamaindex-qnsp` | 0.2.0 | LlamaIndex integration package |
-| `@qnsp/autogen-qnsp` | 0.2.0 | AutoGen integration package |
+| `@qnsp/cli` | 0.1.11 | Command-line automation and CI/CD workflows |
+| `@qnsp/mcp-server` | 0.1.2 | Official MCP server for AI assistants using QNSP tools |
+| `@qnsp/sdk-activation` | 0.1.4 | Shared activation and entitlement bootstrap used by SDK packages |
+| `@qnsp/langchain-qnsp` | 0.1.5 | LangChain integration package |
+| `@qnsp/llamaindex-qnsp` | 0.2.4 | LlamaIndex integration package |
+| `@qnsp/autogen-qnsp` | 0.2.4 | AutoGen integration package |
 
 ## How SDKs fit into the migration journey
 

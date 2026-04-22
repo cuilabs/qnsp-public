@@ -1,7 +1,7 @@
 ---
 title: API Overview
-version: 0.0.5
-last_updated: 2026-04-11
+version: 0.0.6
+last_updated: 2026-04-22
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 source_files:
