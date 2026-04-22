@@ -1,7 +1,7 @@
 ---
 title: System Overview
 version: 0.1.0
-last_updated: 2026-04-14
+last_updated: 2026-04-23
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: BSL-1.1
 source_files:

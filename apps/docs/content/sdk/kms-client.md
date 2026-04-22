@@ -1,7 +1,7 @@
 ---
 title: KMS Client (@qnsp/kms-client)
 version: 0.1.0
-last_updated: 2026-02-16
+last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:

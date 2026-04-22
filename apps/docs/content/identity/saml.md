@@ -1,7 +1,7 @@
 ---
 title: SAML Federation
 version: 0.0.2
-last_updated: 2026-04-13
+last_updated: 2026-04-23
 copyright: 2025 CUI Labs. All rights reserved.
 ---
 # SAML Federation

@@ -1,7 +1,7 @@
 ---
 title: Migration Checklist
 version: 0.0.1
-last_updated: 2026-04-22
+last_updated: 2026-04-23
 copyright: © 2026 CUI Labs. All rights reserved.
 ---
 # Migration Checklist

@@ -2,7 +2,7 @@
 title: "SDK Activation"
 description: "How QNSP SDKs activate and verify licensing at startup — transparent to end developers, no manual steps required."
 version: 0.0.1
-last_updated: 2026-04-22
+last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 ---

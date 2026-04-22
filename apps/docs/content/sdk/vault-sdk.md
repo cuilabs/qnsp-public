@@ -1,7 +1,7 @@
 ---
 title: Vault SDK (@qnsp/vault-sdk)
 version: 0.3.1
-last_updated: 2026-03-20
+last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:

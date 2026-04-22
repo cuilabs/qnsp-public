@@ -1,7 +1,7 @@
 ---
 title: Docker Deployment
 version: 0.0.2
-last_updated: 2026-01-16
+last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 source_files:

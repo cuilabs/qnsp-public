@@ -1,7 +1,7 @@
 ---
 title: Merkle Checkpointing
 version: 0.0.1
-last_updated: 2025-12-24
+last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 # Merkle Checkpointing

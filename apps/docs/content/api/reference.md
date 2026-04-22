@@ -1,17 +1,20 @@
 ---
 title: API Reference
-version: 0.1.0
-last_updated: 2026-03-20
+version: 0.1.1
+last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 ---
 
 # QNSP API Reference
 
-This document provides a comprehensive reference for all QNSP service APIs. All endpoints require authentication unless otherwise noted. See [Authentication](./authentication.md) for details.
+This document provides a curated reference for the core QNSP service APIs. All endpoints require authentication unless otherwise noted. See [Authentication](./authentication.md) for details.
+
+For an exhaustive, auto-generated list of every registered endpoint derived directly from the service source code, see the [API Route Catalog](./route-catalog.md).
 
 ## Table of Contents
 
+- [API Route Catalog](./route-catalog.md)
 - [Auth Service](#auth-service)
 - [Access Control Service](#access-control-service)
 - [KMS Service](#kms-service)
@@ -4808,7 +4811,7 @@ Base path: `/audit/v1` (via `/v1`)
 
 ### Event Streaming
 
-#### POST /v1/streaming/subscriptions
+#### POST /audit/v1/streaming/subscriptions
 
 Create streaming subscription for audit events.
 
@@ -4841,7 +4844,7 @@ Create streaming subscription for audit events.
 }
 ```
 
-#### GET /v1/streaming/events
+#### GET /audit/v1/streaming/events
 
 SSE endpoint for real-time audit event streaming.
 
@@ -4863,7 +4866,7 @@ event: audit_event
 data: {"eventId": "...", "eventType": "...", ...}
 ```
 
-#### GET /v1/streaming/metrics
+#### GET /audit/v1/streaming/metrics
 
 Get streaming metrics and statistics.
 
@@ -4888,7 +4891,7 @@ Get streaming metrics and statistics.
 
 ### Retention Management
 
-#### POST /v1/retention/policies
+#### POST /audit/v1/retention/policies
 
 Create retention policy.
 
@@ -4920,7 +4923,7 @@ Create retention policy.
 }
 ```
 
-#### POST /v1/retention/cleanup
+#### POST /audit/v1/retention/cleanup
 
 Execute manual retention cleanup.
 
@@ -4947,7 +4950,7 @@ Execute manual retention cleanup.
 }
 ```
 
-#### POST /v1/retention/preview
+#### POST /audit/v1/retention/preview
 
 Preview retention impact before cleanup.
 
@@ -4972,7 +4975,7 @@ Preview retention impact before cleanup.
 }
 ```
 
-#### GET /v1/retention/metrics
+#### GET /audit/v1/retention/metrics
 
 Get retention metrics and statistics.
 

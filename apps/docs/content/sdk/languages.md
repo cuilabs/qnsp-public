@@ -1,7 +1,7 @@
 ---
 title: Supported Languages
 version: 0.2.0
-last_updated: 2026-01-04
+last_updated: 2026-04-23
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 ---
 # Supported Languages

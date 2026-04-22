@@ -1,7 +1,7 @@
 ---
 title: Getting Started Overview
 version: 0.0.3
-last_updated: 2026-04-22
+last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0 (SDK packages) / BSL-1.1 (core platform)
 source_files:

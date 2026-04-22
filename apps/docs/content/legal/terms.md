@@ -1,7 +1,7 @@
 ---
 title: Terms of Service and Privacy Policy
 version: 1.0.0
-last_updated: 2026-02-24
+last_updated: 2026-04-23
 copyright: © 2025–2026 CUI Labs (Pte.) Ltd. All rights reserved.
 ---
 # Terms of Service and Privacy Policy

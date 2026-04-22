@@ -1,7 +1,7 @@
 ---
 title: Tenant Crypto Policy System
 version: 1.1.0
-last_updated: 2026-01-26
+last_updated: 2026-04-23
 copyright: © 2025–2026 CUI Labs (Pte.) Ltd. All rights reserved.
 license: BSL-1.1
 source_files:
