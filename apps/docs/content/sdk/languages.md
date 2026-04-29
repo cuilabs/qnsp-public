@@ -1,50 +1,134 @@
 ---
 title: Supported Languages
-version: 0.2.0
-last_updated: 2026-04-23
+version: 0.3.0
+last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 ---
 # Supported Languages
 
-QNSP SDKs shipped in this repo are TypeScript/Node.js only.
+QNSP ships first-party SDKs for **TypeScript / Node.js**, **Python**, **Go**, and **Rust**. All four share the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture — pick whichever fits your stack and the byte-for-byte outputs round-trip.
 
-## Node.js
+| Language | Package | Where it lives | Activation SDK ID |
+|---|---|---|---|
+| TypeScript / Node.js | `@qnsp/*` (per-service) and `@qnsp/browser-sdk` | [`packages/`](https://github.com/cuilabs/qnsp-public/tree/main/packages) | `vault-sdk`, `kms-client`, etc. |
+| Python | `qnsp` (single package) | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
+| Go | `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
+| Rust | `qnsp` on crates.io | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
 
-**Packages** (TypeScript):
+## Node.js / TypeScript
 
-`@qnsp/auth-sdk`, `@qnsp/vault-sdk`, `@qnsp/storage-sdk`, `@qnsp/audit-sdk`, `@qnsp/access-control-sdk`, `@qnsp/tenant-sdk`, `@qnsp/billing-sdk`, `@qnsp/search-sdk`, `@qnsp/ai-sdk`, `@qnsp/kms-client`, `@qnsp/crypto-inventory-sdk`
+The original SDK family. Per-service packages give you fine-grained dependency control:
 
-- TypeScript native
-- ESM and CommonJS
-- Node.js 24.12.0
-- Browser support (limited)
+```bash
+pnpm add @qnsp/auth-sdk @qnsp/vault-sdk @qnsp/kms-client @qnsp/audit-sdk
+```
+
+For browser apps use `@qnsp/browser-sdk`, which wraps the per-service clients into a single shape that matches the Python / Go / Rust SDKs.
 
 ```typescript
 import { AuthClient } from "@qnsp/auth-sdk";
 ```
 
+- TypeScript native, strict mode
+- ESM (CommonJS via dynamic import)
+- Node.js ≥ 24.12.0 (matches monorepo Volta pin)
+
+See the [Node.js page](./node/README.md) for full quick-start.
+
 ## Python
 
-Python SDK is not available in this repo.
+Single `qnsp` package on PyPI ([changelog](https://github.com/cuilabs/qnsp-public/blob/main/sdks/python/qnsp/CHANGELOG.md)):
+
+```bash
+pip install qnsp
+# with local PQC primitives:
+pip install 'qnsp[crypto]'
+```
+
+```python
+from qnsp import QnspClient
+with QnspClient(api_key=os.environ["QNSP_API_KEY"]) as q:
+    secret = q.vault.create_secret(name="my-secret", payload_b64=...)
+    key    = q.kms.create_key(algorithm="ml-dsa-65", purpose="signing")
+    q.audit.log_event(event_type="model.inference", payload={...})
+```
+
+The `qnsp[crypto]` extra wraps `liboqs-python` 0.12.0 — same algorithm-name surface as the rest of the QNSP ecosystem.
+
+See the [Python page](./python/README.md) for full quick-start.
 
 ## Go
 
-Go SDK is not available in this repo.
+Module path is `github.com/cuilabs/qnsp-public/sdks/go/qnsp`:
+
+```bash
+go get github.com/cuilabs/qnsp-public/sdks/go/qnsp@latest
+```
+
+```go
+import "github.com/cuilabs/qnsp-public/sdks/go/qnsp"
+
+c, _ := qnsp.NewClient(qnsp.ClientOptions{APIKey: os.Getenv("QNSP_API_KEY")})
+defer c.Close()
+secret, _ := c.Vault().CreateSecret(ctx, vault.CreateSecretRequest{...}, "")
+```
+
+The `qnsp/crypto` subpackage wraps `liboqs-go` 0.12.0 — pure-Go base, native crypto requires liboqs at link time.
+
+See the [Go page](./go/README.md) for full quick-start.
+
+## Rust
+
+`qnsp` on crates.io:
+
+```bash
+cargo add qnsp
+# with local PQC primitives:
+cargo add qnsp --features crypto
+```
+
+```rust
+use qnsp::{Client, ClientOptions};
+use qnsp::vault::CreateSecretRequest;
+
+let c = Client::new(ClientOptions::with_api_key(env::var("QNSP_API_KEY")?))?;
+let secret = c.vault().create_secret(CreateSecretRequest { ... }, None).await?;
+```
+
+`tokio`-based async; the `crypto` feature delegates to the [`oqs`](https://crates.io/crates/oqs) 0.11 crate.
+
+See the [Rust page](./rust/README.md) for full quick-start.
 
 ## Java
 
-Java SDK is not available in this repo.
+Java SDK is **not yet planned**. Java consumers should call the QNSP REST API via the edge gateway (`https://api.qnsp.cuilabs.io`) directly, or use the [QNSP CLI](https://github.com/cuilabs/qnsp-public/tree/main/packages/cli) from a Java service via `Runtime.exec`.
+
+If a Java SDK would change your decision to adopt QNSP, write to engineering@cuilabs.io and we'll prioritise.
 
 ## Feature matrix
 
-| Feature | TypeScript (Node.js) |
-|---------|----------------------|
-| KMS | ✓ |
-| Vault | ✓ |
-| Storage | ✓ |
-| Search | ✓ |
-| Audit | ✓ |
+All four SDKs cover the same set of customer-facing services. Module names differ slightly per language (snake_case vs camelCase vs PascalCase) but the wire contract is identical.
+
+| Service | TypeScript | Python | Go | Rust |
+|---|---|---|---|---|
+| Vault (`/vault/v1`) | `@qnsp/vault-sdk` | `qnsp.vault` | `qnsp/vault` | `qnsp::vault` |
+| KMS (`/kms/v1`) | `@qnsp/kms-client` | `qnsp.kms` | `qnsp/kms` | `qnsp::kms` |
+| Audit (`/audit/v1`) | `@qnsp/audit-sdk` | `qnsp.audit` | `qnsp/audit` | `qnsp::audit` |
+| Tenant (`/tenant/v1`) | `@qnsp/tenant-sdk` | _(roadmap)_ | `qnsp/tenant` | `qnsp::tenant` |
+| Access (`/access/v1`) | `@qnsp/access-control-sdk` | _(roadmap)_ | `qnsp/access` | `qnsp::access` |
+| Billing (`/billing/v1`) | `@qnsp/billing-sdk` | _(roadmap)_ | `qnsp/billing` | `qnsp::billing` |
+| Crypto Inventory (`/crypto/v1`) | `@qnsp/crypto-inventory-sdk` | _(roadmap)_ | `qnsp/cryptoinventory` | `qnsp::crypto_inventory` |
+| Storage (`/storage/storage/v1`) | `@qnsp/storage-sdk` | _(roadmap)_ | `qnsp/storage` | `qnsp::storage` |
+| Search (`/search/v1`) | `@qnsp/search-sdk` | _(roadmap)_ | `qnsp/search` | `qnsp::search` |
+| Local PQC primitives | `@qnsp/cryptography` (via `@cuilabs/liboqs-native`) | `qnsp.crypto` (via `liboqs-python`) | `qnsp/crypto` (via `liboqs-go`) | `qnsp::crypto` (via `oqs` 0.11) |
+| Webhook signature verify + parse | per-service | `qnsp.parse_qnsp_webhook` | `qnsp.ParseWebhook` | `qnsp::parse_webhook` |
+
+The Python `qnsp` package currently exposes vault / kms / audit / crypto / webhooks at v0.2.0; the additional service modules (tenant, access, billing, crypto-inventory, storage, search) are scheduled for v0.3.0 to match the Go and Rust v0.1.0 surface.
+
+## Activation
+
+Every customer-facing SDK calls `/billing/v1/sdk/activate` on first use to validate the API key, resolve the tenant + tier, and cache the result. The SDK identifier reported in the handshake matches the third column of the table at the top of this page; see [SDK Activation](./sdk-activation.md) for protocol details.
 
 ## Community SDKs
 
-Community SDKs are not provided in this repo.
+QNSP does not currently host community-maintained SDKs. If you build one, open a PR against [`docs/sdks/community.md`](https://github.com/cuilabs/qnsp-public/tree/main/docs/sdks) on the public mirror to add it to this list.
