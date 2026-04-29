@@ -128,7 +128,7 @@ class ApiKeyActivation:
                 json={
                     "sdkId": SDK_ID,
                     "sdkVersion": SDK_VERSION,
-                    "runtime": "node",  # QNSP enum values: "browser" | "node" | "edge"
+                    "runtime": "python",
                 },
                 headers={
                     "authorization": f"Bearer {self._api_key}",
