@@ -45,8 +45,8 @@ export const SdkActivationRequestSchema = z.object({
 	sdkId: SdkIdentifierSchema,
 	/** SDK version string (e.g., "0.1.0") */
 	sdkVersion: z.string().min(1).max(32),
-	/** Runtime environment: "browser", "node", "edge" */
-	runtime: z.enum(["browser", "node", "edge"]),
+	/** Runtime environment. JS family: "browser" | "node" | "edge". Native SDKs: "python" | "go" | "rust". */
+	runtime: z.enum(["browser", "node", "edge", "python", "go", "rust"]),
 });
 
 export type SdkActivationRequest = z.infer<typeof SdkActivationRequestSchema>;
