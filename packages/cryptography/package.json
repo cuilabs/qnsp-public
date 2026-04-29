@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/cryptography",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"license": "Apache-2.0",
 	"publishConfig": {
 		"access": "public"
@@ -32,11 +32,11 @@
 	"homepage": "https://cloud.qnsp.cuilabs.io",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cuilabs/qnsp",
+		"url": "https://github.com/cuilabs/qnsp-public",
 		"directory": "packages/cryptography"
 	},
 	"bugs": {
-		"url": "https://github.com/cuilabs/qnsp/issues"
+		"url": "https://github.com/cuilabs/qnsp-public/issues"
 	},
 	"engines": {
 		"node": ">=22.0.0"
@@ -59,6 +59,7 @@
 	"dependencies": {
 		"@noble/hashes": "^2.0.1",
 		"@noble/post-quantum": "^0.6.0",
+		"@qnsp/sdk-activation": "workspace:*",
 		"zod": "^4.3.6"
 	},
 	"optionalDependencies": {

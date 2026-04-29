@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/sdk-activation",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -50,11 +50,11 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cuilabs/qnsp",
+		"url": "https://github.com/cuilabs/qnsp-public",
 		"directory": "packages/sdk-activation"
 	},
 	"homepage": "https://cloud.qnsp.cuilabs.io",
 	"bugs": {
-		"url": "https://github.com/cuilabs/qnsp/issues"
+		"url": "https://github.com/cuilabs/qnsp-public/issues"
 	}
 }

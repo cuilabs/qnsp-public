@@ -2,6 +2,12 @@
 
 Abstractions and helpers for post-quantum cryptography within the Quantum-Native Security Platform (QNSP). The package defines provider interfaces for key encapsulation, signatures, and hashing while enabling pluggable integrations with HSMs or PQC libraries.
 
+> **v0.2.0 — breaking change.** `initializeExternalPqcProvider()` now requires a QNSP API key. See **[Migration from v0.1.x](#migration-from-v01x)** below.
+
+## Get your free QNSP API key
+
+A free-forever QNSP account takes 60 seconds to set up — sign in with GitHub, Google, or email at <https://cloud.qnsp.cuilabs.io/auth>. No credit card required. Free tier includes 10 GB PQC storage, 50,000 API calls/month, 20 KMS keys, and 25 vault secrets — and full access to this package.
+
 ## Usage
 
 ```ts
@@ -9,6 +15,7 @@ import { registerPqcProvider } from "@qnsp/cryptography";
 import { initializeExternalPqcProvider } from "@qnsp/cryptography/providers";
 
 const provider = await initializeExternalPqcProvider("qnsp-hsm-provider", {
+  apiKey: process.env.QNSP_API_KEY,           // required since v0.2.0
   algorithms: ["kyber-768", "dilithium-3"],
   configuration: {
     endpoint: process.env.HSM_ENDPOINT
@@ -24,6 +31,23 @@ const signature = await provider.sign({
   privateKey: keyPair.privateKey
 });
 ```
+
+## Migration from v0.1.x
+
+v0.2.0 adds a one-shot activation handshake against `https://api.qnsp.cuilabs.io/billing/v1/sdk/activate` the first time you call `initializeExternalPqcProvider()`. The handshake validates your API key, returns your tier limits, and caches a short-lived activation token in memory — subsequent calls reuse it.
+
+**What you need to change:**
+
+```diff
+  const provider = await initializeExternalPqcProvider("noble", {
++   apiKey: process.env.QNSP_API_KEY,
+    algorithms: ["ml-kem-768", "ml-dsa-65"],
+  });
+```
+
+That's it. No other code changes.
+
+**If you do not want activation:** the underlying primitives this package wraps are upstream open-source projects that you can use directly — no QNSP signup required. Use [`@noble/post-quantum`](https://github.com/paulmillr/noble-post-quantum) for the pure-JS surface, or build [`liboqs`](https://github.com/open-quantum-safe/liboqs) yourself for the full 90-algorithm native surface. `@qnsp/cryptography` adds the activation gate, telemetry, attestation receipts, and integration with the rest of the QNSP platform — that is what the API key tracks.
 
 ## Providers
 

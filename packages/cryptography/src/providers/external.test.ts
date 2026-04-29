@@ -26,6 +26,7 @@ describe("external PQC providers", () => {
 		expect(listExternalPqcProviders()).toContainEqual(factory.metadata);
 
 		const provider = await initializeExternalPqcProvider("qnsp-test-provider", {
+			internal: true,
 			algorithms: ["kyber-768"],
 		});
 
@@ -48,9 +49,9 @@ describe("external PQC providers", () => {
 
 		registerExternalPqcProvider(factory);
 
-		await expect(initializeExternalPqcProvider("qnsp-failing-provider")).rejects.toThrow(
-			/probe failed/,
-		);
+		await expect(
+			initializeExternalPqcProvider("qnsp-failing-provider", { internal: true }),
+		).rejects.toThrow(/probe failed/);
 
 		unregisterExternalPqcProvider("qnsp-failing-provider");
 	});

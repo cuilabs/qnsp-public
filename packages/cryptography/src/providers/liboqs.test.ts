@@ -135,6 +135,7 @@ describe("liboqs provider factory", () => {
 		registerExternalPqcProvider(factory);
 
 		const provider = await initializeExternalPqcProvider("liboqs", {
+			internal: true,
 			algorithms: ["kyber-512", "dilithium-2"],
 		});
 

@@ -71,6 +71,7 @@ describe("noble provider factory", () => {
 				registerExternalPqcProvider(factory);
 
 				const provider = await initializeExternalPqcProvider("noble", {
+					internal: true,
 					algorithms: [algorithm],
 				});
 
@@ -107,7 +108,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 
 			await expect(
 				provider.encapsulate({
@@ -122,7 +123,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 
 			await expect(
 				provider.decapsulate({
@@ -144,6 +145,7 @@ describe("noble provider factory", () => {
 				registerExternalPqcProvider(factory);
 
 				const provider = await initializeExternalPqcProvider("noble", {
+					internal: true,
 					algorithms: [algorithm],
 				});
 
@@ -177,6 +179,7 @@ describe("noble provider factory", () => {
 				registerExternalPqcProvider(factory);
 
 				const provider = await initializeExternalPqcProvider("noble", {
+					internal: true,
 					algorithms: [algorithm],
 				});
 
@@ -204,7 +207,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 
 			await expect(
 				provider.sign({
@@ -220,7 +223,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 
 			await expect(
 				provider.verify({
@@ -245,6 +248,7 @@ describe("noble provider factory", () => {
 				registerExternalPqcProvider(factory);
 
 				const provider = await initializeExternalPqcProvider("noble", {
+					internal: true,
 					algorithms: [algorithm],
 				});
 
@@ -292,7 +296,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 			const result = await provider.hash(testData);
 			expect(result.algorithm).toBe("sha3-256");
 			expect(result.digest).toBeInstanceOf(Uint8Array);
@@ -304,7 +308,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 			const result = await provider.hash(testData, "sha-256");
 			expect(result.algorithm).toBe("sha-256");
 			expect(result.digest).toBeInstanceOf(Uint8Array);
@@ -316,7 +320,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 			const result = await provider.hash(testData, "sha-512");
 			expect(result.algorithm).toBe("sha-512");
 			expect(result.digest).toBeInstanceOf(Uint8Array);
@@ -328,7 +332,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 			const result = await provider.hash(testData, "sha3-512");
 			expect(result.algorithm).toBe("sha3-512");
 			expect(result.digest).toBeInstanceOf(Uint8Array);
@@ -340,7 +344,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 			const result1 = await provider.hash(testData, "sha3-256");
 			const result2 = await provider.hash(testData, "sha3-256");
 			expect(Array.from(result1.digest)).toStrictEqual(Array.from(result2.digest));
@@ -351,7 +355,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 			await expect(provider.hash(testData, "md5")).rejects.toThrow(/not supported/);
 		});
 	});
@@ -363,6 +367,7 @@ describe("noble provider factory", () => {
 			registerExternalPqcProvider(factory);
 
 			const provider = await initializeExternalPqcProvider("noble", {
+				internal: true,
 				algorithms: ["kyber-512"],
 			});
 
@@ -376,7 +381,7 @@ describe("noble provider factory", () => {
 			unregisterExternalPqcProvider("noble");
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("noble");
+			const provider = await initializeExternalPqcProvider("noble", { internal: true });
 
 			// Should not throw for any supported algorithm
 			const { keyPair } = await provider.generateKeyPair({ algorithm: "kyber-1024" });
@@ -390,6 +395,7 @@ describe("noble provider factory", () => {
 			registerNobleProvider();
 
 			const provider = await initializeExternalPqcProvider("noble", {
+				internal: true,
 				algorithms: ["kyber-512"],
 			});
 			expect(provider.name).toBe("noble");

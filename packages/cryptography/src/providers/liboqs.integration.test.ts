@@ -30,7 +30,7 @@ describe.skipIf(!shouldRun)("liboqs provider - Real Native Library Integration",
 	beforeAll(async () => {
 		const factory = createLiboqsProviderFactory();
 		registerExternalPqcProvider(factory);
-		provider = await initializeExternalPqcProvider("liboqs");
+		provider = await initializeExternalPqcProvider("liboqs", { internal: true });
 	});
 
 	afterAll(() => {

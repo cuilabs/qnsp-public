@@ -25,6 +25,7 @@ export const SdkIdentifierSchema = z.enum([
 	"audit-sdk",
 	"access-control-sdk",
 	"crypto-inventory-sdk",
+	"cryptography",
 	"langchain-qnsp",
 	"llamaindex-qnsp",
 	"autogen-qnsp",

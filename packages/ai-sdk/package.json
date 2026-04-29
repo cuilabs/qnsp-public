@@ -61,12 +61,12 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cuilabs/qnsp",
+		"url": "https://github.com/cuilabs/qnsp-public",
 		"directory": "packages/ai-sdk"
 	},
 	"homepage": "https://cloud.qnsp.cuilabs.io",
 	"bugs": {
-		"url": "https://github.com/cuilabs/qnsp/issues"
+		"url": "https://github.com/cuilabs/qnsp-public/issues"
 	},
 	"files": [
 		"dist/**/*",

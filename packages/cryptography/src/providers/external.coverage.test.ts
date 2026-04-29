@@ -141,9 +141,9 @@ describe("External PQC Provider Registry - Coverage", () => {
 
 	describe("initializeExternalPqcProvider", () => {
 		it("should throw error for non-existent provider", async () => {
-			await expect(initializeExternalPqcProvider("non-existent")).rejects.toThrow(
-				"External PQC provider 'non-existent' is not registered",
-			);
+			await expect(
+				initializeExternalPqcProvider("non-existent", { internal: true }),
+			).rejects.toThrow("External PQC provider 'non-existent' is not registered");
 		});
 
 		it("should create provider from factory", async () => {
@@ -158,7 +158,7 @@ describe("External PQC Provider Registry - Coverage", () => {
 
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("create-test");
+			const provider = await initializeExternalPqcProvider("create-test", { internal: true });
 			expect(provider).toBe(mockProvider);
 		});
 
@@ -179,6 +179,7 @@ describe("External PQC Provider Registry - Coverage", () => {
 			registerExternalPqcProvider(factory);
 
 			const initOptions = {
+				internal: true,
 				algorithms: ["dilithium-3"] as const,
 				configuration: { key: "value" },
 				logger: (msg: string) => console.log(msg),
@@ -206,7 +207,7 @@ describe("External PQC Provider Registry - Coverage", () => {
 
 			registerExternalPqcProvider(factory);
 
-			await initializeExternalPqcProvider("probe-test");
+			await initializeExternalPqcProvider("probe-test", { internal: true });
 
 			expect(probeCalled).toBe(true);
 		});
@@ -223,7 +224,7 @@ describe("External PQC Provider Registry - Coverage", () => {
 
 			registerExternalPqcProvider(factory);
 
-			await expect(initializeExternalPqcProvider("probe-fail")).rejects.toThrow(
+			await expect(initializeExternalPqcProvider("probe-fail", { internal: true })).rejects.toThrow(
 				"External PQC provider 'probe-fail' probe failed",
 			);
 		});
@@ -239,7 +240,7 @@ describe("External PQC Provider Registry - Coverage", () => {
 
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("no-probe");
+			const provider = await initializeExternalPqcProvider("no-probe", { internal: true });
 			expect(provider).toBeDefined();
 		});
 
@@ -254,7 +255,7 @@ describe("External PQC Provider Registry - Coverage", () => {
 
 			registerExternalPqcProvider(factory);
 
-			const provider = await initializeExternalPqcProvider("no-options");
+			const provider = await initializeExternalPqcProvider("no-options", { internal: true });
 			expect(provider).toBeDefined();
 		});
 	});

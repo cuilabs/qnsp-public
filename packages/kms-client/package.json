@@ -63,11 +63,11 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cuilabs/qnsp",
+		"url": "https://github.com/cuilabs/qnsp-public",
 		"directory": "packages/kms-client"
 	},
 	"homepage": "https://cloud.qnsp.cuilabs.io",
 	"bugs": {
-		"url": "https://github.com/cuilabs/qnsp/issues"
+		"url": "https://github.com/cuilabs/qnsp-public/issues"
 	}
 }
