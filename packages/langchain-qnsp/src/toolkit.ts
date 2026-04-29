@@ -32,7 +32,7 @@ import type { QnspKmsToolConfig } from "./tools/kms.js";
 import { QnspSignDataTool, QnspVerifySignatureTool } from "./tools/kms.js";
 import { QnspReadSecretTool, QnspRotateSecretTool, QnspWriteSecretTool } from "./tools/vault.js";
 
-const SDK_VERSION = "0.1.6";
+const SDK_VERSION = "0.1.7";
 
 export interface QnspToolkitConfig {
 	/**
@@ -77,6 +77,7 @@ export class QnspToolkit {
 	readonly #timeoutMs: number;
 	readonly #include: ReadonlyArray<"vault" | "kms" | "audit">;
 	readonly #vaultClient: VaultClient;
+	#activated: boolean = false;
 
 	constructor(config: QnspToolkitConfig) {
 		this.#apiKey = config.apiKey;
@@ -94,8 +95,9 @@ export class QnspToolkit {
 
 	/**
 	 * One-shot activation handshake against billing-service. Validates the API
-	 * key, captures tenantId + tier, caches the activation token. Call this
-	 * before `getTools()` to fail fast if the key is invalid.
+	 * key, captures tenantId + tier, caches the activation token. Required:
+	 * call `await toolkit.activate()` before `toolkit.getTools()` — `getTools()`
+	 * throws otherwise.
 	 *
 	 * Idempotent — repeat calls are cheap (cached) and only re-fetch when the
 	 * activation token approaches expiry.
@@ -113,10 +115,22 @@ export class QnspToolkit {
 		if (this.#tenantId === "") {
 			this.#tenantId = activation.tenantId;
 		}
+		this.#activated = true;
+	}
+
+	#assertActivated(): void {
+		if (!this.#activated) {
+			throw new Error(
+				"@qnsp/langchain-qnsp: call `await toolkit.activate()` once before `getTools()`. " +
+					"This validates your QNSP API key and resolves the tenant ID. " +
+					"Free signup (no credit card): https://cloud.qnsp.cuilabs.io/auth",
+			);
+		}
 	}
 
 	/** Returns all configured QNSP tools for use with a LangChain agent. */
 	getTools(): StructuredTool[] {
+		this.#assertActivated();
 		const tools: StructuredTool[] = [];
 
 		if (this.#include.includes("vault")) {
@@ -134,6 +148,7 @@ export class QnspToolkit {
 
 	/** Returns only the vault tools (read, write, rotate secrets). */
 	getVaultTools(): StructuredTool[] {
+		this.#assertActivated();
 		return [
 			new QnspReadSecretTool(this.#vaultClient),
 			new QnspWriteSecretTool(this.#vaultClient),
@@ -143,6 +158,7 @@ export class QnspToolkit {
 
 	/** Returns only the KMS tools (sign, verify). */
 	getKmsTools(): StructuredTool[] {
+		this.#assertActivated();
 		const kmsConfig: QnspKmsToolConfig = {
 			baseUrl: this.#baseUrl,
 			apiKey: this.#apiKey,
@@ -154,6 +170,7 @@ export class QnspToolkit {
 
 	/** Returns only the audit tool (log agent actions). */
 	getAuditTools(): StructuredTool[] {
+		this.#assertActivated();
 		const auditConfig: QnspAuditToolConfig = {
 			baseUrl: this.#baseUrl,
 			apiKey: this.#apiKey,
@@ -161,5 +178,10 @@ export class QnspToolkit {
 			timeoutMs: this.#timeoutMs,
 		};
 		return [new QnspLogAgentActionTool(auditConfig)];
+	}
+
+	/** True once `activate()` has resolved successfully. */
+	get isActivated(): boolean {
+		return this.#activated;
 	}
 }

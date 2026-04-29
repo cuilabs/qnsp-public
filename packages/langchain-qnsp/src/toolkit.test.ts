@@ -55,24 +55,46 @@ vi.mock("@qnsp/vault-sdk", () => ({
 	},
 }));
 
+vi.mock("@qnsp/sdk-activation", () => ({
+	activateSdk: vi.fn().mockResolvedValue({
+		tenantId: "tenant-abc",
+		tier: "free",
+		limits: {
+			storageGB: 10,
+			apiCalls: 50_000,
+			enclavesEnabled: false,
+			aiTrainingEnabled: false,
+			aiInferenceEnabled: true,
+			sseEnabled: false,
+		},
+		expiresInSeconds: 3600,
+	}),
+}));
+
+async function activatedToolkit(config: ConstructorParameters<typeof QnspToolkit>[0]) {
+	const toolkit = new QnspToolkit(config);
+	await toolkit.activate();
+	return toolkit;
+}
+
 describe("QnspToolkit", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	it("creates a toolkit with default config", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+	it("creates a toolkit with default config", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		expect(toolkit).toBeDefined();
 	});
 
-	it("returns all tools by default (vault=3, kms=2, audit=1)", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+	it("returns all tools by default (vault=3, kms=2, audit=1)", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		const tools = toolkit.getTools();
 		expect(tools).toHaveLength(6);
 	});
 
-	it("returns only vault tools when include=['vault']", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key", include: ["vault"] });
+	it("returns only vault tools when include=['vault']", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key", include: ["vault"] });
 		const tools = toolkit.getTools();
 		expect(tools).toHaveLength(3);
 		expect(tools.map((t) => t.name)).toEqual([
@@ -82,37 +104,37 @@ describe("QnspToolkit", () => {
 		]);
 	});
 
-	it("returns only kms tools when include=['kms']", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key", include: ["kms"] });
+	it("returns only kms tools when include=['kms']", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key", include: ["kms"] });
 		const tools = toolkit.getTools();
 		expect(tools).toHaveLength(2);
 		expect(tools.map((t) => t.name)).toEqual(["qnsp_sign_data", "qnsp_verify_signature"]);
 	});
 
-	it("returns only audit tool when include=['audit']", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key", include: ["audit"] });
+	it("returns only audit tool when include=['audit']", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key", include: ["audit"] });
 		const tools = toolkit.getTools();
 		expect(tools).toHaveLength(1);
 		expect(tools[0]?.name).toBe("qnsp_log_agent_action");
 	});
 
-	it("getVaultTools returns 3 vault tools", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+	it("getVaultTools returns 3 vault tools", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		expect(toolkit.getVaultTools()).toHaveLength(3);
 	});
 
-	it("getKmsTools returns 2 kms tools", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+	it("getKmsTools returns 2 kms tools", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		expect(toolkit.getKmsTools()).toHaveLength(2);
 	});
 
-	it("getAuditTools returns 1 audit tool", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+	it("getAuditTools returns 1 audit tool", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		expect(toolkit.getAuditTools()).toHaveLength(1);
 	});
 
-	it("all tools have non-empty name and description", () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+	it("all tools have non-empty name and description", async () => {
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		for (const tool of toolkit.getTools()) {
 			expect(tool.name.length).toBeGreaterThan(0);
 			expect(tool.description.length).toBeGreaterThan(0);
@@ -120,7 +142,7 @@ describe("QnspToolkit", () => {
 	});
 
 	it("qnsp_read_secret invokes vault.getSecret", async () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		const [readTool] = toolkit.getVaultTools();
 		if (!readTool) throw new Error("No read tool");
 
@@ -132,7 +154,7 @@ describe("QnspToolkit", () => {
 	});
 
 	it("qnsp_write_secret invokes vault.createSecret", async () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		const tools = toolkit.getVaultTools();
 		const writeTool = tools[1];
 		if (!writeTool) throw new Error("No write tool");
@@ -148,7 +170,7 @@ describe("QnspToolkit", () => {
 	});
 
 	it("qnsp_rotate_secret invokes vault.rotateSecret", async () => {
-		const toolkit = new QnspToolkit({ apiKey: "test-key" });
+		const toolkit = await activatedToolkit({ apiKey: "test-key" });
 		const tools = toolkit.getVaultTools();
 		const rotateTool = tools[2];
 		if (!rotateTool) throw new Error("No rotate tool");

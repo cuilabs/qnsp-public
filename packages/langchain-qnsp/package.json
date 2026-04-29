@@ -1,12 +1,12 @@
 {
 	"name": "@qnsp/langchain-qnsp",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
-	"description": "LangChain tools for QNSP \u2014 governed agents with PQC-encrypted secrets, quantum-safe signing, and immutable audit trails.",
+	"description": "LangChain tools for QNSP — governed agents with PQC-encrypted secrets, quantum-safe signing, and immutable audit trails.",
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
