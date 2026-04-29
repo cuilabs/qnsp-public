@@ -108,7 +108,8 @@ describe("liboqs provider factory", () => {
 		const factory = createLiboqsProviderFactory({ loadModule });
 		unregisterExternalPqcProvider("liboqs");
 		registerExternalPqcProvider(factory);
-		const provider = await initializeExternalPqcProvider("liboqs", { internal: true,
+		const provider = await initializeExternalPqcProvider("liboqs", {
+			internal: true,
 			algorithms: ["kyber-512", "dilithium-2"],
 		});
 		expect(provider.name).toBe("liboqs");
