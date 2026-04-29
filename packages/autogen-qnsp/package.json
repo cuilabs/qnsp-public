@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/autogen-qnsp",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"@qnsp/ai-sdk": "workspace:*",
+		"@qnsp/sdk-activation": "workspace:*",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {

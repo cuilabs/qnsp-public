@@ -6,39 +6,23 @@
  * directly — works as a standalone adapter or with the full LlamaIndex framework.
  */
 
+import { activateSdk } from "@qnsp/sdk-activation";
 import { SearchClient } from "@qnsp/search-sdk";
 import { z } from "zod";
 
-// ─── Activation types (inline to avoid direct @qnsp/sdk-activation dep) ──────
+const SDK_VERSION = "0.2.5";
 
-const ACTIVATION_PATH = "/billing/v1/sdk/activate";
-
-interface ActivationResponse {
-	readonly tenantId: string;
-}
-
+// Activation handshake — uses the canonical @qnsp/sdk-activation package so
+// telemetry and tier limits stay consistent across every QNSP SDK. Returns
+// the tenantId so callers can scope vector-store operations to the tenant.
 async function resolveActivationTenantId(apiKey: string, baseUrl: string): Promise<string> {
-	const url = `${baseUrl.replace(/\/$/, "")}${ACTIVATION_PATH}`;
-	const response = await fetch(url, {
-		method: "POST",
-		headers: {
-			"content-type": "application/json",
-			authorization: `Bearer ${apiKey}`,
-		},
-		body: JSON.stringify({
-			sdkId: "llamaindex-qnsp",
-			sdkVersion: "0.1.0",
-			runtime: "node",
-		}),
-		signal: AbortSignal.timeout(15_000),
+	const activation = await activateSdk({
+		apiKey,
+		sdkId: "llamaindex-qnsp",
+		sdkVersion: SDK_VERSION,
+		platformUrl: baseUrl,
 	});
-	if (!response.ok) {
-		throw new Error(
-			`QNSP LlamaIndex: SDK activation failed (HTTP ${response.status}). Ensure your API key is valid.`,
-		);
-	}
-	const data = (await response.json()) as ActivationResponse;
-	return data.tenantId;
+	return activation.tenantId;
 }
 
 // ─── LlamaIndex-compatible types (standalone, no llamaindex import required) ──

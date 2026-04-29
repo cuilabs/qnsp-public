@@ -9,42 +9,25 @@
  * completion and returns structured output with the enclave attestation proof.
  */
 
-import { AiOrchestratorClient } from "@qnsp/ai-sdk";
-
-// ─── Activation (inline to avoid direct @qnsp/sdk-activation dep) ────────────
-
-const ACTIVATION_PATH = "/billing/v1/sdk/activate";
-
-interface ActivationResponse {
-	readonly tenantId: string;
-}
-
-async function resolveActivationTenantId(apiKey: string, baseUrl: string): Promise<string> {
-	const url = `${baseUrl.replace(/\/$/, "")}${ACTIVATION_PATH}`;
-	const response = await fetch(url, {
-		method: "POST",
-		headers: {
-			"content-type": "application/json",
-			authorization: `Bearer ${apiKey}`,
-		},
-		body: JSON.stringify({
-			sdkId: "autogen-qnsp",
-			sdkVersion: "0.1.0",
-			runtime: "node",
-		}),
-		signal: AbortSignal.timeout(15_000),
-	});
-	if (!response.ok) {
-		throw new Error(
-			`QNSP AutoGen: SDK activation failed (HTTP ${response.status}). Ensure your API key is valid.`,
-		);
-	}
-	const data = (await response.json()) as ActivationResponse;
-	return data.tenantId;
-}
-
 import type { SubmitWorkloadRequest, WorkloadDetail, WorkloadStatus } from "@qnsp/ai-sdk";
+import { AiOrchestratorClient } from "@qnsp/ai-sdk";
+import { activateSdk } from "@qnsp/sdk-activation";
 import { z } from "zod";
+
+// Activation handshake — uses the canonical @qnsp/sdk-activation package so
+// telemetry and tier limits stay consistent across every QNSP SDK. Returns
+// the tenantId so callers can attach it to workload submissions.
+async function resolveActivationTenantId(apiKey: string, baseUrl: string): Promise<string> {
+	const activation = await activateSdk({
+		apiKey,
+		sdkId: "autogen-qnsp",
+		sdkVersion: SDK_VERSION,
+		platformUrl: baseUrl,
+	});
+	return activation.tenantId;
+}
+
+const SDK_VERSION = "0.2.5";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

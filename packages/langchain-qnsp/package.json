@@ -1,6 +1,6 @@
 {
 	"name": "@qnsp/langchain-qnsp",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -25,6 +25,7 @@
 		"@langchain/core": "^0.3.80",
 		"@qnsp/audit-sdk": "workspace:*",
 		"@qnsp/kms-client": "workspace:*",
+		"@qnsp/sdk-activation": "workspace:*",
 		"@qnsp/vault-sdk": "workspace:*",
 		"zod": "^4.3.6"
 	},

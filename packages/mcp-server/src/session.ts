@@ -6,9 +6,30 @@
  * via the SDK activation endpoint at runtime.
  */
 
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { activateSdk, type SdkActivationResponse } from "@qnsp/sdk-activation";
 
 const DEFAULT_PLATFORM_URL = "https://api.qnsp.cuilabs.io";
+
+// Resolve own version from package.json so activation telemetry tracks the
+// actual published version of @qnsp/mcp-server, not an inline literal that
+// drifts every release. The compiled module lives at dist/session.js, so the
+// package.json is one directory up from dist/.
+function readOwnVersion(): string {
+	try {
+		const here = dirname(fileURLToPath(import.meta.url));
+		const pkgPath = join(here, "..", "package.json");
+		const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { version?: string };
+		return pkg.version ?? "0.0.0";
+	} catch {
+		return "0.0.0";
+	}
+}
+
+const SDK_VERSION = readOwnVersion();
 
 export interface SessionConfig {
 	readonly apiKey: string;
@@ -47,7 +68,7 @@ export class SessionManager {
 		this.activation = await activateSdk({
 			apiKey: this.apiKey,
 			sdkId: "mcp-server",
-			sdkVersion: "0.1.0",
+			sdkVersion: SDK_VERSION,
 			platformUrl: this.platformUrl,
 		});
 

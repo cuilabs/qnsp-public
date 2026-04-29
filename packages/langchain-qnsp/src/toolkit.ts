@@ -24,12 +24,15 @@
  */
 
 import type { StructuredTool } from "@langchain/core/tools";
+import { activateSdk } from "@qnsp/sdk-activation";
 import { VaultClient } from "@qnsp/vault-sdk";
 import type { QnspAuditToolConfig } from "./tools/audit.js";
 import { QnspLogAgentActionTool } from "./tools/audit.js";
 import type { QnspKmsToolConfig } from "./tools/kms.js";
 import { QnspSignDataTool, QnspVerifySignatureTool } from "./tools/kms.js";
 import { QnspReadSecretTool, QnspRotateSecretTool, QnspWriteSecretTool } from "./tools/vault.js";
+
+const SDK_VERSION = "0.1.6";
 
 export interface QnspToolkitConfig {
 	/**
@@ -69,7 +72,7 @@ export interface QnspToolkitConfig {
  */
 export class QnspToolkit {
 	readonly #apiKey: string;
-	readonly #tenantId: string;
+	#tenantId: string;
 	readonly #baseUrl: string;
 	readonly #timeoutMs: number;
 	readonly #include: ReadonlyArray<"vault" | "kms" | "audit">;
@@ -87,6 +90,29 @@ export class QnspToolkit {
 			apiKey: this.#apiKey,
 			timeoutMs: this.#timeoutMs,
 		});
+	}
+
+	/**
+	 * One-shot activation handshake against billing-service. Validates the API
+	 * key, captures tenantId + tier, caches the activation token. Call this
+	 * before `getTools()` to fail fast if the key is invalid.
+	 *
+	 * Idempotent — repeat calls are cheap (cached) and only re-fetch when the
+	 * activation token approaches expiry.
+	 */
+	async activate(): Promise<void> {
+		const activation = await activateSdk({
+			apiKey: this.#apiKey,
+			sdkId: "langchain-qnsp",
+			sdkVersion: SDK_VERSION,
+			platformUrl: this.#baseUrl,
+		});
+		// If the caller did not specify tenantId, inherit it from activation
+		// so KMS and audit tools have a tenant-scoped header without an extra
+		// constructor argument.
+		if (this.#tenantId === "") {
+			this.#tenantId = activation.tenantId;
+		}
 	}
 
 	/** Returns all configured QNSP tools for use with a LangChain agent. */
