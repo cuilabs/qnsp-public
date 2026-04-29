@@ -1,7 +1,7 @@
 ---
 title: MCP Server (@qnsp/mcp-server)
-version: 0.1.2
-last_updated: 2026-04-23
+version: 0.1.3
+last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -21,7 +21,7 @@ The MCP server is not just a convenience wrapper. It is one of the supported con
 
 - npm package: `@qnsp/mcp-server`
 - binary: `qnsp-mcp`
-- current version: `0.1.2`
+- current version: `0.1.3`
 - runtime: Node.js `>= 24.12.0`
 
 ## Supported deployment modes

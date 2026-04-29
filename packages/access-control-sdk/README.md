@@ -1,6 +1,6 @@
 # @qnsp/access-control-sdk
 
-TypeScript SDK client for the QNSP access-control-service API. Provides policy management and capability token operations.
+TypeScript SDK client for the QNSP access-control-service API; equivalent shapes ship in Python, Go, and Rust. Provides policy management and capability token operations.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

@@ -1,6 +1,6 @@
 # @qnsp/search-sdk
 
-TypeScript SDK for QNSP search-service (indexing, querying, SSE token helpers).
+TypeScript SDK for QNSP search-service (indexing, querying, SSE token helpers); equivalent shapes ship in Python, Go, and Rust.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

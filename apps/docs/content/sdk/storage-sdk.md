@@ -1,7 +1,7 @@
 ---
 title: Storage SDK (@qnsp/storage-sdk)
-version: 0.3.1
-last_updated: 2026-04-23
+version: 0.3.6
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Storage SDK (`@qnsp/storage-sdk`)
 
-TypeScript client for `storage-service`. All files are encrypted with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `storage-service`; equivalent shapes ship in Python, Go, and Rust. All files are encrypted with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 

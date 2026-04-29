@@ -1,6 +1,6 @@
 # @qnsp/auth-sdk
 
-TypeScript SDK client for the QNSP auth-service API. Provides authentication, token management, WebAuthn, MFA, and federation.
+TypeScript SDK client for the QNSP auth-service API; equivalent shapes ship in Python, Go, and Rust. Provides authentication, token management, WebAuthn, MFA, and federation.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

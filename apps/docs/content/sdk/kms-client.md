@@ -1,7 +1,7 @@
 ---
 title: KMS Client (@qnsp/kms-client)
-version: 0.1.0
-last_updated: 2026-04-23
+version: 0.2.6
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # KMS Client (`@qnsp/kms-client`)
 
-TypeScript client for `kms-service`. Provides key wrapping and unwrapping operations with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `kms-service`; equivalent shapes ship in Python, Go, and Rust. Provides key wrapping and unwrapping operations with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 

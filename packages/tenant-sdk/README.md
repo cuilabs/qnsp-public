@@ -1,6 +1,6 @@
 # @qnsp/tenant-sdk
 
-TypeScript SDK client for the QNSP tenant-service API. Provides tenant lifecycle and subscription management.
+TypeScript SDK client for the QNSP tenant-service API; equivalent shapes ship in Python, Go, and Rust. Provides tenant lifecycle and subscription management.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

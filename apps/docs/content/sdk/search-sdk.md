@@ -1,7 +1,7 @@
 ---
 title: Search SDK (@qnsp/search-sdk)
-version: 0.3.0
-last_updated: 2026-04-23
+version: 0.2.10
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -11,7 +11,7 @@ source_files:
 
 # Search SDK (`@qnsp/search-sdk`)
 
-TypeScript client for `search-service`. Search indexes are encrypted with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `search-service`; equivalent shapes ship in Python, Go, and Rust. Search indexes are encrypted with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 

@@ -1,7 +1,7 @@
 ---
 title: Billing SDK (@qnsp/billing-sdk)
-version: 0.3.0
-last_updated: 2026-04-23
+version: 0.2.6
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Billing SDK (`@qnsp/billing-sdk`)
 
-TypeScript client for `billing-service`. Provides usage metering, invoice management, revenue analytics, and payment recovery.
+The TypeScript client for `billing-service`; equivalent shapes ship in Python, Go, and Rust. Provides usage metering, invoice management, revenue analytics, and payment recovery.
 
 ## Install
 

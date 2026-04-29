@@ -1,6 +1,6 @@
 # @qnsp/crypto-inventory-sdk
 
-TypeScript SDK client for the QNSP crypto-inventory-service API. Provides cryptographic asset discovery and inventory management.
+TypeScript SDK client for the QNSP crypto-inventory-service API; equivalent shapes ship in Python, Go, and Rust. Provides cryptographic asset discovery and inventory management.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

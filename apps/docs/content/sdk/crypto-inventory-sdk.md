@@ -1,7 +1,7 @@
 ---
 title: Crypto Inventory SDK (@qnsp/crypto-inventory-sdk)
-version: 0.2.0
-last_updated: 2026-04-23
+version: 0.3.6
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Crypto Inventory SDK (`@qnsp/crypto-inventory-sdk`)
 
-TypeScript client for `crypto-inventory-service`. Provides cryptographic asset discovery and inventory management across the QNSP platform.
+The TypeScript client for `crypto-inventory-service`; equivalent shapes ship in Python, Go, and Rust. Provides cryptographic asset discovery and inventory management across the QNSP platform.
 
 ## Install
 

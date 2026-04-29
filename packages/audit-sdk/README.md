@@ -1,6 +1,6 @@
 # @qnsp/audit-sdk
 
-TypeScript SDK client for the QNSP audit-service API. Provides audit log querying and compliance reporting.
+TypeScript SDK client for the QNSP audit-service API; equivalent shapes ship in Python, Go, and Rust. Provides audit log querying and compliance reporting.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

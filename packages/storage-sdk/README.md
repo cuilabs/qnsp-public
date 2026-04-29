@@ -1,6 +1,6 @@
 # @qnsp/storage-sdk
 
-TypeScript SDK client for the QNSP storage-service API.
+TypeScript SDK client for the QNSP storage-service API; equivalent shapes ship in Python, Go, and Rust.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

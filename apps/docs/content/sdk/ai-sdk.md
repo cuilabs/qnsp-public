@@ -1,7 +1,7 @@
 ---
 title: AI SDK (@qnsp/ai-sdk)
-version: 0.2.0
-last_updated: 2026-04-23
+version: 0.1.11
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -11,7 +11,7 @@ source_files:
 
 # AI SDK (`@qnsp/ai-sdk`)
 
-TypeScript client for `ai-orchestrator`. Model artifacts and inference data are encrypted with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `ai-orchestrator`; equivalent shapes ship in Python, Go, and Rust. Model artifacts and inference data are encrypted with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 

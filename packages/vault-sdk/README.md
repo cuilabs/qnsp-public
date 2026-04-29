@@ -1,6 +1,6 @@
 # @qnsp/vault-sdk
 
-TypeScript SDK client for the QNSP vault-service API. Provides secret management with envelope encryption, versioning, and rotation.
+TypeScript SDK client for the QNSP vault-service API; equivalent shapes ship in Python, Go, and Rust. Provides secret management with envelope encryption, versioning, and rotation.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

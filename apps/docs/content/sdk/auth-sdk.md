@@ -1,7 +1,7 @@
 ---
 title: Auth SDK (@qnsp/auth-sdk)
-version: 0.3.1
-last_updated: 2026-04-23
+version: 0.3.6
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Auth SDK (`@qnsp/auth-sdk`)
 
-TypeScript client for `auth-service`. All tokens are signed with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `auth-service`; equivalent shapes ship in Python, Go, and Rust. All tokens are signed with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 

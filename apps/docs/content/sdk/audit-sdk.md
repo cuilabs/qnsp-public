@@ -1,7 +1,7 @@
 ---
 title: Audit SDK (@qnsp/audit-sdk)
-version: 0.4.0
-last_updated: 2026-04-23
+version: 0.3.6
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Audit SDK (`@qnsp/audit-sdk`)
 
-TypeScript client for `audit-service`. All audit events are signed with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `audit-service`; equivalent shapes ship in Python, Go, and Rust. All audit events are signed with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 

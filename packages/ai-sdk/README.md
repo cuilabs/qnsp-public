@@ -1,6 +1,6 @@
 # @qnsp/ai-sdk
 
-TypeScript SDK client for the QNSP AI orchestration service. Provides secure AI workload management, enclave inference, and encrypted training.
+TypeScript SDK client for the QNSP AI orchestration service; equivalent shapes ship in Python, Go, and Rust. Provides secure AI workload management, enclave inference, and encrypted training.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 

@@ -1,7 +1,7 @@
 ---
 title: LlamaIndex Integration (@qnsp/llamaindex-qnsp)
-version: 0.2.0
-last_updated: 2026-04-23
+version: 0.2.5
+last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:

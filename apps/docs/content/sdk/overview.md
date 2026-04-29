@@ -1,7 +1,7 @@
 ---
 title: SDK Overview
-version: 0.3.5
-last_updated: 2026-04-23
+version: 0.3.6
+last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -12,32 +12,51 @@ source_files:
   - /packages/crypto-inventory-sdk/package.json
   - /packages/browser-sdk/package.json
   - /packages/mcp-server/package.json
+  - /sdks/python/qnsp/pyproject.toml
+  - /sdks/go/qnsp/go.mod
+  - /sdks/rust/qnsp/Cargo.toml
 ---
 
 # SDK Overview
 
-QNSP provides official TypeScript/Node.js SDKs and developer tooling for platform services. The service SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
+QNSP provides official SDKs in **four languages** — TypeScript/Node.js, Python, Go, and Rust — all built on the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture. Pick whichever fits your stack and the byte-for-byte outputs round-trip across languages.
+
+The TypeScript family ships per-service packages (`@qnsp/vault-sdk`, `@qnsp/kms-client`, …) for fine-grained dependency control; the Python, Go, and Rust SDKs each ship as a single package with sub-modules per service. See [Supported Languages](./languages) for the comparison matrix.
+
+The service SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
 
 For migration work, the SDKs are the application cutover surface. Discovery typically starts with cloud/API connectors or QNSP agents, but migration is only complete when production trust calls move onto QNSP SDKs, APIs, or governed platform services.
 
-## Service SDKs
+## TypeScript / Node.js service SDKs
 
-From `packages/*/package.json`:
+Per-service packages, sourced from `packages/*/package.json`:
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `@qnsp/auth-sdk` | 0.3.5 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
-| `@qnsp/vault-sdk` | 0.3.8 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
-| `@qnsp/kms-client` | 0.2.5 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
-| `@qnsp/storage-sdk` | 0.3.5 | Storage client with data classification, retention policies, cross-region replication |
-| `@qnsp/audit-sdk` | 0.3.5 | Audit client with real-time streaming, retention automation, conformance results |
-| `@qnsp/access-control-sdk` | 0.3.5 | Policy simulation, JIT access management, cross-tenant analysis |
-| `@qnsp/billing-sdk` | 0.2.5 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
-| `@qnsp/search-sdk` | 0.2.9 | Search client with query analytics, synonym management, multi-tenant isolation |
-| `@qnsp/tenant-sdk` | 0.3.5 | Tenant client with health dashboard, quota forecasting, onboarding automation |
-| `@qnsp/ai-sdk` | 0.1.10 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
-| `@qnsp/crypto-inventory-sdk` | 0.3.5 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
-| `@qnsp/browser-sdk` | 0.1.3 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
+| `@qnsp/auth-sdk` | 0.3.6 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
+| `@qnsp/vault-sdk` | 0.3.9 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
+| `@qnsp/kms-client` | 0.2.6 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
+| `@qnsp/storage-sdk` | 0.3.6 | Storage client with data classification, retention policies, cross-region replication |
+| `@qnsp/audit-sdk` | 0.3.6 | Audit client with real-time streaming, retention automation, conformance results |
+| `@qnsp/access-control-sdk` | 0.3.6 | Policy simulation, JIT access management, cross-tenant analysis |
+| `@qnsp/billing-sdk` | 0.2.6 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
+| `@qnsp/search-sdk` | 0.2.10 | Search client with query analytics, synonym management, multi-tenant isolation |
+| `@qnsp/tenant-sdk` | 0.3.6 | Tenant client with health dashboard, quota forecasting, onboarding automation |
+| `@qnsp/ai-sdk` | 0.1.11 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
+| `@qnsp/crypto-inventory-sdk` | 0.3.6 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
+| `@qnsp/browser-sdk` | 0.1.4 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
+
+## Single-package SDKs (Python, Go, Rust)
+
+Each language ships one package with nine sub-modules covering the same customer-facing service surface. These wrap the same backend services as the TypeScript family above; the wire contracts and algorithm names are byte-identical.
+
+| Package | Version | Source | Activation `sdkId` |
+|---|---|---|---|
+| `qnsp` (PyPI) | 0.2.0 | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
+| `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | 0.1.0 | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
+| `qnsp` (crates.io) | 0.1.0 | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
+
+The Python `qnsp` v0.2.0 currently exposes vault, kms, audit, crypto, and webhooks; the additional service modules (tenant, access, billing, crypto-inventory, storage, search) ship in v0.3.0 to match the Go and Rust v0.1.0 surface.
 
 ## Developer tooling
 
@@ -45,12 +64,12 @@ These packages are part of the public integration surface, but they are not the 
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `@qnsp/cli` | 0.1.11 | Command-line automation and CI/CD workflows |
-| `@qnsp/mcp-server` | 0.1.2 | Official MCP server for AI assistants using QNSP tools |
-| `@qnsp/sdk-activation` | 0.1.4 | Shared activation and entitlement bootstrap used by SDK packages |
-| `@qnsp/langchain-qnsp` | 0.1.5 | LangChain integration package |
-| `@qnsp/llamaindex-qnsp` | 0.2.4 | LlamaIndex integration package |
-| `@qnsp/autogen-qnsp` | 0.2.4 | AutoGen integration package |
+| `@qnsp/cli` | 0.1.12 | Command-line automation and CI/CD workflows |
+| `@qnsp/mcp-server` | 0.1.3 | Official MCP server for AI assistants using QNSP tools |
+| `@qnsp/sdk-activation` | 0.1.5 | Shared activation and entitlement bootstrap used by SDK packages |
+| `@qnsp/langchain-qnsp` | 0.1.7 | LangChain integration package |
+| `@qnsp/llamaindex-qnsp` | 0.2.5 | LlamaIndex integration package |
+| `@qnsp/autogen-qnsp` | 0.2.5 | AutoGen integration package |
 
 ## How SDKs fit into the migration journey
 
@@ -107,6 +126,23 @@ SDKs provide type-safe interfaces and consistent error handling. All SDKs includ
 ### Node.js
 ```bash
 pnpm install @qnsp/auth-sdk @qnsp/vault-sdk @qnsp/storage-sdk
+```
+
+### Python
+```bash
+pip install qnsp                # base
+pip install 'qnsp[crypto]'      # with local PQC primitives via liboqs-python
+```
+
+### Go
+```bash
+go get github.com/cuilabs/qnsp-public/sdks/go/qnsp@latest
+```
+
+### Rust
+```bash
+cargo add qnsp                  # base
+cargo add qnsp --features crypto   # with local PQC primitives via oqs 0.11
 ```
 
 ## Quick start

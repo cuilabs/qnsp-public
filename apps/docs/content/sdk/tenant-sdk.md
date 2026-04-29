@@ -1,7 +1,7 @@
 ---
 title: Tenant SDK (@qnsp/tenant-sdk)
-version: 0.4.0
-last_updated: 2026-04-23
+version: 0.3.6
+last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: Apache-2.0
 source_files:
@@ -10,7 +10,7 @@ source_files:
 
 # Tenant SDK (`@qnsp/tenant-sdk`)
 
-TypeScript client for `tenant-service`. Provides tenant lifecycle management, crypto policy configuration, health monitoring, quota management, and onboarding workflows.
+The TypeScript client for `tenant-service`; equivalent shapes ship in Python, Go, and Rust. Provides tenant lifecycle management, crypto policy configuration, health monitoring, quota management, and onboarding workflows.
 
 ## Install
 
