@@ -161,12 +161,14 @@ Customer-facing modules (every QNSP service callable through the edge gateway to
 - `qnsp/vault` — `CreateSecret`, `GetSecret`, `GetSecretVersion`, `RotateSecret`, `DeleteSecret`, `ListSecretVersions` — wraps `apps/vault-service`
 - `qnsp/kms` — `CreateKey`, `ListKeys`, `GetKey`, `RotateKey`, `DeleteKey`, `Sign`, `Verify`, `Wrap`, `Unwrap` — wraps `apps/kms-service`
 - `qnsp/audit` — `LogEvent`, `IngestEvents` (batch), `ListEvents` — wraps `apps/audit-service`
+- `qnsp/auth` — `Login`, `RefreshToken`, `Revoke`, WebAuthn passkey lifecycle, `MfaChallenge`/`MfaVerify`, `FederateSAML`/`FederateOIDC`, `EvaluateRisk` — wraps `apps/auth-service`
 - `qnsp/tenant` — `CreateTenant`, `GetTenant`, `UpdateTenant`, `ListTenants`, `GetCryptoPolicy`, `UpsertCryptoPolicy`, `GetCurrentHealth`, `GetCurrentQuotas` — wraps `apps/tenant-service`
 - `qnsp/access` — `CreateRole`, `GetRole`, `ListRoles`, `DeleteRole`, `AssignRole`, `RevokeRoleAssignment`, `CheckPermission` — wraps `apps/access-control-service`
 - `qnsp/billing` — `GetEntitlements`, `IngestMeter`, `IngestMeters`, `ListInvoices`, `GetInvoice`, `GetCreditBalance` — wraps `apps/billing-service`
 - `qnsp/cryptoinventory` — `ListAssets`, `GetAsset`, `GetAssetStats`, `DiscoverAssets`, `GetReadinessScore` — wraps `apps/crypto-inventory-service` (CBOM)
 - `qnsp/storage` — `PutObject`, `GetObject`, `DeleteObject`, `ListObjects`, `ListBuckets` — wraps `apps/storage-service` (SSE-X)
 - `qnsp/search` — `CreateIndex`, `ListIndexes`, `DeleteIndex`, `UpsertVectors`, `Query` — wraps `apps/search-service` (vector search)
+- `qnsp/ai` — `RegisterModel`, model lifecycle, `SubmitWorkload`, `InvokeInference`, `RegisterArtifact` — wraps `apps/ai-orchestrator`
 
 Local primitives + integration:
 

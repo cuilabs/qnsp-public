@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/cuilabs/qnsp-public/sdks/go/qnsp/access"
+	"github.com/cuilabs/qnsp-public/sdks/go/qnsp/ai"
 	"github.com/cuilabs/qnsp-public/sdks/go/qnsp/audit"
+	"github.com/cuilabs/qnsp-public/sdks/go/qnsp/auth"
 	"github.com/cuilabs/qnsp-public/sdks/go/qnsp/billing"
 	"github.com/cuilabs/qnsp-public/sdks/go/qnsp/cryptoinventory"
 	"github.com/cuilabs/qnsp-public/sdks/go/qnsp/kms"
@@ -33,12 +35,14 @@ type Client struct {
 	vault           *vault.Client
 	kms             *kms.Client
 	audit           *audit.Client
+	auth            *auth.Client
 	tenant          *tenant.Client
 	access          *access.Client
 	billing         *billing.Client
 	cryptoInventory *cryptoinventory.Client
 	storage         *storage.Client
 	search          *search.Client
+	ai              *ai.Client
 }
 
 // NewClient constructs a new QNSP client.
@@ -62,24 +66,28 @@ func NewClient(opts ClientOptions) (*Client, error) {
 		vault:           vault.New(act, httpClient, timeout),
 		kms:             kms.New(act, httpClient, timeout),
 		audit:           audit.New(act, httpClient, timeout),
+		auth:            auth.New(act, httpClient, timeout),
 		tenant:          tenant.New(act, httpClient, timeout),
 		access:          access.New(act, httpClient, timeout),
 		billing:         billing.New(act, httpClient, timeout),
 		cryptoInventory: cryptoinventory.New(act, httpClient, timeout),
 		storage:         storage.New(act, httpClient, timeout),
 		search:          search.New(act, httpClient, timeout),
+		ai:              ai.New(act, httpClient, timeout),
 	}, nil
 }
 
 func (c *Client) Vault() *vault.Client                     { return c.vault }
 func (c *Client) KMS() *kms.Client                         { return c.kms }
 func (c *Client) Audit() *audit.Client                     { return c.audit }
+func (c *Client) Auth() *auth.Client                       { return c.auth }
 func (c *Client) Tenant() *tenant.Client                   { return c.tenant }
 func (c *Client) Access() *access.Client                   { return c.access }
 func (c *Client) Billing() *billing.Client                 { return c.billing }
 func (c *Client) CryptoInventory() *cryptoinventory.Client { return c.cryptoInventory }
 func (c *Client) Storage() *storage.Client                 { return c.storage }
 func (c *Client) Search() *search.Client                   { return c.search }
+func (c *Client) AI() *ai.Client                           { return c.ai }
 
 // EnsureActivated forces the activation handshake to run now, surfacing
 // API-key errors at startup rather than on the first service call.

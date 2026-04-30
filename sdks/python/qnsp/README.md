@@ -61,6 +61,16 @@ with QnspClient(api_key=os.environ["QNSP_API_KEY"]) as qnsp:
         event_type="model.inference",
         payload={"modelId": "gpt-4o", "latencyMs": 412},
     )
+
+    # ── New in 0.3.0 — full parity with Go and Rust SDKs ────────────
+    qnsp.tenant.get_tenant(qnsp.tenant_id)
+    qnsp.access.check_permission(subject_id="user-1", permission="vault.read")
+    qnsp.billing.get_entitlements()
+    qnsp.crypto_inventory.get_readiness_score(qnsp.tenant_id)
+    qnsp.storage.put_object("uploads", "report.pdf", data=b"...")
+    qnsp.search.query("docs", vector=[0.1] * 768, top_k=5)
+    qnsp.ai.invoke_inference(model_id="gpt-4o", input={"prompt": "..."})
+    qnsp.auth.login(email="user@example.com", password="...", tenant_id=qnsp.tenant_id)
 ```
 
 ## Local PQC primitives
@@ -157,22 +167,33 @@ qnsp.has_feature("sseEnabled")  # convenience boolean
 
 If the activation token is rotated server-side, the SDK invalidates its cache and retries the originating request once on a 401.
 
-## What's covered today
+## What's covered today (v0.3.0 — full parity with Go and Rust SDKs)
 
-- `qnsp.crypto` — ML-KEM (512/768/1024), ML-DSA (44/65/87), SLH-DSA (8 variants), Falcon (512/1024), plus HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS — every FIPS 203/204/205 finalist and NIST round-2 additional signature exposed by liboqs 0.12.0
-- `qnsp.vault` — create, get, get-version, rotate, delete, list-versions
-- `qnsp.kms` — create-key, list-keys, get-key, rotate, delete, sign, verify, wrap, unwrap
-- `qnsp.audit` — log-event, ingest-events (batch), list-events
-- Webhook signature verification + typed event parsing
-- API-key activation with caching and 401 retry
+Customer-facing service modules — every QNSP service callable through the edge gateway:
+
+- `qnsp.vault` — secrets management (create / get / get-version / rotate / delete / list-versions)
+- `qnsp.kms` — server-side PQC keys (create / list / get / rotate / delete / sign / verify / wrap / unwrap)
+- `qnsp.audit` — immutable hash-chained event log (log-event / ingest-events / list-events)
+- `qnsp.auth` — login, refresh, revoke, WebAuthn passkeys, MFA, SAML/OIDC federation, risk-based auth
+- `qnsp.tenant` — tenant CRUD, crypto-policy management, current-health, current-quotas
+- `qnsp.access` — RBAC roles, role assignments, `check_permission`
+- `qnsp.billing` — entitlements, usage meters (single + batch), invoice listing, credit balance
+- `qnsp.crypto_inventory` — Cryptographic Bill of Materials: assets, discovery runs, PQC readiness
+- `qnsp.storage` — PQC-encrypted object storage with SSE-X
+- `qnsp.search` — encrypted vector search (index lifecycle, `upsert_vectors`, `query`)
+- `qnsp.ai` — model registry, AI workloads with enclave attestation, `invoke_inference`, artifacts
+
+Local primitives + integration:
+
+- `qnsp.crypto` (requires `qnsp[crypto]`) — ML-KEM (512/768/1024), ML-DSA (44/65/87), SLH-DSA (8 variants), Falcon (512/1024), plus HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS — every FIPS 203/204/205 finalist exposed by liboqs 0.12.0
+- `qnsp.parse_qnsp_webhook` / `qnsp.verify_qnsp_webhook_signature` — HMAC-SHA-256 verify + replay protection
+- `qnsp.QnspClient` — API-key activation with caching and 401 retry
 
 ## What's coming
 
-- Storage client (`qnsp.storage`) — PQC-encrypted object storage with SSE-X
-- Search client (`qnsp.search`) — encrypted vector search
-- Tenant client (`qnsp.tenant`) — for customers managing sub-tenants
-- AsyncClient variants of every method (using `httpx.AsyncClient`)
+- `AsyncQnspClient` — native-async variants using `httpx.AsyncClient`
 - A `pytest` plugin that mocks the QNSP API for tests in your codebase
+- Generated typed responses (currently `dict[str, Any]`) for every method
 
 ## License
 

@@ -20,17 +20,27 @@ from qnsp._activation import (
     DEFAULT_TIMEOUT_SECONDS,
     ApiKeyActivation,
 )
+from qnsp.access import AccessClient
+from qnsp.ai import AIClient
 from qnsp.audit import AuditClient
+from qnsp.auth import AuthClient
+from qnsp.billing import BillingClient
+from qnsp.crypto_inventory import CryptoInventoryClient
 from qnsp.kms import KmsClient
+from qnsp.search import SearchClient
+from qnsp.storage import StorageClient
+from qnsp.tenant import TenantClient
 from qnsp.vault import VaultClient
 
 
 class QnspClient:
     """End-user QNSP client. Pass an API key, get the full platform.
 
-    Holds one HTTP connection pool and one activation cache; the
-    sub-clients (``vault``, ``kms``, ``audit``) share both. ``QnspClient``
-    is reentrant as a context manager and will release its pool on exit.
+    Holds one HTTP connection pool and one activation cache; all 11
+    service sub-clients (vault, kms, audit, auth, tenant, access,
+    billing, crypto_inventory, storage, search, ai) share both.
+    ``QnspClient`` is reentrant as a context manager and releases the
+    pool on exit.
 
     Args:
         api_key: A ``qnsp_pqc_*`` API key from https://cloud.qnsp.cuilabs.io/api-keys.
@@ -56,15 +66,21 @@ class QnspClient:
             timeout=timeout,
             http_client=self._http,
         )
-        self.vault = VaultClient(
+
+        kw: dict[str, Any] = dict(
             activation=self._activation, http_client=self._http, timeout=timeout
         )
-        self.kms = KmsClient(
-            activation=self._activation, http_client=self._http, timeout=timeout
-        )
-        self.audit = AuditClient(
-            activation=self._activation, http_client=self._http, timeout=timeout
-        )
+        self.vault = VaultClient(**kw)
+        self.kms = KmsClient(**kw)
+        self.audit = AuditClient(**kw)
+        self.auth = AuthClient(**kw)
+        self.tenant = TenantClient(**kw)
+        self.access = AccessClient(**kw)
+        self.billing = BillingClient(**kw)
+        self.crypto_inventory = CryptoInventoryClient(**kw)
+        self.storage = StorageClient(**kw)
+        self.search = SearchClient(**kw)
+        self.ai = AIClient(**kw)
 
     # ── activation introspection ─────────────────────────────────────────
 

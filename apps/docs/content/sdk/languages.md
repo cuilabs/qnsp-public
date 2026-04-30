@@ -114,16 +114,18 @@ All four SDKs cover the same set of customer-facing services. Module names diffe
 | Vault (`/vault/v1`) | `@qnsp/vault-sdk` | `qnsp.vault` | `qnsp/vault` | `qnsp::vault` |
 | KMS (`/kms/v1`) | `@qnsp/kms-client` | `qnsp.kms` | `qnsp/kms` | `qnsp::kms` |
 | Audit (`/audit/v1`) | `@qnsp/audit-sdk` | `qnsp.audit` | `qnsp/audit` | `qnsp::audit` |
-| Tenant (`/tenant/v1`) | `@qnsp/tenant-sdk` | _(roadmap)_ | `qnsp/tenant` | `qnsp::tenant` |
-| Access (`/access/v1`) | `@qnsp/access-control-sdk` | _(roadmap)_ | `qnsp/access` | `qnsp::access` |
-| Billing (`/billing/v1`) | `@qnsp/billing-sdk` | _(roadmap)_ | `qnsp/billing` | `qnsp::billing` |
-| Crypto Inventory (`/crypto/v1`) | `@qnsp/crypto-inventory-sdk` | _(roadmap)_ | `qnsp/cryptoinventory` | `qnsp::crypto_inventory` |
-| Storage (`/storage/storage/v1`) | `@qnsp/storage-sdk` | _(roadmap)_ | `qnsp/storage` | `qnsp::storage` |
-| Search (`/search/v1`) | `@qnsp/search-sdk` | _(roadmap)_ | `qnsp/search` | `qnsp::search` |
+| Auth (`/auth/v1`) | `@qnsp/auth-sdk` | `qnsp.auth` | `qnsp/auth` | `qnsp::auth` |
+| Tenant (`/tenant/v1`) | `@qnsp/tenant-sdk` | `qnsp.tenant` | `qnsp/tenant` | `qnsp::tenant` |
+| Access (`/access/v1`) | `@qnsp/access-control-sdk` | `qnsp.access` | `qnsp/access` | `qnsp::access` |
+| Billing (`/billing/v1`) | `@qnsp/billing-sdk` | `qnsp.billing` | `qnsp/billing` | `qnsp::billing` |
+| Crypto Inventory (`/crypto/v1`) | `@qnsp/crypto-inventory-sdk` | `qnsp.crypto_inventory` | `qnsp/cryptoinventory` | `qnsp::crypto_inventory` |
+| Storage (`/storage/storage/v1`) | `@qnsp/storage-sdk` | `qnsp.storage` | `qnsp/storage` | `qnsp::storage` |
+| Search (`/search/v1`) | `@qnsp/search-sdk` | `qnsp.search` | `qnsp/search` | `qnsp::search` |
+| AI Orchestrator (`/ai/v1`) | `@qnsp/ai-sdk` | `qnsp.ai` | `qnsp/ai` | `qnsp::ai` |
 | Local PQC primitives | `@qnsp/cryptography` (via `@cuilabs/liboqs-native`) | `qnsp.crypto` (via `liboqs-python`) | `qnsp/crypto` (via `liboqs-go`) | `qnsp::crypto` (via `oqs` 0.11) |
 | Webhook signature verify + parse | per-service | `qnsp.parse_qnsp_webhook` | `qnsp.ParseWebhook` | `qnsp::parse_webhook` |
 
-The Python `qnsp` package currently exposes vault / kms / audit / crypto / webhooks at v0.2.0; the additional service modules (tenant, access, billing, crypto-inventory, storage, search) are scheduled for v0.3.0 to match the Go and Rust v0.1.0 surface.
+All four SDKs ship the same **11 customer-facing service modules** plus local PQC primitives and webhook verification. The Python SDK at v0.3.0 (2026-04-30) reached parity with the Go and Rust v0.2.0 surface; all three single-package families now match the TypeScript per-service split byte-for-byte on the wire.
 
 ## Activation
 

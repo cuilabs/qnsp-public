@@ -27,7 +27,7 @@ ACTIVATION_PATH = "/billing/v1/sdk/activate"
 DEFAULT_TIMEOUT_SECONDS = 15.0
 EXPIRY_BUFFER_SECONDS = 60.0
 SDK_ID = "qnsp-python"
-SDK_VERSION = "0.2.0"
+SDK_VERSION = "0.3.0"
 
 
 @dataclass(frozen=True)

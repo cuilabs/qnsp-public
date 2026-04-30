@@ -164,12 +164,14 @@ Customer-facing modules (every QNSP service callable through the edge gateway to
 - `qnsp::vault` — `create_secret`, `get_secret`, `get_secret_version`, `rotate_secret`, `delete_secret`, `list_secret_versions` — wraps `apps/vault-service`
 - `qnsp::kms` — `create_key`, `list_keys`, `get_key`, `rotate_key`, `delete_key`, `sign`, `verify`, `wrap`, `unwrap_` — wraps `apps/kms-service`
 - `qnsp::audit` — `log_event`, `ingest_events` (batch), `list_events` — wraps `apps/audit-service`
+- `qnsp::auth` — `login`, `refresh_token`, `revoke`, WebAuthn passkey lifecycle, `mfa_challenge`/`mfa_verify`, `federate_saml`/`federate_oidc`, `evaluate_risk` — wraps `apps/auth-service`
 - `qnsp::tenant` — `create_tenant`, `get_tenant`, `update_tenant`, `list_tenants`, `get_crypto_policy`, `upsert_crypto_policy`, `get_current_health`, `get_current_quotas` — wraps `apps/tenant-service`
 - `qnsp::access` — `create_role`, `get_role`, `list_roles`, `delete_role`, `assign_role`, `revoke_role_assignment`, `check_permission` — wraps `apps/access-control-service`
 - `qnsp::billing` — `get_entitlements`, `ingest_meter`, `ingest_meters`, `list_invoices`, `get_invoice`, `get_credit_balance` — wraps `apps/billing-service`
 - `qnsp::crypto_inventory` — `list_assets`, `get_asset`, `get_asset_stats`, `discover_assets`, `get_readiness_score` — wraps `apps/crypto-inventory-service` (CBOM)
 - `qnsp::storage` — `put_object`, `get_object`, `delete_object`, `list_objects`, `list_buckets` — wraps `apps/storage-service` (SSE-X)
 - `qnsp::search` — `create_index`, `list_indexes`, `delete_index`, `upsert_vectors`, `query` — wraps `apps/search-service` (vector search)
+- `qnsp::ai` — `register_model`, model lifecycle, `submit_workload`, `invoke_inference`, `register_artifact` — wraps `apps/ai-orchestrator`
 
 Local primitives + integration:
 

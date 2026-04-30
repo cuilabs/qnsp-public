@@ -11,7 +11,7 @@ import (
 // SDK identity reported in the activation handshake.
 const (
 	sdkID      = "qnsp-go"
-	sdkVersion = "0.1.0"
+	sdkVersion = "0.2.0"
 )
 
 func init() {

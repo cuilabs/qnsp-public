@@ -2,6 +2,20 @@
 
 All notable changes to the QNSP Go SDK (`github.com/cuilabs/qnsp-public/sdks/go/qnsp`) will be documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project follows [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] — 2026-04-30
+
+**Full-parity release.** Adds the two customer-facing service modules that were missing in 0.1.0, bringing the Go SDK to feature parity with the TypeScript family (11 service modules total).
+
+### Added
+
+- `qnsp/auth` — `*Client` with `Login`, `RefreshToken`, `Revoke`, WebAuthn passkey lifecycle (register/authenticate start+complete, list, delete), `MfaChallenge`/`MfaVerify`, `FederateSAML`/`FederateOIDC`, `EvaluateRisk`, `ListRiskPolicies`. Wraps `apps/auth-service` (`/auth/v1`).
+- `qnsp/ai` — `*Client` with model registry (`RegisterModel`, `ListModels`, `GetModel`, `UpdateModel`, `ActivateModel`, `DeployModel`), workloads (`SubmitWorkload`, `GetWorkload`, `ListWorkloads`, `CancelWorkload`) with enclave-attestation metadata, `InvokeInference`, `RegisterArtifact`. Wraps `apps/ai-orchestrator` (`/ai/v1`).
+- Top-level `Client.Auth()` and `Client.AI()` accessors.
+
+### Changed
+
+- Activation handshake reports `sdkVersion="0.2.0"` (was `0.1.0`).
+
 ## [0.1.0] — 2026-04-30
 
 Initial release. The SDK is general-purpose — every QNSP customer uses the same shape, with no per-partner namespaces.

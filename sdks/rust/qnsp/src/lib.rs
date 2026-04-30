@@ -43,7 +43,9 @@ mod service_client;
 mod webhooks;
 
 pub mod access;
+pub mod ai;
 pub mod audit;
+pub mod auth;
 pub mod billing;
 pub mod crypto_inventory;
 pub mod kms;
@@ -140,6 +142,12 @@ impl Client {
         audit::Client::new(self.activation.clone(), self.http.clone())
     }
 
+    /// Auth subclient — login, refresh, WebAuthn passkeys, MFA, SAML/OIDC,
+    /// risk-based authentication.
+    pub fn auth(&self) -> auth::Client {
+        auth::Client::new(self.activation.clone(), self.http.clone())
+    }
+
     /// Tenant subclient — tenant CRUD, crypto-policy management,
     /// onboarding, quotas, health.
     pub fn tenant(&self) -> tenant::Client {
@@ -169,6 +177,12 @@ impl Client {
     /// Search subclient — encrypted vector search.
     pub fn search(&self) -> search::Client {
         search::Client::new(self.activation.clone(), self.http.clone())
+    }
+
+    /// AI subclient — model registry, AI workloads with enclave
+    /// attestation, inference, bias / prompt-injection monitoring.
+    pub fn ai(&self) -> ai::Client {
+        ai::Client::new(self.activation.clone(), self.http.clone())
     }
 
     /// Force the activation handshake to run now. Surfaces invalid-API-key

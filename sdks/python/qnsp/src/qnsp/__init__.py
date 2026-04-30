@@ -55,8 +55,16 @@ from qnsp._errors import (
     QnspNetworkError,
     QnspWebhookError,
 )
+from qnsp.access import AccessClient
+from qnsp.ai import AIClient
 from qnsp.audit import AuditClient
+from qnsp.auth import AuthClient
+from qnsp.billing import BillingClient
+from qnsp.crypto_inventory import CryptoInventoryClient
 from qnsp.kms import KmsClient
+from qnsp.search import SearchClient
+from qnsp.storage import StorageClient
+from qnsp.tenant import TenantClient
 from qnsp.vault import VaultClient
 from qnsp.webhooks import (
     QnspWebhookEvent,
@@ -64,10 +72,15 @@ from qnsp.webhooks import (
     verify_qnsp_webhook_signature,
 )
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
+    "AccessClient",
+    "AIClient",
     "AuditClient",
+    "AuthClient",
+    "BillingClient",
+    "CryptoInventoryClient",
     "KmsClient",
     "QnspApiError",
     "QnspAuthError",
@@ -76,6 +89,9 @@ __all__ = [
     "QnspNetworkError",
     "QnspWebhookError",
     "QnspWebhookEvent",
+    "SearchClient",
+    "StorageClient",
+    "TenantClient",
     "VaultClient",
     "parse_qnsp_webhook",
     "verify_qnsp_webhook_signature",
