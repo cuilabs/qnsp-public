@@ -10,30 +10,37 @@ QNSP ships first-party SDKs for **TypeScript / Node.js**, **Python**, **Go**, an
 
 | Language | Package | Where it lives | Activation SDK ID |
 |---|---|---|---|
-| TypeScript / Node.js | `@qnsp/*` (per-service) and `@qnsp/browser-sdk` | [`packages/`](https://github.com/cuilabs/qnsp-public/tree/main/packages) | `vault-sdk`, `kms-client`, etc. |
+| TypeScript / Node.js | `@qnsp/qnsp` (single package) | [`packages/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/packages/qnsp) | `qnsp` |
 | Python | `qnsp` (single package) | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
 | Go | `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
 | Rust | `qnsp` on crates.io | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
 
+> **TypeScript SDK consolidated 2026-04-30.** The previous 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@qnsp/qnsp`. They continue to install and work, but new code should use the unified package. See [migration guide](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks).
+
 ## Node.js / TypeScript
 
-The original SDK family. Per-service packages give you fine-grained dependency control:
+Single `@qnsp/qnsp` package on npm:
 
 ```bash
-pnpm add @qnsp/auth-sdk @qnsp/vault-sdk @qnsp/kms-client @qnsp/audit-sdk
+pnpm add @qnsp/qnsp
 ```
 
-For browser apps use `@qnsp/browser-sdk`, which wraps the per-service clients into a single shape that matches the Python / Go / Rust SDKs.
-
 ```typescript
-import { AuthClient } from "@qnsp/auth-sdk";
+import { QnspClient } from "@qnsp/qnsp";
+
+const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+await qnsp.vault.createSecret({ name: "openai-key", payloadB64: "..." });
+const key = await qnsp.kms.createKey({ algorithm: "ml-dsa-65", purpose: "signing" });
+await qnsp.audit.logEvent({ eventType: "model.inference", payload: { modelId: "gpt-4o" } });
 ```
 
 - TypeScript native, strict mode
-- ESM (CommonJS via dynamic import)
-- Node.js ≥ 24.12.0 (matches monorepo Volta pin)
+- ESM (CommonJS consumers can `await import("@qnsp/qnsp")`)
+- Node.js ≥ 22.0.0
+- One activation handshake on first call, shared across all 11 sub-clients
+- One `npm install` line, one version, one CHANGELOG, one telemetry surface
 
-See the [Node.js page](./node/README.md) for full quick-start.
+For browser apps, `@qnsp/browser-sdk` is still the right choice (it bundles the noble PQC primitives for client-side use). The per-service `@qnsp/*-sdk` packages on npm are deprecated as of 2026-04-30 — they continue to install but are no longer the recommended entry point. See the [Node.js page](./node/README.md) for full quick-start and migration details.
 
 ## Python
 

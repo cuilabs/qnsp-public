@@ -1,18 +1,18 @@
 {
-	"name": "@qnsp/sdk-activation",
-	"version": "0.1.7",
+	"name": "@qnsp/qnsp",
+	"version": "0.1.0",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
-	"description": "SDK activation and usage metering for QNSP platform SDKs. Ensures all SDK usage is tied to a registered QNSP account.",
+	"description": "Official Node.js / TypeScript SDK for the QNSP Quantum-Native Security Platform. Single package covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, ai-orchestrator + local PQC primitives + webhook verification. Mirrors the qnsp Python / Go / Rust SDK surface byte-for-byte.",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
+			"import": "./dist/index.js"
 		},
 		"./package.json": "./package.json"
 	},
@@ -23,7 +23,7 @@
 		"typecheck": "tsc --project tsconfig.json --noEmit"
 	},
 	"dependencies": {
-		"zod": "^4.3.6"
+		"@qnsp/sdk-activation": "workspace:*"
 	},
 	"devDependencies": {
 		"@types/node": "^25.5.2",
@@ -36,25 +36,39 @@
 	"keywords": [
 		"qnsp",
 		"sdk",
-		"activation",
-		"metering",
-		"pqc",
 		"post-quantum",
-		"post-quantum-cryptography",
-		"cryptography",
-		"api-key",
-		"free-tier",
+		"pqc",
+		"vault",
+		"kms",
+		"audit",
+		"auth",
+		"tenant",
+		"billing",
+		"storage",
+		"search",
+		"ai",
+		"ml-kem",
+		"ml-dsa",
+		"slh-dsa",
+		"fips-203",
+		"fips-204",
+		"fips-205",
 		"quantum-safe",
-		"typescript",
-		"nodejs"
+		"zero-trust"
 	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/cuilabs/qnsp-public",
-		"directory": "packages/sdk-activation"
+		"directory": "packages/qnsp"
 	},
 	"homepage": "https://cloud.qnsp.cuilabs.io",
 	"bugs": {
 		"url": "https://github.com/cuilabs/qnsp-public/issues"
-	}
+	},
+	"files": [
+		"dist/**/*",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	]
 }
