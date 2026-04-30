@@ -21,42 +21,41 @@ source_files:
 
 QNSP provides official SDKs in **four languages** — TypeScript/Node.js, Python, Go, and Rust — all built on the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture. Pick whichever fits your stack and the byte-for-byte outputs round-trip across languages.
 
-The TypeScript family ships per-service packages (`@qnsp/vault-sdk`, `@qnsp/kms-client`, …) for fine-grained dependency control; the Python, Go, and Rust SDKs each ship as a single package with sub-modules per service. See [Supported Languages](./languages) for the comparison matrix.
+As of **2026-04-30**, all four language families ship as a **single package per language** with the same 11-service surface. The 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@qnsp/qnsp` (they continue to install but are no longer the recommended entry point). See [Supported Languages](./languages) for the full feature matrix and [the @qnsp/qnsp README](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks) for the import-by-import migration guide.
 
-The service SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
+The SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
 
 For migration work, the SDKs are the application cutover surface. Discovery typically starts with cloud/API connectors or QNSP agents, but migration is only complete when production trust calls move onto QNSP SDKs, APIs, or governed platform services.
 
-## TypeScript / Node.js service SDKs
+## Single-package SDKs (recommended for all four languages)
 
-Per-service packages, sourced from `packages/*/package.json`:
+| Language | Package | Version | Source | Activation `sdkId` |
+|---|---|---|---|---|
+| TypeScript / Node.js | [`@qnsp/qnsp`](https://www.npmjs.com/package/@qnsp/qnsp) | 0.1.0 | [`packages/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/packages/qnsp) | `qnsp` |
+| Python | [`qnsp`](https://pypi.org/project/qnsp/) | 0.3.0 | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
+| Go | `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | 0.2.0 | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
+| Rust | [`qnsp`](https://crates.io/crates/qnsp) | 0.2.0 | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| `@qnsp/auth-sdk` | 0.3.6 | Authentication, risk-based auth, federated audit, WebAuthn, MFA, PQC signatures |
-| `@qnsp/vault-sdk` | 0.3.9 | Secret management, dynamic secrets, leakage detection, versioned secrets, PQC metadata |
-| `@qnsp/kms-client` | 0.2.6 | KMS key operations, BYOHSM, key escrow, usage analytics, crypto agility |
-| `@qnsp/storage-sdk` | 0.3.6 | Storage client with data classification, retention policies, cross-region replication |
-| `@qnsp/audit-sdk` | 0.3.6 | Audit client with real-time streaming, retention automation, conformance results |
-| `@qnsp/access-control-sdk` | 0.3.6 | Policy simulation, JIT access management, cross-tenant analysis |
-| `@qnsp/billing-sdk` | 0.2.6 | Billing client with revenue analytics, usage forecasting, dunning, credit system |
-| `@qnsp/search-sdk` | 0.2.10 | Search client with query analytics, synonym management, multi-tenant isolation |
-| `@qnsp/tenant-sdk` | 0.3.6 | Tenant client with health dashboard, quota forecasting, onboarding automation |
-| `@qnsp/ai-sdk` | 0.1.11 | AI SDK with model registry, cost optimization, bias monitoring, prompt injection detection |
-| `@qnsp/crypto-inventory-sdk` | 0.3.6 | Certificate lifecycle, algorithm deprecation, hardware inventory, PQC readiness |
-| `@qnsp/browser-sdk` | 0.1.4 | Browser-side PQC encryption, signing, and key management (ML-KEM, ML-DSA, SLH-DSA) |
+Each package exposes the same 11 service modules — vault, kms, audit, auth, tenant, access, billing, crypto-inventory, storage, search, ai — plus webhook signature verification and (where the language supports it) local PQC primitives via the language's liboqs binding.
 
-## Single-package SDKs (Python, Go, Rust)
+## Deprecated TypeScript per-service packages
 
-Each language ships one package with nine sub-modules covering the same customer-facing service surface. These wrap the same backend services as the TypeScript family above; the wire contracts and algorithm names are byte-identical.
+These were the original split before consolidation. They remain installable for transitional purposes; new code should use `@qnsp/qnsp` directly.
 
-| Package | Version | Source | Activation `sdkId` |
-|---|---|---|---|
-| `qnsp` (PyPI) | 0.2.0 | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
-| `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | 0.1.0 | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
-| `qnsp` (crates.io) | 0.1.0 | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
-
-The Python `qnsp` v0.2.0 currently exposes vault, kms, audit, crypto, and webhooks; the additional service modules (tenant, access, billing, crypto-inventory, storage, search) ship in v0.3.0 to match the Go and Rust v0.1.0 surface.
+| Package | Last version | Status |
+|---------|---|---|
+| `@qnsp/auth-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.auth` |
+| `@qnsp/vault-sdk` | 0.3.9 | Deprecated → `@qnsp/qnsp.vault` |
+| `@qnsp/kms-client` | 0.2.6 | Deprecated → `@qnsp/qnsp.kms` |
+| `@qnsp/storage-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.storage` |
+| `@qnsp/audit-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.audit` |
+| `@qnsp/access-control-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.access` |
+| `@qnsp/billing-sdk` | 0.2.6 | Deprecated → `@qnsp/qnsp.billing` |
+| `@qnsp/search-sdk` | 0.2.10 | Deprecated → `@qnsp/qnsp.search` |
+| `@qnsp/tenant-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.tenant` |
+| `@qnsp/ai-sdk` | 0.1.11 | Deprecated → `@qnsp/qnsp.ai` |
+| `@qnsp/crypto-inventory-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.cryptoInventory` |
+| `@qnsp/browser-sdk` | 0.1.4 | **Not deprecated** — browser-side PQC primitives, distinct purpose from `@qnsp/qnsp` (which is Node.js-only) |
 
 ## Developer tooling
 
@@ -125,7 +124,7 @@ SDKs provide type-safe interfaces and consistent error handling. All SDKs includ
 
 ### Node.js
 ```bash
-pnpm install @qnsp/auth-sdk @qnsp/vault-sdk @qnsp/storage-sdk
+pnpm add @qnsp/qnsp
 ```
 
 ### Python
@@ -147,30 +146,47 @@ cargo add qnsp --features crypto   # with local PQC primitives via oqs 0.11
 
 ## Quick start
 
-```javascript
-import { AuthClient } from "@qnsp/auth-sdk";
-import { VaultClient } from "@qnsp/vault-sdk";
+```typescript
+import { QnspClient } from "@qnsp/qnsp";
 
-const auth = new AuthClient({
-	baseUrl: "https://api.qnsp.cuilabs.io",
-	apiKey: process.env.QNSP_API_KEY,
-});
-const token = await auth.login({
+const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+
+// One activation handshake on first call, shared across all 11 sub-clients
+
+await qnsp.auth.login({
 	email: "user@example.com",
 	password: "<password>",
 	tenantId: "<tenant_uuid>",
 });
 
-const vault = new VaultClient({
-	baseUrl: "https://api.qnsp.cuilabs.io/proxy/vault",
-	apiKey: token.accessToken,
+await qnsp.vault.createSecret({
+	name: "example-secret",
+	payloadB64: Buffer.from("<plaintext>").toString("base64"),
 });
 
-await vault.createSecret({
-	tenantId: "<tenant_uuid>",
-	name: "example-secret",
-	payload: "<base64_payload>",
-});
+await qnsp.kms.createKey({ algorithm: "ml-dsa-65", purpose: "signing" });
+await qnsp.audit.logEvent({ eventType: "model.inference", payload: { modelId: "gpt-4o" } });
+```
+
+Same shape in Python, Go, and Rust:
+
+```python
+# Python
+from qnsp import QnspClient
+with QnspClient(api_key=os.environ["QNSP_API_KEY"]) as q:
+    q.vault.create_secret(name="example-secret", payload_b64="...")
+```
+
+```go
+// Go
+c, _ := qnsp.NewClient(qnsp.ClientOptions{APIKey: os.Getenv("QNSP_API_KEY")})
+c.Vault().CreateSecret(ctx, vault.CreateSecretRequest{Name: "example-secret", PayloadB64: "..."}, "")
+```
+
+```rust
+// Rust
+let c = qnsp::Client::new(qnsp::ClientOptions::with_api_key(std::env::var("QNSP_API_KEY")?))?;
+c.vault().create_secret(qnsp::vault::CreateSecretRequest { name: "example-secret".into(), payload_b64: "...".into(), algorithm: None, metadata: None }, None).await?;
 ```
 
 ## Authentication model for SDK consumers
