@@ -1,9 +1,9 @@
 ---
 title: "Quickstart"
-description: "Get started with QNSP in under 10 minutes — create a tenant, obtain an API token, and make your first secure API call."
-version: 0.0.2
-last_updated: 2026-04-23
-copyright: © 2025 CUI Labs. All rights reserved.
+description: "Get started with QNSP in under 10 minutes — create a tenant, obtain an API token, and make your first secure API call from TypeScript, Python, Go, or Rust."
+version: 0.2.0
+last_updated: 2026-04-30
+copyright: © 2025-2026 CUI Labs. All rights reserved.
 license: BSL-1.1
 ---
 # Quickstart
@@ -45,14 +45,13 @@ A `200 OK` with an empty `data` array confirms authentication is working.
 
 ## 4. Install an SDK (optional)
 
-Pick the SDK for your language:
+Pick the SDK for your language. All four families share the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture — outputs round-trip across languages byte-for-byte.
+
+### TypeScript / Node.js
 
 ```bash
-# Node.js / TypeScript
-npm install @qnsp/vault-sdk @qnsp/auth-sdk
-
-# CLI (for scripting and CI)
-npm install -g @qnsp/cli
+pnpm add @qnsp/vault-sdk @qnsp/auth-sdk
+pnpm add -g @qnsp/cli      # CLI for scripting / CI
 ```
 
 ```typescript
@@ -67,10 +66,78 @@ const secret = await vault.createSecret({ name: "db-password", value: "s3cr3t" }
 console.log(secret.id);
 ```
 
+### Python
+
+```bash
+pip install qnsp
+# Optional: local PQC primitives via liboqs-python
+pip install 'qnsp[crypto]'
+```
+
+```python
+import os, base64
+from qnsp import QnspClient
+
+with QnspClient(api_key=os.environ["QNSP_API_KEY"]) as q:
+    secret = q.vault.create_secret(
+        name="db-password",
+        payload_b64=base64.b64encode(b"s3cr3t").decode(),
+    )
+    print(secret["id"])
+```
+
+### Go
+
+```bash
+go get github.com/cuilabs/qnsp-public/sdks/go/qnsp@latest
+```
+
+```go
+import (
+    "context"
+    "encoding/base64"
+    "os"
+
+    "github.com/cuilabs/qnsp-public/sdks/go/qnsp"
+    "github.com/cuilabs/qnsp-public/sdks/go/qnsp/vault"
+)
+
+c, _ := qnsp.NewClient(qnsp.ClientOptions{APIKey: os.Getenv("QNSP_API_KEY")})
+defer c.Close()
+
+secret, _ := c.Vault().CreateSecret(context.Background(), vault.CreateSecretRequest{
+    Name:       "db-password",
+    PayloadB64: base64.StdEncoding.EncodeToString([]byte("s3cr3t")),
+}, "")
+```
+
+### Rust
+
+```bash
+cargo add qnsp
+# Optional: local PQC primitives via the oqs 0.11 crate
+cargo add qnsp --features crypto
+```
+
+```rust
+use base64::{engine::general_purpose::STANDARD, Engine};
+use qnsp::{Client, ClientOptions};
+use qnsp::vault::CreateSecretRequest;
+
+let c = Client::new(ClientOptions::with_api_key(std::env::var("QNSP_API_KEY")?))?;
+let secret = c.vault().create_secret(CreateSecretRequest {
+    name: "db-password".into(),
+    payload_b64: STANDARD.encode(b"s3cr3t"),
+    algorithm: None,
+    metadata: None,
+}, None).await?;
+```
+
 ## Next Steps
 
 - [API Reference](./api) — Full endpoint listing
-- [SDK Overview](./sdk/overview) — All available SDKs
+- [SDK Overview](./sdk/overview) — All available SDKs across four languages
+- [Supported Languages](./sdk/languages) — Feature matrix: TypeScript / Python / Go / Rust
 - [MCP Server](./sdk/mcp-server) — Connect AI assistants to QNSP
 - [Getting Started Guide](./getting-started/overview) — Deeper walkthrough including auth flows
 - [cURL Quickstart](./getting-started/quickstart-curl) — Step-by-step API calls without an SDK

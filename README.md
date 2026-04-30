@@ -5,7 +5,10 @@ This repository is an automatically published subset of the private QNSP monorep
 Included:
 
 - Documentation markdown content: `apps/docs/content/`
-- Public SDK and CLI sources under `packages/` (Apache-2.0 licensed per package)
+- Public TypeScript SDK and CLI sources under `packages/` (Apache-2.0 licensed per package)
+- Python SDK source under `sdks/python/qnsp/` (published to PyPI as `qnsp`)
+- Go SDK source under `sdks/go/qnsp/` (consumed via `go get github.com/cuilabs/qnsp-public/sdks/go/qnsp`)
+- Rust SDK source under `sdks/rust/qnsp/` (published to crates.io as `qnsp`)
 
 Excluded:
 
@@ -15,5 +18,5 @@ Excluded:
 
 Source revision:
 
-- `80c571bb181378b9996eb5aa9589b4a2c3eeb3e2`
+- `7a46efd3f78441989d4d07b29b46bb41d37ca2b2`
 
