@@ -180,4 +180,4 @@ No data is cached locally; every call is a round-trip to your tenant.
 - **Pricing:** <https://qnsp.cuilabs.io/pricing>
 - **Issues:** <https://github.com/cuilabs/qnsp-public/issues>
 
-Apache-2.0 © CUI LABS PTE LTD.
+Apache-2.0 © CUI LABS (PTE.) LTD.

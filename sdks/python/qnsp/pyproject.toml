@@ -10,7 +10,7 @@ readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.10"
 authors = [
-  { name = "CUI Labs Pte. Ltd.", email = "engineering@cuilabs.io" },
+  { name = "CUI LABS (PTE.) LTD.", email = "engineering@cuilabs.io" },
 ]
 keywords = [
   "qnsp",
