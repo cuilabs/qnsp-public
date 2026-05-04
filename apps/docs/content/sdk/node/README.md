@@ -1,77 +1,111 @@
 ---
 title: Node.js SDK
-version: 0.0.1
-last_updated: 2026-04-23
-copyright: © 2025 CUI Labs. All rights reserved.
+version: 0.1.0
+last_updated: 2026-05-05
+copyright: © 2026 CUI Labs. All rights reserved.
 ---
 # Node.js SDK
 
-QNSP provides per-service TypeScript SDK packages for Node.js.
+The official QNSP TypeScript / Node.js SDK ships as a single package — `@qnsp/qnsp` — covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, and ai-orchestrator, plus webhook signature verification. It mirrors the `qnsp` Python / Go / Rust SDKs byte-for-byte over the same wire contracts.
 
 ## Installation
 
 ```bash
-pnpm install @qnsp/auth-sdk @qnsp/vault-sdk @qnsp/storage-sdk
+pnpm add @qnsp/qnsp
 ```
 
-For users who prefer npm or yarn, these are also supported:
+npm and yarn are also supported:
 
 ```bash
-npm install @qnsp/auth-sdk @qnsp/vault-sdk @qnsp/storage-sdk
+npm install @qnsp/qnsp
 # or
-yarn add @qnsp/auth-sdk @qnsp/vault-sdk @qnsp/storage-sdk
+yarn add @qnsp/qnsp
 ```
 
 ## Requirements
 
-- Node.js 24.12.0
+- Node.js 22 or later (the workspace is pinned to 24.14.0 via Volta)
 - TypeScript 5.0+ (optional but recommended)
 
 ## Quick start
 
 ```typescript
-import { AuthClient } from "@qnsp/auth-sdk";
-import { VaultClient } from "@qnsp/vault-sdk";
+import { QnspClient } from "@qnsp/qnsp";
 
-const auth = new AuthClient({
-	baseUrl: process.env["QNSP_AUTH_SERVICE_URL"] ?? "http://localhost:8081",
-	apiKey: process.env["QNSP_API_KEY"] ?? "",
+const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+
+// Vault — store a PQC-encrypted secret
+const secret = await qnsp.vault.createSecret({
+  name: "openai-api-key",
+  payloadB64: Buffer.from("sk-...").toString("base64"),
+  algorithm: "ml-kem-768",
 });
 
-const token = await auth.login({
-	email: "user@example.com",
-	password: "<password>",
-	tenantId: "<tenant_uuid>",
-});
+// KMS — generate a signing key and sign
+const key = await qnsp.kms.createKey({ algorithm: "ml-dsa-65", purpose: "signing" });
+const signature = await qnsp.kms.sign(key.keyId, new TextEncoder().encode("hello"));
 
-const vault = new VaultClient({
-	baseUrl: process.env["QNSP_VAULT_SERVICE_URL"] ?? "http://localhost:8090",
-	apiKey: token.accessToken,
-});
-
-const secret = await vault.createSecret({
-	tenantId: "<tenant_uuid>",
-	name: "example-secret",
-	payload: "<base64_payload>",
+// Audit — emit a tamper-evident event
+await qnsp.audit.logEvent({
+  eventType: "model.inference",
+  payload: { modelId: "gpt-4o", latencyMs: 412 },
 });
 ```
 
+Get a free API key at <https://cloud.qnsp.cuilabs.io/auth>.
+
 ## TypeScript support
 
-Full TypeScript support with generated types:
+The package ships full TypeScript types; no separate `@types/*` install is needed.
 
 ```typescript
-import type { TokenPair } from "@qnsp/auth-sdk";
+import type { QnspClientOptions, CreateSecretRequest } from "@qnsp/qnsp";
 ```
 
 ## ESM and CommonJS
 
-SDK packages are published as ESM.
+`@qnsp/qnsp` is published as ESM. CommonJS consumers can use a dynamic import:
 
 ```javascript
 // ESM
-import { AuthClient } from "@qnsp/auth-sdk";
+import { QnspClient } from "@qnsp/qnsp";
 
-// CommonJS (Node): use dynamic import
-const { AuthClient } = await import("@qnsp/auth-sdk");
+// CommonJS — dynamic import only
+const { QnspClient } = await import("@qnsp/qnsp");
 ```
+
+## Sub-clients
+
+`QnspClient` exposes one sub-client per backend service:
+
+| Sub-client            | Surface                                                |
+|-----------------------|--------------------------------------------------------|
+| `qnsp.vault`          | Secret storage, versioning, rotation                   |
+| `qnsp.kms`            | PQC key generation, sign, verify, wrap, unwrap         |
+| `qnsp.audit`          | Append events, query the chain, fetch evidence packs   |
+| `qnsp.auth`           | Login, refresh, revoke, WebAuthn, PAT                  |
+| `qnsp.tenant`         | Provision tenants, manage crypto policy                |
+| `qnsp.access`         | RBAC roles, permissions, assignments                   |
+| `qnsp.billing`        | Subscriptions, entitlements, meters                    |
+| `qnsp.cryptoInventory`| CBOM / cryptographic asset inventory                   |
+| `qnsp.storage`        | PQC-encrypted object storage                           |
+| `qnsp.search`         | Vector search with SSE-X                               |
+| `qnsp.ai`             | AI orchestration, enclave inference                    |
+
+All sub-clients share the same `apiKey`, telemetry, and retry configuration.
+
+## Webhook signature verification
+
+```typescript
+import { verifyWebhookSignature } from "@qnsp/qnsp";
+
+const isValid = verifyWebhookSignature({
+  payload: rawBody,
+  signature: req.headers["x-qnsp-signature"]!,
+  secret: process.env.QNSP_WEBHOOK_SECRET!,
+});
+```
+
+## Migration from per-service SDKs
+
+Earlier releases shipped per-service packages (`@qnsp/vault-sdk`, `@qnsp/kms-sdk`, etc.). Those are deprecated on npm; `@qnsp/qnsp` is the single canonical entry point. The wire contract is unchanged — only the import surface and field names have been unified across languages (`payloadB64`, `payload_b64`, `PayloadB64`).

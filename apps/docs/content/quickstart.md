@@ -50,19 +50,19 @@ Pick the SDK for your language. All four families share the same wire contracts,
 ### TypeScript / Node.js
 
 ```bash
-pnpm add @qnsp/vault-sdk @qnsp/auth-sdk
+pnpm add @qnsp/qnsp
 pnpm add -g @qnsp/cli      # CLI for scripting / CI
 ```
 
 ```typescript
-import { VaultClient } from "@qnsp/vault-sdk";
+import { QnspClient } from "@qnsp/qnsp";
 
-const vault = new VaultClient({
-  apiKey: process.env.QNSP_API_KEY!,
-  tenantId: process.env.QNSP_TENANT_ID!,
+const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+
+const secret = await qnsp.vault.createSecret({
+  name: "db-password",
+  payloadB64: Buffer.from("s3cr3t").toString("base64"),
 });
-
-const secret = await vault.createSecret({ name: "db-password", value: "s3cr3t" });
 console.log(secret.id);
 ```
 
