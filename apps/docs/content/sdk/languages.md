@@ -4,29 +4,40 @@ version: 0.3.0
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 ---
+
+> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.auth./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
 # Supported Languages
 
 QNSP ships first-party SDKs for **TypeScript / Node.js**, **Python**, **Go**, and **Rust**. All four share the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture — pick whichever fits your stack and the byte-for-byte outputs round-trip.
 
 | Language | Package | Where it lives | Activation SDK ID |
 |---|---|---|---|
-| TypeScript / Node.js | `@qnsp/qnsp` (single package) | [`packages/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/packages/qnsp) | `qnsp` |
+| TypeScript / Node.js | `@cuilabs/qnsp` (single package) | [`packages/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/packages/qnsp) | `qnsp` |
 | Python | `qnsp` (single package) | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
 | Go | `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
 | Rust | `qnsp` on crates.io | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
 
-> **TypeScript SDK consolidated 2026-04-30.** The previous 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@qnsp/qnsp`. They continue to install and work, but new code should use the unified package. See [migration guide](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks).
+> **TypeScript SDK consolidated 2026-04-30.** The previous 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@cuilabs/qnsp`. They continue to install and work, but new code should use the unified package. See [migration guide](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks).
 
 ## Node.js / TypeScript
 
-Single `@qnsp/qnsp` package on npm:
+Single `@cuilabs/qnsp` package on npm:
 
 ```bash
-pnpm add @qnsp/qnsp
+pnpm add @cuilabs/qnsp
 ```
 
 ```typescript
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
 await qnsp.vault.createSecret({ name: "openai-key", payloadB64: "..." });
@@ -35,7 +46,7 @@ await qnsp.audit.logEvent({ eventType: "model.inference", payload: { modelId: "g
 ```
 
 - TypeScript native, strict mode
-- ESM (CommonJS consumers can `await import("@qnsp/qnsp")`)
+- ESM (CommonJS consumers can `await import("@cuilabs/qnsp")`)
 - Node.js ≥ 22.0.0
 - One activation handshake on first call, shared across all 11 sub-clients
 - One `npm install` line, one version, one CHANGELOG, one telemetry surface

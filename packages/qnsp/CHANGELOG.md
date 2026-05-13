@@ -1,4 +1,4 @@
-# @qnsp/qnsp
+# @cuilabs/qnsp
 
 ## 0.1.0 — 2026-04-30
 
@@ -8,7 +8,7 @@
 
 The previous TypeScript SDK family was fragmented across 11 packages (`@qnsp/vault-sdk`, `@qnsp/kms-client`, `@qnsp/audit-sdk`, `@qnsp/auth-sdk`, `@qnsp/tenant-sdk`, `@qnsp/access-control-sdk`, `@qnsp/billing-sdk`, `@qnsp/crypto-inventory-sdk`, `@qnsp/storage-sdk`, `@qnsp/search-sdk`, `@qnsp/ai-sdk`). Each ran its own activation handshake, kept its own version, owned its own CHANGELOG, and emitted its own activation telemetry — making it hard to answer simple questions like "did this developer's SDK reach our backend?" or "which SDK install tripped the activation gate?".
 
-`@qnsp/qnsp` collapses that into one package with eleven sub-namespaces, mirroring the `qnsp` Python / Go / Rust SDK shape. One activation, one connection pool, one CHANGELOG, one source of truth — same diagnostic surface as the other-language SDKs.
+`@cuilabs/qnsp` collapses that into one package with eleven sub-namespaces, mirroring the `qnsp` Python / Go / Rust SDK shape. One activation, one connection pool, one CHANGELOG, one source of truth — same diagnostic surface as the other-language SDKs.
 
 ### Added
 
@@ -31,6 +31,6 @@ The previous TypeScript SDK family was fragmented across 11 packages (`@qnsp/vau
 
 ### Migration
 
-The 11 per-service `@qnsp/*-sdk` packages on npm are now `npm deprecate`d to point at `@qnsp/qnsp`. Existing installs continue to work; new code should reach for `@qnsp/qnsp` directly. See the [Migration section in the README](./README.md#migration-from-per-service-sdks) for the import-by-import mapping.
+The 11 per-service `@qnsp/*-sdk` packages on npm are now `npm deprecate`d to point at `@cuilabs/qnsp`. Existing installs continue to work; new code should reach for `@cuilabs/qnsp` directly. See the [Migration section in the README](./README.md#migration-from-per-service-sdks) for the import-by-import mapping.
 
 The internal QNSP monorepo continues to use the per-service packages for service-to-service calls; that migration will happen in a separate wave and is invisible to external consumers.

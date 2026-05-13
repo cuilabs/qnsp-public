@@ -8,6 +8,17 @@ source_files:
   - /packages/auth-sdk/src/index.ts
 ---
 
+> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.auth./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
+
 # Auth SDK (`@qnsp/auth-sdk`)
 
 The TypeScript client for `auth-service`; equivalent shapes ship in Python, Go, and Rust. All tokens are signed with tenant-specific PQC algorithms based on crypto policy.

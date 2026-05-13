@@ -50,12 +50,12 @@ Pick the SDK for your language. All four families share the same wire contracts,
 ### TypeScript / Node.js
 
 ```bash
-pnpm add @qnsp/qnsp
+pnpm add @cuilabs/qnsp
 pnpm add -g @qnsp/cli      # CLI for scripting / CI
 ```
 
 ```typescript
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
 

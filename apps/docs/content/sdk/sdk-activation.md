@@ -6,6 +6,17 @@ last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 ---
+
+> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.vault./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
 # SDK Activation
 
 All `@qnsp/*` SDKs perform a lightweight activation handshake when first initialised. This ties SDK usage to a registered QNSP account and enforces entitlement checks without requiring any additional code from the developer.

@@ -6,7 +6,7 @@
 		"access": "public"
 	},
 	"type": "module",
-	"description": "Post-quantum cryptography (PQC) primitives for Node.js: ML-KEM, ML-DSA, SLH-DSA, FN-DSA, HQC — all 90 NIST PQC algorithms via liboqs. Free tier at cloud.qnsp.cuilabs.io.",
+	"description": "Post-quantum cryptography (PQC) primitives for Node.js: ML-KEM, ML-DSA, SLH-DSA, FN-DSA, HQC — all 89 NIST PQC algorithms via liboqs. Free tier at cloud.qnsp.cuilabs.io.",
 	"keywords": [
 		"qnsp",
 		"pqc",

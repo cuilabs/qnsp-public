@@ -6,7 +6,7 @@
  * in its constructor and calls `internal.request(method, path, …)`.
  */
 
-import { activateSdk, type SdkActivationResponse } from "@qnsp/sdk-activation";
+import { activateSdk, type SdkActivationResponse } from "./_activation/index.js";
 
 import { QnspApiError, QnspAuthError, QnspNetworkError } from "./errors.js";
 

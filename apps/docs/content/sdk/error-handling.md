@@ -12,6 +12,17 @@ source_files:
   - /sdks/rust/qnsp/src/errors.rs
 ---
 
+> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.vault./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
+
 # SDK Error Handling
 
 Every QNSP SDK distinguishes four kinds of failure so callers can branch on the failure mode without parsing error strings:

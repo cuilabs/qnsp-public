@@ -1,7 +1,7 @@
-# @qnsp/qnsp — Node.js / TypeScript SDK for the Quantum-Native Security Platform
+# @cuilabs/qnsp — Node.js / TypeScript SDK for the Quantum-Native Security Platform
 
-[![npm version](https://img.shields.io/npm/v/@qnsp/qnsp.svg)](https://www.npmjs.com/package/@qnsp/qnsp)
-[![License](https://img.shields.io/npm/l/@qnsp/qnsp.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@cuilabs/qnsp.svg)](https://www.npmjs.com/package/@cuilabs/qnsp)
+[![License](https://img.shields.io/npm/l/@cuilabs/qnsp.svg)](./LICENSE)
 
 The official **single-package** Node.js / TypeScript SDK for QNSP. Covers the full customer-facing platform — vault, KMS, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, and AI orchestrator — plus webhook signature verification. Mirrors the shape of the `qnsp` Python / Go / Rust SDKs byte-for-byte: same wire contracts, same algorithm names, same FIPS 203 / 204 / 205 posture.
 
@@ -9,10 +9,10 @@ The official **single-package** Node.js / TypeScript SDK for QNSP. Covers the fu
 
 ## Why one package?
 
-Previous TypeScript consumers had to install up to 11 separate `@qnsp/*-sdk` packages and keep their versions in sync. `@qnsp/qnsp` collapses that into a single dependency with sub-namespaces:
+Previous TypeScript consumers had to install up to 11 separate `@qnsp/*-sdk` packages and keep their versions in sync. `@cuilabs/qnsp` collapses that into a single dependency with sub-namespaces:
 
 ```ts
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
 
@@ -28,19 +28,19 @@ One activation handshake on first use, shared across all 11 sub-clients. One ver
 ## Install
 
 ```bash
-pnpm add @qnsp/qnsp
+pnpm add @cuilabs/qnsp
 # or
-npm install @qnsp/qnsp
+npm install @cuilabs/qnsp
 # or
-yarn add @qnsp/qnsp
+yarn add @cuilabs/qnsp
 ```
 
-Requires Node.js ≥ 22.0.0. ESM-first; CommonJS consumers can `await import("@qnsp/qnsp")`.
+Requires Node.js ≥ 22.0.0. ESM-first; CommonJS consumers can `await import("@cuilabs/qnsp")`.
 
 ## Quick start
 
 ```ts
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
 
@@ -91,7 +91,7 @@ Each sub-namespace wraps one QNSP backend service:
 QNSP signs every webhook with HMAC-SHA-256. Verify the **raw body** before parsing JSON:
 
 ```ts
-import { parseQnspWebhook, QnspWebhookError } from "@qnsp/qnsp";
+import { parseQnspWebhook, QnspWebhookError } from "@cuilabs/qnsp";
 
 app.post("/webhooks/qnsp", express.raw({ type: "application/json" }), (req, res) => {
   try {
@@ -129,7 +129,7 @@ All errors descend from `QnspError`:
 | `QnspWebhookError` | HMAC mismatch, expired timestamp, malformed body, etc. |
 
 ```ts
-import { QnspApiError, QnspNetworkError } from "@qnsp/qnsp";
+import { QnspApiError, QnspNetworkError } from "@cuilabs/qnsp";
 
 try {
   await qnsp.vault.getSecret("missing");
@@ -158,11 +158,11 @@ If the activation token is rotated server-side, the SDK invalidates its cache an
 
 ## Migration from per-service SDKs
 
-The per-service `@qnsp/*-sdk` packages on npm are now **deprecated** in favour of `@qnsp/qnsp`. They continue to install and work, but new code should use this package.
+The per-service `@qnsp/*-sdk` packages on npm are now **deprecated** in favour of `@cuilabs/qnsp`. They continue to install and work, but new code should use this package.
 
 | Before | After |
 |---|---|
-| `import { VaultClient } from "@qnsp/vault-sdk"` | `import { QnspClient } from "@qnsp/qnsp"` then `qnsp.vault` |
+| `import { VaultClient } from "@qnsp/vault-sdk"` | `import { QnspClient } from "@cuilabs/qnsp"` then `qnsp.vault` |
 | `import { KmsClient } from "@qnsp/kms-client"` | `qnsp.kms` |
 | `import { AuthClient } from "@qnsp/auth-sdk"` | `qnsp.auth` |
 | `import { TenantClient } from "@qnsp/tenant-sdk"` | `qnsp.tenant` |
@@ -187,7 +187,7 @@ const kms   = new KmsClient({   apiKey, baseUrl: "https://api.qnsp.cuilabs.io/pr
 const audit = new AuditClient({ apiKey, baseUrl: "https://api.qnsp.cuilabs.io/proxy/audit", tier });
 
 // After — one package, one activation, one client
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey });
 // qnsp.vault, qnsp.kms, qnsp.audit, ... all share one connection pool + one activation cache

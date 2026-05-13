@@ -1,3 +1,14 @@
+
+> **Note** — As of 2026-04-30, the per-service `@qnsp/crypto-inventory-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.crypto./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
 # Crypto Attestation API
 
 The Crypto Attestation API provides programmatic access to cryptographic policy enforcement, algorithm registry, CBOM export, and compliance assessment.

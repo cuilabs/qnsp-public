@@ -11,6 +11,17 @@ source_files:
   - /packages/browser-sdk/src/provider-setup.ts
 ---
 
+> **Note** — As of 2026-04-30, the per-service `@qnsp/storage-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.storage./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
+
 # Browser SDK (`@qnsp/browser-sdk`)
 
 Browser-compatible PQC encryption SDK for the QNSP platform. Provides client-side encryption (CSE), digital signatures, and key management using NIST FIPS 203/204/205 standards via `@noble/post-quantum`.

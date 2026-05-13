@@ -1,12 +1,12 @@
 {
-	"name": "@qnsp/qnsp",
-	"version": "0.1.0",
+	"name": "@cuilabs/qnsp",
+	"version": "0.1.2",
 	"publishConfig": {
 		"access": "public"
 	},
 	"type": "module",
 	"license": "Apache-2.0",
-	"description": "Official Node.js / TypeScript SDK for the QNSP Quantum-Native Security Platform. Single package covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, ai-orchestrator + local PQC primitives + webhook verification. Mirrors the qnsp Python / Go / Rust SDK surface byte-for-byte.",
+	"description": "Official Node.js / TypeScript SDK for the QNSP Quantum-Native Security Platform by CUI Labs. Single package covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, ai-orchestrator + local PQC primitives + webhook verification. Mirrors the qnsp Python / Go / Rust SDK surface byte-for-byte.",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {
@@ -23,7 +23,7 @@
 		"typecheck": "tsc --project tsconfig.json --noEmit"
 	},
 	"dependencies": {
-		"@qnsp/sdk-activation": "workspace:*"
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@types/node": "^25.5.2",

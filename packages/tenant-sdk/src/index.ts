@@ -149,6 +149,13 @@ export interface TenantCryptoPolicy {
 	readonly requireHsmForRootKeys: boolean;
 	readonly maxKeyAgeDays: number;
 	readonly enforcementMode?: "audit" | "enforce";
+	/**
+	 * Declarative entropy-source contract. See https://qnsp.cuilabs.io/trust/entropy.
+	 * Defaults: "csprng" (OpenSSL SP 800-90A DRBG) for default + strict tiers,
+	 * "hsm-byo" (customer FIPS 140-3 L3 HSM DRBG) for maximum + government tiers.
+	 * "qrng-mixin" available as a sales-assisted BYOH add-on.
+	 */
+	readonly cryptoEntropySource?: "csprng" | "hsm-byo" | "qrng-mixin";
 	readonly createdAt: string;
 	readonly updatedAt: string;
 }
@@ -162,6 +169,7 @@ export interface TenantCryptoPolicyInput {
 	readonly customAllowedSignatureAlgorithms?: readonly string[] | null;
 	readonly requireHsmForRootKeys?: boolean;
 	readonly maxKeyAgeDays?: number;
+	readonly cryptoEntropySource?: "csprng" | "hsm-byo" | "qrng-mixin";
 }
 
 /**

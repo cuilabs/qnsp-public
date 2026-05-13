@@ -17,11 +17,22 @@ source_files:
   - /sdks/rust/qnsp/Cargo.toml
 ---
 
+> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.auth./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
+
 # SDK Overview
 
 QNSP provides official SDKs in **four languages** — TypeScript/Node.js, Python, Go, and Rust — all built on the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture. Pick whichever fits your stack and the byte-for-byte outputs round-trip across languages.
 
-As of **2026-04-30**, all four language families ship as a **single package per language** with the same 11-service surface. The 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@qnsp/qnsp` (they continue to install but are no longer the recommended entry point). See [Supported Languages](./languages) for the full feature matrix and [the @qnsp/qnsp README](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks) for the import-by-import migration guide.
+As of **2026-04-30**, all four language families ship as a **single package per language** with the same 11-service surface. The 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@cuilabs/qnsp` (they continue to install but are no longer the recommended entry point). See [Supported Languages](./languages) for the full feature matrix and [the @cuilabs/qnsp README](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks) for the import-by-import migration guide.
 
 The SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
 
@@ -31,7 +42,7 @@ For migration work, the SDKs are the application cutover surface. Discovery typi
 
 | Language | Package | Version | Source | Activation `sdkId` |
 |---|---|---|---|---|
-| TypeScript / Node.js | [`@qnsp/qnsp`](https://www.npmjs.com/package/@qnsp/qnsp) | 0.1.0 | [`packages/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/packages/qnsp) | `qnsp` |
+| TypeScript / Node.js | [`@cuilabs/qnsp`](https://www.npmjs.com/package/@cuilabs/qnsp) | 0.1.0 | [`packages/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/packages/qnsp) | `qnsp` |
 | Python | [`qnsp`](https://pypi.org/project/qnsp/) | 0.3.0 | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
 | Go | `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | 0.2.0 | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
 | Rust | [`qnsp`](https://crates.io/crates/qnsp) | 0.2.0 | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
@@ -40,22 +51,22 @@ Each package exposes the same 11 service modules — vault, kms, audit, auth, te
 
 ## Deprecated TypeScript per-service packages
 
-These were the original split before consolidation. They remain installable for transitional purposes; new code should use `@qnsp/qnsp` directly.
+These were the original split before consolidation. They remain installable for transitional purposes; new code should use `@cuilabs/qnsp` directly.
 
 | Package | Last version | Status |
 |---------|---|---|
-| `@qnsp/auth-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.auth` |
-| `@qnsp/vault-sdk` | 0.3.9 | Deprecated → `@qnsp/qnsp.vault` |
-| `@qnsp/kms-client` | 0.2.6 | Deprecated → `@qnsp/qnsp.kms` |
-| `@qnsp/storage-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.storage` |
-| `@qnsp/audit-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.audit` |
-| `@qnsp/access-control-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.access` |
-| `@qnsp/billing-sdk` | 0.2.6 | Deprecated → `@qnsp/qnsp.billing` |
-| `@qnsp/search-sdk` | 0.2.10 | Deprecated → `@qnsp/qnsp.search` |
-| `@qnsp/tenant-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.tenant` |
-| `@qnsp/ai-sdk` | 0.1.11 | Deprecated → `@qnsp/qnsp.ai` |
-| `@qnsp/crypto-inventory-sdk` | 0.3.6 | Deprecated → `@qnsp/qnsp.cryptoInventory` |
-| `@qnsp/browser-sdk` | 0.1.4 | **Not deprecated** — browser-side PQC primitives, distinct purpose from `@qnsp/qnsp` (which is Node.js-only) |
+| `@qnsp/auth-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.auth` |
+| `@qnsp/vault-sdk` | 0.3.9 | Deprecated → `@cuilabs/qnsp.vault` |
+| `@qnsp/kms-client` | 0.2.6 | Deprecated → `@cuilabs/qnsp.kms` |
+| `@qnsp/storage-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.storage` |
+| `@qnsp/audit-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.audit` |
+| `@qnsp/access-control-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.access` |
+| `@qnsp/billing-sdk` | 0.2.6 | Deprecated → `@cuilabs/qnsp.billing` |
+| `@qnsp/search-sdk` | 0.2.10 | Deprecated → `@cuilabs/qnsp.search` |
+| `@qnsp/tenant-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.tenant` |
+| `@qnsp/ai-sdk` | 0.1.11 | Deprecated → `@cuilabs/qnsp.ai` |
+| `@qnsp/crypto-inventory-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.cryptoInventory` |
+| `@qnsp/browser-sdk` | 0.1.4 | **Not deprecated** — browser-side PQC primitives, distinct purpose from `@cuilabs/qnsp` (which is Node.js-only) |
 
 ## Developer tooling
 
@@ -124,7 +135,7 @@ SDKs provide type-safe interfaces and consistent error handling. All SDKs includ
 
 ### Node.js
 ```bash
-pnpm add @qnsp/qnsp
+pnpm add @cuilabs/qnsp
 ```
 
 ### Python
@@ -147,7 +158,7 @@ cargo add qnsp --features crypto   # with local PQC primitives via oqs 0.11
 ## Quick start
 
 ```typescript
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
 

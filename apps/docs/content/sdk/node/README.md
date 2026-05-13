@@ -4,22 +4,33 @@ version: 0.1.0
 last_updated: 2026-05-05
 copyright: © 2026 CUI Labs. All rights reserved.
 ---
+
+> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+>
+> ```typescript
+> import { QnspClient } from "@cuilabs/qnsp";
+> const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
+> await qnsp.vault./* method */(...);
+> ```
+>
+> See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
+
 # Node.js SDK
 
-The official QNSP TypeScript / Node.js SDK ships as a single package — `@qnsp/qnsp` — covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, and ai-orchestrator, plus webhook signature verification. It mirrors the `qnsp` Python / Go / Rust SDKs byte-for-byte over the same wire contracts.
+The official QNSP TypeScript / Node.js SDK ships as a single package — `@cuilabs/qnsp` — covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, and ai-orchestrator, plus webhook signature verification. It mirrors the `qnsp` Python / Go / Rust SDKs byte-for-byte over the same wire contracts.
 
 ## Installation
 
 ```bash
-pnpm add @qnsp/qnsp
+pnpm add @cuilabs/qnsp
 ```
 
 npm and yarn are also supported:
 
 ```bash
-npm install @qnsp/qnsp
+npm install @cuilabs/qnsp
 # or
-yarn add @qnsp/qnsp
+yarn add @cuilabs/qnsp
 ```
 
 ## Requirements
@@ -30,7 +41,7 @@ yarn add @qnsp/qnsp
 ## Quick start
 
 ```typescript
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
 
@@ -59,19 +70,19 @@ Get a free API key at <https://cloud.qnsp.cuilabs.io/auth>.
 The package ships full TypeScript types; no separate `@types/*` install is needed.
 
 ```typescript
-import type { QnspClientOptions, CreateSecretRequest } from "@qnsp/qnsp";
+import type { QnspClientOptions, CreateSecretRequest } from "@cuilabs/qnsp";
 ```
 
 ## ESM and CommonJS
 
-`@qnsp/qnsp` is published as ESM. CommonJS consumers can use a dynamic import:
+`@cuilabs/qnsp` is published as ESM. CommonJS consumers can use a dynamic import:
 
 ```javascript
 // ESM
-import { QnspClient } from "@qnsp/qnsp";
+import { QnspClient } from "@cuilabs/qnsp";
 
 // CommonJS — dynamic import only
-const { QnspClient } = await import("@qnsp/qnsp");
+const { QnspClient } = await import("@cuilabs/qnsp");
 ```
 
 ## Sub-clients
@@ -97,7 +108,7 @@ All sub-clients share the same `apiKey`, telemetry, and retry configuration.
 ## Webhook signature verification
 
 ```typescript
-import { verifyWebhookSignature } from "@qnsp/qnsp";
+import { verifyWebhookSignature } from "@cuilabs/qnsp";
 
 const isValid = verifyWebhookSignature({
   payload: rawBody,
@@ -108,4 +119,4 @@ const isValid = verifyWebhookSignature({
 
 ## Migration from per-service SDKs
 
-Earlier releases shipped per-service packages (`@qnsp/vault-sdk`, `@qnsp/kms-sdk`, etc.). Those are deprecated on npm; `@qnsp/qnsp` is the single canonical entry point. The wire contract is unchanged — only the import surface and field names have been unified across languages (`payloadB64`, `payload_b64`, `PayloadB64`).
+Earlier releases shipped per-service packages (`@qnsp/vault-sdk`, `@qnsp/kms-sdk`, etc.). Those are deprecated on npm; `@cuilabs/qnsp` is the single canonical entry point. The wire contract is unchanged — only the import surface and field names have been unified across languages (`payloadB64`, `payload_b64`, `PayloadB64`).
