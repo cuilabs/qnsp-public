@@ -175,10 +175,30 @@ Authorization: Bearer <token>
   "requireHsmForRootKeys": true,
   "maxKeyAgeDays": 180,
   "enforcementMode": "enforce",
+  "cryptoEntropySource": "csprng",
   "createdAt": "2026-01-04T10:00:00Z",
   "updatedAt": "2026-01-04T10:00:00Z"
 }
 ```
+
+### cryptoEntropySource
+
+Declarative entropy-source contract for the tenant. Added 2026-05-13.
+See [https://qnsp.cuilabs.io/trust/entropy](https://qnsp.cuilabs.io/trust/entropy)
+for the auditable end-to-end chain (NIST SP 800-90A/B/C citations,
+OpenSSL DRBG, Linux getrandom + CPU TRNG, HSM DRBGs).
+
+| Value | Where | Default for tiers |
+|---|---|---|
+| `csprng` | OpenSSL SP 800-90A AES-CTR-DRBG seeded from Linux `getrandom` + RDRAND / RDSEED / Nitro TRNG. | `default`, `strict` |
+| `hsm-byo` | Customer-managed FIPS 140-3 L3 HSM DRBG via PKCS#11 (AWS CloudHSM, Azure Managed HSM, Thales Luna, Entrust nShield, Utimaco, Marvell LiquidHSM, Fortanix DSM, HashiCorp Vault HSM). | `maximum`, `government` |
+| `qrng-mixin` | Customer-supplied QRNG (Qrypt / Quantum Dice / ID Quantique Quantis / Quantum-Origin) mixed into HSM DRBG seed per NIST SP 800-90C RBG3 prediction-resistance reseed. Sales-assisted add-on (`byoh-qrng-mixin`). | Optional on Maximum/Government tiers |
+
+The field is currently a **declarative contract** surfaced through the
+audit trail and billing layer; per-tenant entropy-source routing is on
+the platform roadmap. Today every backend service draws from the
+platform CSPRNG except for root-key operations on tiers that route
+through the BYOH HSM channel.
 
 ### Get Tenant Crypto Policy (v1)
 ```http
@@ -223,7 +243,8 @@ Content-Type: application/json
   "customAllowedSignatureAlgorithms": ["dilithium-5", "sphincs-shake-256f-simple"],
   "requireHsmForRootKeys": true,
   "maxKeyAgeDays": 90,
-  "enforcementMode": "enforce"
+  "enforcementMode": "enforce",
+  "cryptoEntropySource": "hsm-byo"
 }
 ```
 

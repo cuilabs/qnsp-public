@@ -11,6 +11,8 @@ Cryptographic attestation in QNSP includes:
 - **CBOM Export** - Machine-verifiable Cryptographic Bill of Materials
 - **Compliance Assessment** - Automated CNSA 2.0 and FIPS 140-3 compliance checks
 - **Merkle-rooted Audit Logs** - Tamper-evident audit trails with signed checkpoints
+- **Dual-provider NIST ACVP conformance** - Live evidence at [/verify/conformance](https://qnsp.cuilabs.io/verify/conformance) showing both PQC providers passing the official NIST ACVP test vectors. `@noble/post-quantum`: 435/435 across FIPS 203/204/205. `@cuilabs/liboqs-native` 0.15.1: 240/240 ML-KEM ACVP tests via `OQS_KEM_keypair_derand` + `OQS_KEM_encaps_derand` bindings. SHA-3-256 tamper digest binds every evidence file.
+- **Auditable entropy chain** - End-to-end documentation at [/trust/entropy](https://qnsp.cuilabs.io/trust/entropy) citing NIST SP 800-90A/B/C, OpenSSL DRBG, Linux `getrandom`, CPU TRNG (RDRAND/RDSEED/Nitro), and per-vendor HSM FIPS 140-3 DRBG records.
 
 ## Crypto Policy Engine
 
