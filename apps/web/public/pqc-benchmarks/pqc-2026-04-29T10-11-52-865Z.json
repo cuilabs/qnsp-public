@@ -1,0 +1,350 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-29T10:11:52.865Z",
+  "gitSha": "7f5cb4aa00a54a7fb67e027bb47cdae8e2d400d5",
+  "liboqsVersion": "0.15.0",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpuModel": "Apple M4 Max",
+    "cpuCount": 14,
+    "nodeVersion": "v25.9.0",
+    "totalMemoryGiB": 36
+  },
+  "reproducibility": {
+    "publishedJson": "https://qnsp.cuilabs.io/pqc-benchmarks/pqc-latest.json",
+    "publicMirror": "https://github.com/cuilabs/qnsp-public",
+    "publicLibrary": "https://github.com/paulmillr/noble-post-quantum",
+    "liveSandbox": "https://qnsp.cuilabs.io/api/sandbox/pqc-demo",
+    "readerSnippet": "npm i @noble/post-quantum && node --input-type=module -e \"import {ml_kem768} from '@noble/post-quantum/ml-kem.js'; const t=performance.now(); const kp=ml_kem768.keygen(); console.log('keygen ms:', (performance.now()-t).toFixed(3), '— pubkey bytes:', kp.publicKey.length);\"",
+    "note": "Absolute timings depend on hardware, kernel scheduler, and thermal state. Cross-algorithm ratios are stable."
+  },
+  "kems": [
+    {
+      "algorithm": "ML-KEM-512",
+      "fipsStandard": "FIPS 203",
+      "securityCategory": 1,
+      "publicKeyBytes": 800,
+      "secretKeyBytes": 1632,
+      "ciphertextBytes": 768,
+      "sharedSecretBytes": 32,
+      "iterations": 500,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.014,
+          "p95Ms": 0.019,
+          "p99Ms": 0.021,
+          "meanMs": 0.015,
+          "opsPerSecond": 67328
+        },
+        {
+          "operation": "encaps",
+          "p50Ms": 0.013,
+          "p95Ms": 0.015,
+          "p99Ms": 0.017,
+          "meanMs": 0.013,
+          "opsPerSecond": 76558
+        },
+        {
+          "operation": "decaps",
+          "p50Ms": 0.012,
+          "p95Ms": 0.012,
+          "p99Ms": 0.014,
+          "meanMs": 0.012,
+          "opsPerSecond": 82205
+        }
+      ]
+    },
+    {
+      "algorithm": "ML-KEM-768",
+      "fipsStandard": "FIPS 203",
+      "securityCategory": 3,
+      "publicKeyBytes": 1184,
+      "secretKeyBytes": 2400,
+      "ciphertextBytes": 1088,
+      "sharedSecretBytes": 32,
+      "iterations": 500,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.012,
+          "p95Ms": 0.016,
+          "p99Ms": 0.02,
+          "meanMs": 0.013,
+          "opsPerSecond": 77863
+        },
+        {
+          "operation": "encaps",
+          "p50Ms": 0.014,
+          "p95Ms": 0.015,
+          "p99Ms": 0.017,
+          "meanMs": 0.013,
+          "opsPerSecond": 74353
+        },
+        {
+          "operation": "decaps",
+          "p50Ms": 0.014,
+          "p95Ms": 0.014,
+          "p99Ms": 0.015,
+          "meanMs": 0.014,
+          "opsPerSecond": 71512
+        }
+      ]
+    },
+    {
+      "algorithm": "ML-KEM-1024",
+      "fipsStandard": "FIPS 203",
+      "securityCategory": 5,
+      "publicKeyBytes": 1568,
+      "secretKeyBytes": 3168,
+      "ciphertextBytes": 1568,
+      "sharedSecretBytes": 32,
+      "iterations": 500,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.016,
+          "p95Ms": 0.018,
+          "p99Ms": 0.02,
+          "meanMs": 0.018,
+          "opsPerSecond": 56698
+        },
+        {
+          "operation": "encaps",
+          "p50Ms": 0.016,
+          "p95Ms": 0.017,
+          "p99Ms": 0.018,
+          "meanMs": 0.016,
+          "opsPerSecond": 61116
+        },
+        {
+          "operation": "decaps",
+          "p50Ms": 0.017,
+          "p95Ms": 0.018,
+          "p99Ms": 0.019,
+          "meanMs": 0.017,
+          "opsPerSecond": 57451
+        }
+      ]
+    }
+  ],
+  "signatures": [
+    {
+      "algorithm": "ML-DSA-44",
+      "fipsStandard": "FIPS 204",
+      "securityCategory": 2,
+      "publicKeyBytes": 1312,
+      "secretKeyBytes": 2560,
+      "signatureBytes": 2420,
+      "messageBytes": 179,
+      "iterations": 200,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.035,
+          "p95Ms": 0.04,
+          "p99Ms": 0.043,
+          "meanMs": 0.036,
+          "opsPerSecond": 27919
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.111,
+          "p95Ms": 0.346,
+          "p99Ms": 0.51,
+          "meanMs": 0.141,
+          "opsPerSecond": 7087
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.033,
+          "p95Ms": 0.036,
+          "p99Ms": 0.041,
+          "meanMs": 0.034,
+          "opsPerSecond": 29629
+        }
+      ]
+    },
+    {
+      "algorithm": "ML-DSA-65",
+      "fipsStandard": "FIPS 204",
+      "securityCategory": 3,
+      "publicKeyBytes": 1952,
+      "secretKeyBytes": 4032,
+      "signatureBytes": 3309,
+      "messageBytes": 179,
+      "iterations": 200,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.061,
+          "p95Ms": 0.068,
+          "p99Ms": 0.081,
+          "meanMs": 0.063,
+          "opsPerSecond": 15980
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.161,
+          "p95Ms": 0.591,
+          "p99Ms": 0.803,
+          "meanMs": 0.233,
+          "opsPerSecond": 4296
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.058,
+          "p95Ms": 0.062,
+          "p99Ms": 0.064,
+          "meanMs": 0.057,
+          "opsPerSecond": 17498
+        }
+      ]
+    },
+    {
+      "algorithm": "ML-DSA-87",
+      "fipsStandard": "FIPS 204",
+      "securityCategory": 5,
+      "publicKeyBytes": 2592,
+      "secretKeyBytes": 4896,
+      "signatureBytes": 4627,
+      "messageBytes": 179,
+      "iterations": 100,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.091,
+          "p95Ms": 0.093,
+          "p99Ms": 0.112,
+          "meanMs": 0.09,
+          "opsPerSecond": 11065
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.262,
+          "p95Ms": 0.653,
+          "p99Ms": 1.472,
+          "meanMs": 0.319,
+          "opsPerSecond": 3135
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.093,
+          "p95Ms": 0.096,
+          "p99Ms": 0.112,
+          "meanMs": 0.092,
+          "opsPerSecond": 10904
+        }
+      ]
+    },
+    {
+      "algorithm": "Falcon-512",
+      "fipsStandard": "FN-DSA",
+      "securityCategory": 1,
+      "publicKeyBytes": 897,
+      "secretKeyBytes": 1281,
+      "signatureBytes": 652,
+      "messageBytes": 179,
+      "iterations": 50,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 3.108,
+          "p95Ms": 4.885,
+          "p99Ms": 6.204,
+          "meanMs": 3.225,
+          "opsPerSecond": 310
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.097,
+          "p95Ms": 0.109,
+          "p99Ms": 0.124,
+          "meanMs": 0.1,
+          "opsPerSecond": 10034
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.016,
+          "p95Ms": 0.019,
+          "p99Ms": 0.022,
+          "meanMs": 0.016,
+          "opsPerSecond": 62680
+        }
+      ]
+    },
+    {
+      "algorithm": "SLH-DSA-SHA2-128f",
+      "fipsStandard": "FIPS 205",
+      "securityCategory": 1,
+      "publicKeyBytes": 32,
+      "secretKeyBytes": 64,
+      "signatureBytes": 17088,
+      "messageBytes": 179,
+      "iterations": 25,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.455,
+          "p95Ms": 0.48,
+          "p99Ms": 0.538,
+          "meanMs": 0.456,
+          "opsPerSecond": 2195
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 10.666,
+          "p95Ms": 10.999,
+          "p99Ms": 11.004,
+          "meanMs": 10.653,
+          "opsPerSecond": 94
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.622,
+          "p95Ms": 0.649,
+          "p99Ms": 0.664,
+          "meanMs": 0.619,
+          "opsPerSecond": 1616
+        }
+      ]
+    },
+    {
+      "algorithm": "SLH-DSA-SHA2-256f",
+      "fipsStandard": "FIPS 205",
+      "securityCategory": 5,
+      "publicKeyBytes": 64,
+      "secretKeyBytes": 128,
+      "signatureBytes": 49856,
+      "messageBytes": 179,
+      "iterations": 10,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 1.814,
+          "p95Ms": 1.83,
+          "p99Ms": 1.83,
+          "meanMs": 1.803,
+          "opsPerSecond": 555
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 35.782,
+          "p95Ms": 36.365,
+          "p99Ms": 36.365,
+          "meanMs": 35.776,
+          "opsPerSecond": 28
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.927,
+          "p95Ms": 0.942,
+          "p99Ms": 0.942,
+          "meanMs": 0.927,
+          "opsPerSecond": 1078
+        }
+      ]
+    }
+  ]
+}

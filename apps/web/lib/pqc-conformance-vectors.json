@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-01T19:18:51.647Z",
+  "gitSha": "479550c5522d6c7aece1ac67010d6b3338650aed",
+  "generator": "apps/web/scripts/generate-conformance-vectors.ts",
+  "library": {
+    "name": "@noble/post-quantum",
+    "version": "0.6.0",
+    "source": "https://github.com/paulmillr/noble-post-quantum"
+  },
+  "standards": {
+    "FIPS 203": "Module-Lattice-Based Key-Encapsulation Mechanism Standard (NIST, finalized August 2024)",
+    "FIPS 204": "Module-Lattice-Based Digital Signature Standard (NIST, finalized August 2024)",
+    "FIPS 205": "Stateless Hash-Based Digital Signature Standard (NIST, finalized August 2024)"
+  },
+  "nistConformanceReference": "https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/post-quantum-cryptography",
+  "disclaimer": "These are determinism vectors for QNSP's pinned @noble/post-quantum version. Re-running keygen with each seed using the same library version must produce keys whose SHA-256 matches the expected values. Independent NIST conformance is established by the upstream @noble/post-quantum project against NIST ACVP test vectors.",
+  "vectors": [
+    {
+      "algorithm": "ml-kem-512",
+      "kind": "kem",
+      "seedHex": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeffffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100",
+      "expectedPublicKeySha256": "cff30cbda9a89e508a96d207adf4532f7bd76f7322f9635790a45b413a0dae27",
+      "expectedSecretKeySha256": "ab17760f9c7a1cd84141c2d439fe43adca3635b7da8a3d340b9e9517c9dd5ddd",
+      "note": "ML-KEM-512 keygen with fixed 64-byte seed (FIPS 203, security category 1)."
+    },
+    {
+      "algorithm": "ml-kem-768",
+      "kind": "kem",
+      "seedHex": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeffffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100",
+      "expectedPublicKeySha256": "8c2a46b0e99ac476d6df50e00e2523eed98763bf3228a3a7405606c298bf79e8",
+      "expectedSecretKeySha256": "fc7939d119a044d6270c70aff2aa2982b645bb31d6fba16bbb950a2f3d33bcd4",
+      "note": "ML-KEM-768 keygen with fixed 64-byte seed (FIPS 203, security category 3)."
+    },
+    {
+      "algorithm": "ml-kem-1024",
+      "kind": "kem",
+      "seedHex": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeffffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100",
+      "expectedPublicKeySha256": "3186f48e3f4709b7eb26f1f013ede10bdcc6fc487d59caade32e30abe13828e1",
+      "expectedSecretKeySha256": "e615148e012381d689d0285dbb5b1d0c12b2e50c4de5fd62e87abc15b9014aca",
+      "note": "ML-KEM-1024 keygen with fixed 64-byte seed (FIPS 203, security category 5)."
+    },
+    {
+      "algorithm": "ml-dsa-44",
+      "kind": "signature",
+      "seedHex": "0123456789abcdef0123456789abcdeffedcba9876543210fedcba9876543210",
+      "expectedPublicKeySha256": "1e58038ad580a88ac6a424a55f65596f2451da88e52248863b5dd85fe5fb092c",
+      "expectedSecretKeySha256": "b44d6e98c5458d354890c159a4c07789dffad5158006569c1e0962d6bc6d0cf0",
+      "note": "ML-DSA-44 keygen with fixed 32-byte seed (FIPS 204, security category 2)."
+    },
+    {
+      "algorithm": "ml-dsa-65",
+      "kind": "signature",
+      "seedHex": "0123456789abcdef0123456789abcdeffedcba9876543210fedcba9876543210",
+      "expectedPublicKeySha256": "7988d22a807af72706e2e00b78db52881053c5e10553ee88ab5590836a42710f",
+      "expectedSecretKeySha256": "9173b2d2b35412d5420f6dae75857e238c7775b4df6413196664d5f30eb7338d",
+      "note": "ML-DSA-65 keygen with fixed 32-byte seed (FIPS 204, security category 3)."
+    },
+    {
+      "algorithm": "ml-dsa-87",
+      "kind": "signature",
+      "seedHex": "0123456789abcdef0123456789abcdeffedcba9876543210fedcba9876543210",
+      "expectedPublicKeySha256": "a1912e7a6e54cae2f540ebf9051f3193c50d90f297c89d66ce0ac1e4870e76ac",
+      "expectedSecretKeySha256": "719fa772ad4f891eaaee1ec3bdfcbfc8eff48a13e8c6dac1ea379cba4c57b602",
+      "note": "ML-DSA-87 keygen with fixed 32-byte seed (FIPS 204, security category 5)."
+    },
+    {
+      "algorithm": "slh-dsa-sha2-128f",
+      "kind": "signature",
+      "seedHex": "0123456789abcdeffedcba987654321000112233445566770123456789abcdeffedcba98765432100011223344556677",
+      "expectedPublicKeySha256": "910c156830aeefad4e604281b7b89a58a724699f2e4db657711e6a4760738bac",
+      "expectedSecretKeySha256": "fa5364675046a8b00662205c05efe50d91c05013bbdb7c61e1f8876db4272693",
+      "note": "SLH-DSA-SHA2-128f keygen with fixed 48-byte seed (FIPS 205, security category 1)."
+    },
+    {
+      "algorithm": "slh-dsa-sha2-192f",
+      "kind": "signature",
+      "seedHex": "0123456789abcdeffedcba987654321000112233445566770123456789abcdeffedcba987654321000112233445566770123456789abcdeffedcba98765432100011223344556677",
+      "expectedPublicKeySha256": "dc0c8bd3e69ae42d079694f1e876418ce3f391224f599ae00ff8b3b7932a4508",
+      "expectedSecretKeySha256": "d489cf141be9aa50b3cbbb406651c44cb10ed72fb8ad2b4673cf84479e752a3d",
+      "note": "SLH-DSA-SHA2-192f keygen with fixed 72-byte seed (FIPS 205, security category 3)."
+    },
+    {
+      "algorithm": "slh-dsa-sha2-256f",
+      "kind": "signature",
+      "seedHex": "0123456789abcdeffedcba987654321000112233445566770123456789abcdeffedcba987654321000112233445566770123456789abcdeffedcba987654321000112233445566770123456789abcdeffedcba98765432100011223344556677",
+      "expectedPublicKeySha256": "bf68dc92d37f1f9184e96896ebb56faa766b407c50ebbbde5acc92100cb5a6f3",
+      "expectedSecretKeySha256": "b3228be362aac00c765dcb3a78d2f269777965ad5de29623960b835773cbd2df",
+      "note": "SLH-DSA-SHA2-256f keygen with fixed 96-byte seed (FIPS 205, security category 5)."
+    }
+  ]
+}

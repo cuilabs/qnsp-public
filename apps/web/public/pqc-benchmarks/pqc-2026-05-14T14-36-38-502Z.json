@@ -1,0 +1,1324 @@
+{
+  "schemaVersion": 3,
+  "generatedAt": "2026-05-14T14:36:38.502Z",
+  "gitSha": "6fa08c5666c6f8376ca81b865710c1d37061f117",
+  "liboqsVersion": "0.15.0",
+  "nobleVersion": "0.6.0",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpuModel": "Apple M4 Max",
+    "cpuCount": 14,
+    "nodeVersion": "v24.15.0",
+    "totalMemoryGiB": 36
+  },
+  "reproducibility": {
+    "publishedJson": "https://qnsp.cuilabs.io/pqc-benchmarks/pqc-latest.json",
+    "publicMirror": "https://github.com/cuilabs/qnsp-public",
+    "publicLibrary": "https://github.com/paulmillr/noble-post-quantum",
+    "liveSandbox": "https://qnsp.cuilabs.io/api/sandbox/pqc-runtime",
+    "readerSnippet": "npm i @noble/post-quantum && node --input-type=module -e \"import {ml_kem768} from '@noble/post-quantum/ml-kem.js'; const t=performance.now(); const kp=ml_kem768.keygen(); console.log('keygen ms:', (performance.now()-t).toFixed(3), '— pubkey bytes:', kp.publicKey.length);\"",
+    "note": "Absolute timings depend on hardware, kernel scheduler, and thermal state. Cross-algorithm ratios are stable. Schema v3 adds multi-process scaling, batched memory measurement, and side-by-side noble comparison."
+  },
+  "kems": [
+    {
+      "algorithm": "ML-KEM-512",
+      "fipsStandard": "FIPS 203",
+      "securityCategory": 1,
+      "publicKeyBytes": 800,
+      "secretKeyBytes": 1632,
+      "ciphertextBytes": 768,
+      "sharedSecretBytes": 32,
+      "iterations": 500,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.005,
+          "p95Ms": 0.007,
+          "p99Ms": 0.009,
+          "meanMs": 0.006,
+          "opsPerSecond": 174604
+        },
+        {
+          "operation": "encaps",
+          "p50Ms": 0.006,
+          "p95Ms": 0.007,
+          "p99Ms": 0.008,
+          "meanMs": 0.006,
+          "opsPerSecond": 158774
+        },
+        {
+          "operation": "decaps",
+          "p50Ms": 0.007,
+          "p95Ms": 0.007,
+          "p99Ms": 0.009,
+          "meanMs": 0.007,
+          "opsPerSecond": 146656
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          0.01,
+          0.007,
+          0.008,
+          0.007,
+          0.006
+        ],
+        "firstCallMs": 0.01,
+        "warmupMedianMs": 0.007,
+        "coldToWarmRatio": 2.075
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 85917696,
+        "postBatchRssBytes": 86867968,
+        "perInstanceRssBytes": 4751,
+        "v8HeapDeltaBytes": 295016,
+        "perInstanceHeapBytes": 1475
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 1.069,
+          "opsPerSecond": 46753,
+          "scalingEfficiency": 0.268
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 0.605,
+          "opsPerSecond": 165221,
+          "scalingEfficiency": 0.473
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 1.104,
+          "opsPerSecond": 181112,
+          "scalingEfficiency": 0.259
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 2.304,
+          "opsPerSecond": 173608,
+          "scalingEfficiency": 0.124
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 4.753,
+          "opsPerSecond": 168310,
+          "scalingEfficiency": 0.06
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 64.707,
+          "opsPerSecond": 1545,
+          "scalingEfficiency": 0.009
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 70.068,
+          "opsPerSecond": 2854,
+          "scalingEfficiency": 0.008
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 76.161,
+          "opsPerSecond": 5252,
+          "scalingEfficiency": 0.008
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 85.718,
+          "opsPerSecond": 9333,
+          "scalingEfficiency": 0.007
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 0.005,
+        "nobleKeygenP50Ms": 0.178,
+        "liboqsKeygenOpsPerSecond": 174604,
+        "nobleKeygenOpsPerSecond": 4991,
+        "speedupRatio": 35.558
+      }
+    },
+    {
+      "algorithm": "ML-KEM-768",
+      "fipsStandard": "FIPS 203",
+      "securityCategory": 3,
+      "publicKeyBytes": 1184,
+      "secretKeyBytes": 2400,
+      "ciphertextBytes": 1088,
+      "sharedSecretBytes": 32,
+      "iterations": 500,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.009,
+          "p95Ms": 0.013,
+          "p99Ms": 0.019,
+          "meanMs": 0.009,
+          "opsPerSecond": 106366
+        },
+        {
+          "operation": "encaps",
+          "p50Ms": 0.01,
+          "p95Ms": 0.013,
+          "p99Ms": 0.016,
+          "meanMs": 0.01,
+          "opsPerSecond": 102239
+        },
+        {
+          "operation": "decaps",
+          "p50Ms": 0.011,
+          "p95Ms": 0.011,
+          "p99Ms": 0.015,
+          "meanMs": 0.011,
+          "opsPerSecond": 94288
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          0.012,
+          0.01,
+          0.011,
+          0.01,
+          0.012
+        ],
+        "firstCallMs": 0.012,
+        "warmupMedianMs": 0.011,
+        "coldToWarmRatio": 1.366
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 100188160,
+        "postBatchRssBytes": 101285888,
+        "perInstanceRssBytes": 5489,
+        "v8HeapDeltaBytes": 278520,
+        "perInstanceHeapBytes": 1393
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 0.495,
+          "opsPerSecond": 100942,
+          "scalingEfficiency": 0.949
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 1.216,
+          "opsPerSecond": 82254,
+          "scalingEfficiency": 0.387
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 1.931,
+          "opsPerSecond": 103569,
+          "scalingEfficiency": 0.243
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 4.066,
+          "opsPerSecond": 98378,
+          "scalingEfficiency": 0.116
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 7.473,
+          "opsPerSecond": 107055,
+          "scalingEfficiency": 0.063
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 74.854,
+          "opsPerSecond": 1336,
+          "scalingEfficiency": 0.013
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 71.082,
+          "opsPerSecond": 2814,
+          "scalingEfficiency": 0.013
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 76.985,
+          "opsPerSecond": 5196,
+          "scalingEfficiency": 0.012
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 88.332,
+          "opsPerSecond": 9057,
+          "scalingEfficiency": 0.011
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 0.009,
+        "nobleKeygenP50Ms": 0.269,
+        "liboqsKeygenOpsPerSecond": 106366,
+        "nobleKeygenOpsPerSecond": 3692,
+        "speedupRatio": 29.843
+      }
+    },
+    {
+      "algorithm": "ML-KEM-1024",
+      "fipsStandard": "FIPS 203",
+      "securityCategory": 5,
+      "publicKeyBytes": 1568,
+      "secretKeyBytes": 3168,
+      "ciphertextBytes": 1568,
+      "sharedSecretBytes": 32,
+      "iterations": 500,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.014,
+          "p95Ms": 0.016,
+          "p99Ms": 0.019,
+          "meanMs": 0.014,
+          "opsPerSecond": 71355
+        },
+        {
+          "operation": "encaps",
+          "p50Ms": 0.014,
+          "p95Ms": 0.017,
+          "p99Ms": 0.024,
+          "meanMs": 0.015,
+          "opsPerSecond": 68804
+        },
+        {
+          "operation": "decaps",
+          "p50Ms": 0.016,
+          "p95Ms": 0.019,
+          "p99Ms": 0.023,
+          "meanMs": 0.016,
+          "opsPerSecond": 63035
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          0.022,
+          0.015,
+          0.014,
+          0.016,
+          0.014
+        ],
+        "firstCallMs": 0.022,
+        "warmupMedianMs": 0.015,
+        "coldToWarmRatio": 1.536
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 110264320,
+        "postBatchRssBytes": 111394816,
+        "perInstanceRssBytes": 5652,
+        "v8HeapDeltaBytes": 284456,
+        "perInstanceHeapBytes": 1422
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 0.722,
+          "opsPerSecond": 69248,
+          "scalingEfficiency": 0.97
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 1.499,
+          "opsPerSecond": 66707,
+          "scalingEfficiency": 0.467
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 2.625,
+          "opsPerSecond": 76194,
+          "scalingEfficiency": 0.267
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 5.444,
+          "opsPerSecond": 73477,
+          "scalingEfficiency": 0.129
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 11.243,
+          "opsPerSecond": 71156,
+          "scalingEfficiency": 0.062
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 68.348,
+          "opsPerSecond": 1463,
+          "scalingEfficiency": 0.021
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 70.792,
+          "opsPerSecond": 2825,
+          "scalingEfficiency": 0.02
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 77.434,
+          "opsPerSecond": 5166,
+          "scalingEfficiency": 0.018
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 87.221,
+          "opsPerSecond": 9172,
+          "scalingEfficiency": 0.016
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 0.014,
+        "nobleKeygenP50Ms": 0.45,
+        "liboqsKeygenOpsPerSecond": 71355,
+        "nobleKeygenOpsPerSecond": 2210,
+        "speedupRatio": 32.11
+      }
+    }
+  ],
+  "signatures": [
+    {
+      "algorithm": "ML-DSA-44",
+      "fipsStandard": "FIPS 204",
+      "securityCategory": 2,
+      "publicKeyBytes": 1312,
+      "secretKeyBytes": 2560,
+      "signatureBytes": 2420,
+      "messageBytes": 179,
+      "iterations": 200,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.034,
+          "p95Ms": 0.039,
+          "p99Ms": 0.046,
+          "meanMs": 0.034,
+          "opsPerSecond": 29083
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.116,
+          "p95Ms": 0.357,
+          "p99Ms": 0.676,
+          "meanMs": 0.148,
+          "opsPerSecond": 6765
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.035,
+          "p95Ms": 0.036,
+          "p99Ms": 0.042,
+          "meanMs": 0.034,
+          "opsPerSecond": 29162
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          0.043,
+          0.039,
+          0.034,
+          0.038,
+          0.034
+        ],
+        "firstCallMs": 0.043,
+        "warmupMedianMs": 0.038,
+        "coldToWarmRatio": 1.254
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 117473280,
+        "postBatchRssBytes": 117506048,
+        "perInstanceRssBytes": 164,
+        "v8HeapDeltaBytes": 277880,
+        "perInstanceHeapBytes": 1389
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 1.803,
+          "opsPerSecond": 27732,
+          "scalingEfficiency": 0.954
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 3.495,
+          "opsPerSecond": 28615,
+          "scalingEfficiency": 0.492
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 6.892,
+          "opsPerSecond": 29017,
+          "scalingEfficiency": 0.249
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 13.874,
+          "opsPerSecond": 28830,
+          "scalingEfficiency": 0.124
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 27.519,
+          "opsPerSecond": 29071,
+          "scalingEfficiency": 0.062
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 68.797,
+          "opsPerSecond": 1454,
+          "scalingEfficiency": 0.05
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 72.185,
+          "opsPerSecond": 2771,
+          "scalingEfficiency": 0.048
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 79.715,
+          "opsPerSecond": 5018,
+          "scalingEfficiency": 0.043
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 87.218,
+          "opsPerSecond": 9172,
+          "scalingEfficiency": 0.039
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 0.034,
+        "nobleKeygenP50Ms": 1.004,
+        "liboqsKeygenOpsPerSecond": 29083,
+        "nobleKeygenOpsPerSecond": 986,
+        "speedupRatio": 29.529
+      }
+    },
+    {
+      "algorithm": "ML-DSA-65",
+      "fipsStandard": "FIPS 204",
+      "securityCategory": 3,
+      "publicKeyBytes": 1952,
+      "secretKeyBytes": 4032,
+      "signatureBytes": 3309,
+      "messageBytes": 179,
+      "iterations": 200,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.061,
+          "p95Ms": 0.071,
+          "p99Ms": 0.079,
+          "meanMs": 0.063,
+          "opsPerSecond": 15834
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.189,
+          "p95Ms": 0.492,
+          "p99Ms": 0.744,
+          "meanMs": 0.228,
+          "opsPerSecond": 4378
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.053,
+          "p95Ms": 0.065,
+          "p99Ms": 0.076,
+          "meanMs": 0.056,
+          "opsPerSecond": 17921
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          0.088,
+          0.069,
+          0.066,
+          0.066,
+          0.062
+        ],
+        "firstCallMs": 0.088,
+        "warmupMedianMs": 0.066,
+        "coldToWarmRatio": 1.443
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 127713280,
+        "postBatchRssBytes": 128991232,
+        "perInstanceRssBytes": 6390,
+        "v8HeapDeltaBytes": 276656,
+        "perInstanceHeapBytes": 1383
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 3.146,
+          "opsPerSecond": 15893,
+          "scalingEfficiency": 1.004
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 6.447,
+          "opsPerSecond": 15512,
+          "scalingEfficiency": 0.49
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 12.69,
+          "opsPerSecond": 15761,
+          "scalingEfficiency": 0.249
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 25.846,
+          "opsPerSecond": 15476,
+          "scalingEfficiency": 0.122
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 57.03,
+          "opsPerSecond": 14028,
+          "scalingEfficiency": 0.055
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 84.194,
+          "opsPerSecond": 1188,
+          "scalingEfficiency": 0.075
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 77.574,
+          "opsPerSecond": 2578,
+          "scalingEfficiency": 0.081
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 82.687,
+          "opsPerSecond": 4838,
+          "scalingEfficiency": 0.076
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 92.33,
+          "opsPerSecond": 8665,
+          "scalingEfficiency": 0.068
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 0.061,
+        "nobleKeygenP50Ms": 1.715,
+        "liboqsKeygenOpsPerSecond": 15834,
+        "nobleKeygenOpsPerSecond": 585,
+        "speedupRatio": 28.107
+      }
+    },
+    {
+      "algorithm": "ML-DSA-87",
+      "fipsStandard": "FIPS 204",
+      "securityCategory": 5,
+      "publicKeyBytes": 2592,
+      "secretKeyBytes": 4896,
+      "signatureBytes": 4627,
+      "messageBytes": 179,
+      "iterations": 100,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.093,
+          "p95Ms": 0.107,
+          "p99Ms": 0.111,
+          "meanMs": 0.094,
+          "opsPerSecond": 10620
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.247,
+          "p95Ms": 0.704,
+          "p99Ms": 1.198,
+          "meanMs": 0.314,
+          "opsPerSecond": 3185
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.092,
+          "p95Ms": 0.104,
+          "p99Ms": 0.182,
+          "meanMs": 0.093,
+          "opsPerSecond": 10766
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          0.103,
+          0.09,
+          0.086,
+          0.087,
+          0.096
+        ],
+        "firstCallMs": 0.103,
+        "warmupMedianMs": 0.09,
+        "coldToWarmRatio": 1.109
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 140787712,
+        "postBatchRssBytes": 142508032,
+        "perInstanceRssBytes": 8602,
+        "v8HeapDeltaBytes": 283064,
+        "perInstanceHeapBytes": 1415
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 4.746,
+          "opsPerSecond": 10535,
+          "scalingEfficiency": 0.992
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 9.257,
+          "opsPerSecond": 10802,
+          "scalingEfficiency": 0.509
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 18.293,
+          "opsPerSecond": 10933,
+          "scalingEfficiency": 0.257
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 36.82,
+          "opsPerSecond": 10864,
+          "scalingEfficiency": 0.128
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 72.865,
+          "opsPerSecond": 10979,
+          "scalingEfficiency": 0.065
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 78.898,
+          "opsPerSecond": 1267,
+          "scalingEfficiency": 0.119
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 79.841,
+          "opsPerSecond": 2505,
+          "scalingEfficiency": 0.118
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 84.865,
+          "opsPerSecond": 4713,
+          "scalingEfficiency": 0.111
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 100.952,
+          "opsPerSecond": 7925,
+          "scalingEfficiency": 0.093
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 0.093,
+        "nobleKeygenP50Ms": 2.743,
+        "liboqsKeygenOpsPerSecond": 10620,
+        "nobleKeygenOpsPerSecond": 365,
+        "speedupRatio": 29.496
+      }
+    },
+    {
+      "algorithm": "Falcon-512",
+      "fipsStandard": "FN-DSA",
+      "securityCategory": 1,
+      "publicKeyBytes": 897,
+      "secretKeyBytes": 1281,
+      "signatureBytes": 650,
+      "messageBytes": 179,
+      "iterations": 50,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 2.931,
+          "p95Ms": 4.25,
+          "p99Ms": 4.388,
+          "meanMs": 3.046,
+          "opsPerSecond": 328
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 0.097,
+          "p95Ms": 0.123,
+          "p99Ms": 0.144,
+          "meanMs": 0.101,
+          "opsPerSecond": 9906
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.015,
+          "p95Ms": 0.019,
+          "p99Ms": 0.024,
+          "meanMs": 0.016,
+          "opsPerSecond": 63959
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          5.4,
+          2.683,
+          2.731,
+          2.729,
+          2.529
+        ],
+        "firstCallMs": 5.4,
+        "warmupMedianMs": 2.729,
+        "coldToWarmRatio": 1.842
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 153321472,
+        "postBatchRssBytes": 153534464,
+        "perInstanceRssBytes": 1065,
+        "v8HeapDeltaBytes": 276464,
+        "perInstanceHeapBytes": 1382
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 163.01,
+          "opsPerSecond": 307,
+          "scalingEfficiency": 0.936
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 335.901,
+          "opsPerSecond": 298,
+          "scalingEfficiency": 0.454
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 637.036,
+          "opsPerSecond": 314,
+          "scalingEfficiency": 0.239
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 1264.251,
+          "opsPerSecond": 316,
+          "scalingEfficiency": 0.12
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 2531.588,
+          "opsPerSecond": 316,
+          "scalingEfficiency": 0.06
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 386.108,
+          "opsPerSecond": 259,
+          "scalingEfficiency": 0.79
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 391.924,
+          "opsPerSecond": 510,
+          "scalingEfficiency": 0.777
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 416.012,
+          "opsPerSecond": 962,
+          "scalingEfficiency": 0.733
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 439.542,
+          "opsPerSecond": 1820,
+          "scalingEfficiency": 0.694
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 2.931,
+        "nobleKeygenP50Ms": 0,
+        "liboqsKeygenOpsPerSecond": 328,
+        "nobleKeygenOpsPerSecond": 0,
+        "speedupRatio": 0,
+        "note": "Falcon (FN-DSA pending FIPS 206) is not in @noble/post-quantum's catalog as of 0.6.0."
+      }
+    },
+    {
+      "algorithm": "SLH-DSA-SHA2-128f",
+      "fipsStandard": "FIPS 205",
+      "securityCategory": 1,
+      "publicKeyBytes": 32,
+      "secretKeyBytes": 64,
+      "signatureBytes": 17088,
+      "messageBytes": 179,
+      "iterations": 25,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 0.485,
+          "p95Ms": 0.515,
+          "p99Ms": 0.521,
+          "meanMs": 0.484,
+          "opsPerSecond": 2067
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 11.061,
+          "p95Ms": 11.441,
+          "p99Ms": 11.478,
+          "meanMs": 11.024,
+          "opsPerSecond": 91
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 0.68,
+          "p95Ms": 0.712,
+          "p99Ms": 0.739,
+          "meanMs": 0.684,
+          "opsPerSecond": 1461
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          0.532,
+          0.512,
+          0.479,
+          0.487,
+          0.485
+        ],
+        "firstCallMs": 0.532,
+        "warmupMedianMs": 0.487,
+        "coldToWarmRatio": 1.097
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 155779072,
+        "postBatchRssBytes": 155779072,
+        "perInstanceRssBytes": 0,
+        "v8HeapDeltaBytes": 276488,
+        "perInstanceHeapBytes": 1382
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 23.369,
+          "opsPerSecond": 2140,
+          "scalingEfficiency": 1.035
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 46.491,
+          "opsPerSecond": 2151,
+          "scalingEfficiency": 0.52
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 94.344,
+          "opsPerSecond": 2120,
+          "scalingEfficiency": 0.256
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 190.795,
+          "opsPerSecond": 2096,
+          "scalingEfficiency": 0.127
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 382.064,
+          "opsPerSecond": 2094,
+          "scalingEfficiency": 0.063
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 112.156,
+          "opsPerSecond": 892,
+          "scalingEfficiency": 0.432
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 116.027,
+          "opsPerSecond": 1724,
+          "scalingEfficiency": 0.417
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 125.357,
+          "opsPerSecond": 3191,
+          "scalingEfficiency": 0.386
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 132.905,
+          "opsPerSecond": 6019,
+          "scalingEfficiency": 0.364
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 0.485,
+        "nobleKeygenP50Ms": 2.957,
+        "liboqsKeygenOpsPerSecond": 2067,
+        "nobleKeygenOpsPerSecond": 335,
+        "speedupRatio": 6.097
+      }
+    },
+    {
+      "algorithm": "SLH-DSA-SHA2-256f",
+      "fipsStandard": "FIPS 205",
+      "securityCategory": 5,
+      "publicKeyBytes": 64,
+      "secretKeyBytes": 128,
+      "signatureBytes": 49856,
+      "messageBytes": 179,
+      "iterations": 10,
+      "operations": [
+        {
+          "operation": "keygen",
+          "p50Ms": 1.851,
+          "p95Ms": 1.892,
+          "p99Ms": 1.892,
+          "meanMs": 1.822,
+          "opsPerSecond": 549
+        },
+        {
+          "operation": "sign",
+          "p50Ms": 37.691,
+          "p95Ms": 38.504,
+          "p99Ms": 38.504,
+          "meanMs": 37.497,
+          "opsPerSecond": 27
+        },
+        {
+          "operation": "verify",
+          "p50Ms": 1.012,
+          "p95Ms": 1.046,
+          "p99Ms": 1.046,
+          "meanMs": 1.015,
+          "opsPerSecond": 985
+        }
+      ],
+      "coldStart": {
+        "operation": "keygen",
+        "firstNMs": [
+          1.867,
+          1.861,
+          1.74,
+          1.673,
+          1.752
+        ],
+        "firstCallMs": 1.867,
+        "warmupMedianMs": 1.752,
+        "coldToWarmRatio": 1.008
+      },
+      "memoryFootprint": {
+        "batchSize": 200,
+        "baselineRssBytes": 157548544,
+        "postBatchRssBytes": 157564928,
+        "perInstanceRssBytes": 82,
+        "v8HeapDeltaBytes": 276472,
+        "perInstanceHeapBytes": 1382
+      },
+      "concurrency": [
+        {
+          "workers": 1,
+          "operation": "keygen",
+          "totalOps": 50,
+          "durationMs": 91.459,
+          "opsPerSecond": 547,
+          "scalingEfficiency": 0.996
+        },
+        {
+          "workers": 2,
+          "operation": "keygen",
+          "totalOps": 100,
+          "durationMs": 180.908,
+          "opsPerSecond": 553,
+          "scalingEfficiency": 0.504
+        },
+        {
+          "workers": 4,
+          "operation": "keygen",
+          "totalOps": 200,
+          "durationMs": 363.469,
+          "opsPerSecond": 550,
+          "scalingEfficiency": 0.25
+        },
+        {
+          "workers": 8,
+          "operation": "keygen",
+          "totalOps": 400,
+          "durationMs": 728.962,
+          "opsPerSecond": 549,
+          "scalingEfficiency": 0.125
+        },
+        {
+          "workers": 16,
+          "operation": "keygen",
+          "totalOps": 800,
+          "durationMs": 1446.015,
+          "opsPerSecond": 553,
+          "scalingEfficiency": 0.063
+        }
+      ],
+      "multiProcessConcurrency": [
+        {
+          "processes": 1,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 100,
+          "durationMs": 246.644,
+          "opsPerSecond": 405,
+          "scalingEfficiency": 0.738
+        },
+        {
+          "processes": 2,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 200,
+          "durationMs": 265.656,
+          "opsPerSecond": 753,
+          "scalingEfficiency": 0.686
+        },
+        {
+          "processes": 4,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 400,
+          "durationMs": 283.993,
+          "opsPerSecond": 1408,
+          "scalingEfficiency": 0.641
+        },
+        {
+          "processes": 8,
+          "operation": "keygen",
+          "opsPerProcess": 100,
+          "totalOps": 800,
+          "durationMs": 278.793,
+          "opsPerSecond": 2870,
+          "scalingEfficiency": 0.653
+        }
+      ],
+      "nobleComparison": {
+        "liboqsKeygenP50Ms": 1.851,
+        "nobleKeygenP50Ms": 12.037,
+        "liboqsKeygenOpsPerSecond": 549,
+        "nobleKeygenOpsPerSecond": 83,
+        "speedupRatio": 6.503
+      }
+    }
+  ]
+}
