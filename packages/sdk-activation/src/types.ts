@@ -30,6 +30,7 @@ export const SdkIdentifierSchema = z.enum([
 	"qnsp-python",
 	"qnsp-go",
 	"qnsp-rust",
+	"qnsp-jvm",
 	"langchain-qnsp",
 	"llamaindex-qnsp",
 	"autogen-qnsp",
@@ -46,8 +47,8 @@ export const SdkActivationRequestSchema = z.object({
 	sdkId: SdkIdentifierSchema,
 	/** SDK version string (e.g., "0.1.0") */
 	sdkVersion: z.string().min(1).max(32),
-	/** Runtime environment. JS family: "browser" | "node" | "edge". Native SDKs: "python" | "go" | "rust". */
-	runtime: z.enum(["browser", "node", "edge", "python", "go", "rust"]),
+	/** Runtime environment. JS family: "browser" | "node" | "edge". Native SDKs: "python" | "go" | "rust" | "jvm". */
+	runtime: z.enum(["browser", "node", "edge", "python", "go", "rust", "jvm"]),
 });
 
 export type SdkActivationRequest = z.infer<typeof SdkActivationRequestSchema>;

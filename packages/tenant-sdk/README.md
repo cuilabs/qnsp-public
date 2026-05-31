@@ -1,4 +1,4 @@
-# @qnsp/tenant-sdk
+# @cuilabs/qnsp-tenant-sdk
 
 TypeScript SDK client for the QNSP tenant-service API; equivalent shapes ship in Python, Go, and Rust. Provides tenant lifecycle and subscription management.
 
@@ -7,13 +7,13 @@ Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 ## Installation
 
 ```bash
-pnpm add @qnsp/tenant-sdk
+pnpm add @cuilabs/qnsp-tenant-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { TenantClient } from "@qnsp/tenant-sdk";
+import { TenantClient } from "@cuilabs/qnsp-tenant-sdk";
 
 const tenants = new TenantClient({
   baseUrl: "https://api.qnsp.cuilabs.io",

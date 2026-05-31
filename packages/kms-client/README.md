@@ -1,4 +1,4 @@
-# @qnsp/kms-client
+# @cuilabs/qnsp-kms-client
 
 KMS client for QNSP key management service. Post-quantum key generation, rotation, and cryptographic operations.
 
@@ -7,13 +7,13 @@ Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 ## Installation
 
 ```bash
-pnpm add @qnsp/kms-client
+pnpm add @cuilabs/qnsp-kms-client
 ```
 
 ## Quick Start
 
 ```typescript
-import { HttpKmsServiceClient } from "@qnsp/kms-client";
+import { HttpKmsServiceClient } from "@cuilabs/qnsp-kms-client";
 
 const kms = new HttpKmsServiceClient(
   "https://api.qnsp.cuilabs.io",

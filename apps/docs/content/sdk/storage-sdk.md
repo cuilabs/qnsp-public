@@ -1,5 +1,5 @@
 ---
-title: Storage SDK (@qnsp/storage-sdk)
+title: Storage SDK (@cuilabs/qnsp-storage-sdk)
 version: 0.3.6
 last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
@@ -8,7 +8,7 @@ source_files:
   - /packages/storage-sdk/src/index.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/storage-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-storage-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,20 +19,20 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Storage SDK (`@qnsp/storage-sdk`)
+# Storage SDK (`@cuilabs/qnsp-storage-sdk`)
 
-The TypeScript client for `storage-service`; equivalent shapes ship in Python, Go, and Rust. All files are encrypted with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `storage-service`; equivalent shapes ship in Python, Go, Rust, and JVM/Android. All files are encrypted with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 
 ```bash
-pnpm install @qnsp/storage-sdk
+pnpm install @cuilabs/qnsp-storage-sdk
 ```
 
 ## Create a client
 
 ```ts
-import { StorageClient } from "@qnsp/storage-sdk";
+import { StorageClient } from "@cuilabs/qnsp-storage-sdk";
 
 const storage = new StorageClient({
 	baseUrl: "http://localhost:8092",
@@ -306,7 +306,7 @@ for (const rec of recommendations) {
 The Storage SDK exports the full 93-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```ts
-import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/storage-sdk";
+import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@cuilabs/qnsp-storage-sdk";
 
 // Convert internal to NIST name
 const nistName = toNistAlgorithmName("kyber-768"); // "ML-KEM-768"

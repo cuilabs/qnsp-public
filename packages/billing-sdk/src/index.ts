@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks";
 
-import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+import { activateSdk, type SdkActivationConfig } from "@cuilabs/qnsp-sdk-activation";
 
 import type {
 	BillingClientTelemetry,
@@ -12,7 +12,7 @@ import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 import { validateUUID } from "./validation.js";
 
 /**
- * @qnsp/billing-sdk
+ * @cuilabs/qnsp-billing-sdk
  *
  * TypeScript SDK client for the QNSP billing-service API.
  * Provides a high-level interface for usage meter ingestion and invoice management.

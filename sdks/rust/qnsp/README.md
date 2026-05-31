@@ -4,7 +4,7 @@
 [![docs.rs](https://docs.rs/qnsp/badge.svg)](https://docs.rs/qnsp)
 [![License](https://img.shields.io/crates/l/qnsp.svg)](./LICENSE)
 
-Typed async Rust client for QNSP — post-quantum cryptography (ML-KEM, ML-DSA, SLH-DSA, Falcon via liboqs), PQC-encrypted vault, server-side KMS, immutable audit trails. Same wire contracts as the official `@qnsp/*` TypeScript SDKs, the `qnsp` Python SDK, and the `github.com/cuilabs/qnsp-public/sdks/go/qnsp` Go SDK — pick whichever language fits your stack and the byte-for-byte outputs round-trip.
+Typed async Rust client for QNSP — post-quantum cryptography (ML-KEM, ML-DSA, SLH-DSA, Falcon via liboqs), PQC-encrypted vault, server-side KMS, immutable audit trails. Same wire contracts as the official `@cuilabs/qnsp-*` TypeScript SDKs, the `qnsp` Python SDK, and the `github.com/cuilabs/qnsp-public/sdks/go/qnsp` Go SDK — pick whichever language fits your stack and the byte-for-byte outputs round-trip.
 
 > **Free tier available.** Free-forever account at <https://cloud.qnsp.cuilabs.io/auth> — 60-second signup, no credit card. Includes 10 GB PQC storage, 50 000 API calls/month, 20 KMS keys, 25 vault secrets.
 

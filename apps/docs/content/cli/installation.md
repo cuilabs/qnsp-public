@@ -19,7 +19,7 @@ From `packages/cli/package.json`:
 
 ```json
 {
-  "name": "@qnsp/cli",
+  "name": "@cuilabs/qnsp-cli",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "bin": {
@@ -32,7 +32,7 @@ From `packages/cli/package.json`:
 
 ### pnpm (recommended)
 ```bash
-pnpm add -g @qnsp/cli
+pnpm add -g @cuilabs/qnsp-cli
 ```
 
 ### Verify installation
@@ -46,7 +46,7 @@ qnsp --help
 ## Upgrade
 
 ```bash
-pnpm update -g @qnsp/cli
+pnpm update -g @cuilabs/qnsp-cli
 # or
 brew upgrade qnsp
 ```
@@ -54,7 +54,7 @@ brew upgrade qnsp
 ## Uninstall
 
 ```bash
-pnpm remove -g @qnsp/cli
+pnpm remove -g @cuilabs/qnsp-cli
 # or
 brew uninstall qnsp
 ```

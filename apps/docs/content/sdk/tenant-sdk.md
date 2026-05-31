@@ -1,5 +1,5 @@
 ---
-title: Tenant SDK (@qnsp/tenant-sdk)
+title: Tenant SDK (@cuilabs/qnsp-tenant-sdk)
 version: 0.3.6
 last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
@@ -8,7 +8,7 @@ source_files:
   - /packages/tenant-sdk/src/index.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/tenant-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-tenant-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,20 +19,20 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Tenant SDK (`@qnsp/tenant-sdk`)
+# Tenant SDK (`@cuilabs/qnsp-tenant-sdk`)
 
-The TypeScript client for `tenant-service`; equivalent shapes ship in Python, Go, and Rust. Provides tenant lifecycle management, crypto policy configuration, health monitoring, quota management, and onboarding workflows.
+The TypeScript client for `tenant-service`; equivalent shapes ship in Python, Go, Rust, and JVM/Android. Provides tenant lifecycle management, crypto policy configuration, health monitoring, quota management, and onboarding workflows.
 
 ## Install
 
 ```bash
-pnpm install @qnsp/tenant-sdk
+pnpm install @cuilabs/qnsp-tenant-sdk
 ```
 
 ## Create a client
 
 ```ts
-import { TenantClient } from "@qnsp/tenant-sdk";
+import { TenantClient } from "@cuilabs/qnsp-tenant-sdk";
 
 const tenants = new TenantClient({
 	baseUrl: "http://localhost:8108",
@@ -320,7 +320,7 @@ await tenants.rollbackTenantCryptoPolicyV1(
 Convert between internal and NIST standardized names. The Tenant SDK exports the full 93-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```ts
-import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/tenant-sdk";
+import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@cuilabs/qnsp-tenant-sdk";
 
 // Convert internal to NIST name
 const nistName = toNistAlgorithmName("kyber-768"); // "ML-KEM-768"

@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks";
 
-import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+import { activateSdk, type SdkActivationConfig } from "@cuilabs/qnsp-sdk-activation";
 
 import type {
 	VaultClientTelemetry,
@@ -15,7 +15,7 @@ import { validateUUID } from "./validation.js";
 export { TierError };
 
 /**
- * @qnsp/vault-sdk
+ * @cuilabs/qnsp-vault-sdk
  *
  * TypeScript SDK client for the QNSP vault-service API.
  * Provides a high-level interface for secret management with envelope encryption, versioning, and rotation.
@@ -28,7 +28,7 @@ export { TierError };
 /**
  * Mapping from internal algorithm names to NIST/standards display names.
  * Covers all 90 PQC algorithms supported by QNSP.
- * Canonical source: @qnsp/cryptography pqc-standards.ts ALGORITHM_NIST_NAMES
+ * Canonical source: @cuilabs/qnsp-cryptography pqc-standards.ts ALGORITHM_NIST_NAMES
  */
 export const ALGORITHM_TO_NIST: Record<string, string> = {
 	// FIPS 203 — ML-KEM
@@ -167,11 +167,14 @@ type InternalVaultClientConfig = {
 };
 
 export interface RotationPolicy {
+	/** When false the secret is never auto-rotated (static / not opted in). */
+	readonly enabled: boolean;
 	readonly intervalSeconds: number;
 	readonly expiresAt: number | null;
 }
 
 export interface RotationPolicyInput {
+	readonly enabled?: boolean;
 	readonly intervalSeconds?: number;
 	readonly expiresAt?: number;
 }

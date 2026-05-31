@@ -1,45 +1,81 @@
 ---
-title: Java SDK
-version: 0.0.0
-last_updated: 2026-04-30
+title: JVM / Android SDK
+version: 0.1.0
+last_updated: 2026-06-01
 copyright: © 2025-2026 CUI Labs. All rights reserved.
+license: Apache-2.0
 ---
-# Java SDK
+# JVM / Android SDK
 
-A Java SDK is **not yet planned**. CUI Labs ships first-party SDKs for TypeScript, Python, Go, and Rust today; Java is not on the v1.x roadmap.
+QNSP ships a first-party **JVM / Android SDK** — `io.cuilabs:qnsp` on Maven
+Central. One artifact serves both **server-side JVM** (Spring Boot, plain
+Java/Kotlin) and **native Android** (API 21+), because its only transport
+dependency, OkHttp, runs on both. It mirrors the wire contract of the
+TypeScript, Python, Go, and Rust SDKs byte-for-byte (same 11-service surface,
+same algorithm names, same FIPS 203 / 204 / 205 posture).
 
-## What to use instead
+## Install
 
-Java applications can integrate with QNSP through any of these paths — every QNSP service is a regulated REST API behind the same edge gateway, so any HTTP client works.
+Gradle (Kotlin DSL):
 
-### Direct REST calls via the edge gateway
-
-All QNSP services are reachable at `https://api.qnsp.cuilabs.io/proxy/<service>/...`. Authenticate with your QNSP API key as a Bearer token. The first call your application makes should be `POST /billing/v1/sdk/activate` to validate the key and resolve your tenant tier — see [SDK Activation](../sdk-activation.md) for the exact handshake the first-party SDKs perform.
-
-```java
-HttpClient http = HttpClient.newHttpClient();
-HttpRequest activate = HttpRequest.newBuilder()
-    .uri(URI.create("https://api.qnsp.cuilabs.io/billing/v1/sdk/activate"))
-    .header("authorization", "Bearer " + System.getenv("QNSP_API_KEY"))
-    .header("content-type", "application/json")
-    .POST(HttpRequest.BodyPublishers.ofString(
-        "{\"sdkId\":\"custom-java\",\"sdkVersion\":\"0.1.0\",\"runtime\":\"java\"}"))
-    .build();
+```kotlin
+dependencies {
+    implementation("io.cuilabs:qnsp:0.1.0")
+}
 ```
 
-### CLI invocation from a Java service
+Maven:
 
-The [`@qnsp/cli`](https://github.com/cuilabs/qnsp-public/tree/main/packages/cli) tool can be invoked from a Java process via `Runtime.exec` for one-shot tasks. This is appropriate for batch / cron usage but not for high-throughput inline calls.
+```xml
+<dependency>
+  <groupId>io.cuilabs</groupId>
+  <artifactId>qnsp</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
 
-## When a Java SDK might happen
+Get a free API key at <https://cloud.qnsp.cuilabs.io/auth>. The client performs
+the `POST /billing/v1/sdk/activate` handshake automatically on first use (see
+[SDK Activation](../sdk-activation.md)).
 
-If a first-party Java SDK would change your decision to adopt QNSP, write to **engineering@cuilabs.io** and tell us the use case + estimated volume. We prioritise SDK languages by stated demand from regulated customers.
+## Quick start
 
-## Algorithm-name reference
+Kotlin:
 
-If you implement your own thin Java wrapper for QNSP, mirror the algorithm-name surface used by the four shipped SDKs (TypeScript, Python, Go, Rust) so the byte-for-byte outputs round-trip across languages. The canonical names are:
+```kotlin
+val qnsp = QnspClient(System.getenv("QNSP_API_KEY"))
+qnsp.ensureActivated()                       // surfaces an invalid key eagerly
+val key = qnsp.kms.createKey(CreateKeyRequest(algorithm = "ml-dsa-65", purpose = "signing"))
+qnsp.vault.createSecret(CreateSecretRequest(name = "api-key", payloadB64 = payloadB64))
+```
+
+Java:
+
+```java
+QnspClient qnsp = new QnspClient(System.getenv("QNSP_API_KEY"));
+qnsp.ensureActivated();
+JsonObject key = qnsp.getKms().createKey(new CreateKeyRequest("ml-dsa-65", "signing"));
+```
+
+The eleven service sub-clients are reached as `qnsp.<service>` (Kotlin) /
+`qnsp.get<Service>()` (Java): `kms`, `vault`, `audit`, `auth`, `tenant`,
+`access`, `billing`, `cryptoInventory`, `storage`, `search`, `ai`. Service
+methods return `kotlinx.serialization.json.JsonObject`; KMS `sign`/`wrap`/`unwrap`
+return `ByteArray`, `verify` returns `Boolean`. Webhook verification is in
+`QnspWebhooks`.
+
+## On-device PQC primitives
+
+The SDK is a managed control-plane client — server-side KMS performs PQC key
+operations. For **on-device** PQC inside an Android app (local ML-KEM / ML-DSA),
+pair the SDK with a JVM PQC library such as Bouncy Castle, or the OS-native PQC
+APIs (Android Keystore PQC, available from Android 17). The byte-for-byte
+algorithm-name surface matches the other SDKs:
 
 - KEMs: `ML-KEM-512`, `ML-KEM-768`, `ML-KEM-1024`, `Kyber512..1024`, `HQC-128..256`, `BIKE-L1..L5`, `FrodoKEM-{640,976,1344}-{AES,SHAKE}`, `Classic-McEliece-*`, `sntrup761`
 - Signatures: `ML-DSA-{44,65,87}`, `Dilithium{2,3,5}`, `Falcon-{512,1024}`, `SLH-DSA-{SHA2,SHAKE}-{128,192,256}{f,s}`, `MAYO-{1,2,3,5}`, `cross-rsdp{,g}-{128,192,256}-{balanced,fast,small}`
 
-These match the names exposed by `liboqs` 0.12.0.
+## Source & support
+
+Source: [`sdks/jvm/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/jvm).
+Questions or feature requests: **engineering@cuilabs.io**.

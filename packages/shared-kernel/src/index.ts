@@ -15,6 +15,6 @@ export * from "./tier-catalog.js";
 export * from "./tier-limits.js";
 
 // Node.js-only utilities (use separate import path to avoid bundling in browser)
-// import { benchmark } from "@qnsp/shared-kernel/benchmarks"
-// import { loadTest } from "@qnsp/shared-kernel/load-testing"
-// import { smokeTest } from "@qnsp/shared-kernel/smoke-test-utils"
+// import { benchmark } from "@cuilabs/qnsp-shared-kernel/benchmarks"
+// import { loadTest } from "@cuilabs/qnsp-shared-kernel/load-testing"
+// import { smokeTest } from "@cuilabs/qnsp-shared-kernel/smoke-test-utils"

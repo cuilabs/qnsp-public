@@ -33,7 +33,7 @@ Initial release. The SDK is general-purpose — every QNSP customer uses the sam
 - `qnsp/storage` — PQC-encrypted object storage (SSE-X): `PutObject`, `GetObject`, `DeleteObject`, `ListObjects`, `ListBuckets`.
 - `qnsp/search` — encrypted vector search: index lifecycle, `UpsertVectors`, `Query`.
 - Each submodule also exposes a generic `Do(ctx, method, path, body, query, idempotencyKey)` escape hatch for endpoints not yet typed.
-- `qnsp/crypto` — local PQC primitives wrapping `liboqs-go` 0.12.0. Covers ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), Falcon, plus the full liboqs 0.12.0 algorithm surface (HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS). Algorithm names mirror `@qnsp/cryptography` (TypeScript), `qnsp.crypto` (Python), and the new Rust SDK.
+- `qnsp/crypto` — local PQC primitives wrapping `liboqs-go` 0.12.0. Covers ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), Falcon, plus the full liboqs 0.12.0 algorithm surface (HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS). Algorithm names mirror `@cuilabs/qnsp-cryptography` (TypeScript), `qnsp.crypto` (Python), and the new Rust SDK.
 - `qnsp.Activator` — one-shot handshake against `/billing/v1/sdk/activate` with `sdkId="qnsp-go"`, cached with a 60 s near-expiry buffer.
 - `qnsp.ParseWebhook` and `qnsp.VerifyWebhookSignature` — HMAC-SHA-256 verify, replay protection (`qnsp.MaxWebhookSkew = 5 * time.Minute`), typed `qnsp.WebhookEvent`.
 - Top-level introspection: `Client.TenantID`, `Client.Tier`, `Client.Limits`, `Client.HasFeature`.

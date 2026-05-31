@@ -1,5 +1,5 @@
 ---
-title: Search SDK (@qnsp/search-sdk)
+title: Search SDK (@cuilabs/qnsp-search-sdk)
 version: 0.2.10
 last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
@@ -9,7 +9,7 @@ source_files:
   - /packages/search-sdk/src/types.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/search-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-search-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -20,20 +20,20 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Search SDK (`@qnsp/search-sdk`)
+# Search SDK (`@cuilabs/qnsp-search-sdk`)
 
-The TypeScript client for `search-service`; equivalent shapes ship in Python, Go, and Rust. Search indexes are encrypted with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `search-service`; equivalent shapes ship in Python, Go, Rust, and JVM/Android. Search indexes are encrypted with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 
 ```bash
-pnpm install @qnsp/search-sdk
+pnpm install @cuilabs/qnsp-search-sdk
 ```
 
 ## Create a client
 
 ```ts
-import { SearchClient } from "@qnsp/search-sdk";
+import { SearchClient } from "@cuilabs/qnsp-search-sdk";
 
 const search = new SearchClient({
 	baseUrl: "http://localhost:8101",

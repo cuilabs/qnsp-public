@@ -3,7 +3,7 @@
 //! Typed Rust client for QNSP — post-quantum cryptography (ML-KEM, ML-DSA,
 //! SLH-DSA, Falcon via liboqs), PQC-encrypted vault, server-side KMS,
 //! and immutable audit trails. Same wire contracts as the official
-//! `@qnsp/*` TypeScript family, the `qnsp` Python SDK, and the
+//! `@cuilabs/qnsp-*` TypeScript family, the `qnsp` Python SDK, and the
 //! `github.com/cuilabs/qnsp-public/sdks/go/qnsp` Go SDK — pick whichever
 //! language fits your stack and the byte-for-byte outputs round-trip.
 //!

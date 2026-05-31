@@ -1,5 +1,5 @@
 ---
-title: Access Control SDK (@qnsp/access-control-sdk)
+title: Access Control SDK (@cuilabs/qnsp-access-control-sdk)
 version: 0.3.6
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
@@ -8,7 +8,7 @@ source_files:
   - /packages/access-control-sdk/src/index.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/access-control-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-access-control-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,20 +19,20 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Access Control SDK (`@qnsp/access-control-sdk`)
+# Access Control SDK (`@cuilabs/qnsp-access-control-sdk`)
 
-The TypeScript client for `access-control-service`; equivalent shapes ship in Python, Go, and Rust. All capability tokens are signed with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `access-control-service`; equivalent shapes ship in Python, Go, Rust, and JVM/Android. All capability tokens are signed with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 
 ```bash
-pnpm install @qnsp/access-control-sdk
+pnpm install @cuilabs/qnsp-access-control-sdk
 ```
 
 ## Create a client
 
 ```ts
-import { AccessControlClient } from "@qnsp/access-control-sdk";
+import { AccessControlClient } from "@cuilabs/qnsp-access-control-sdk";
 
 const accessControl = new AccessControlClient({
 	baseUrl: "http://localhost:8102",
@@ -299,7 +299,7 @@ if (audit.crossTenantViolations.length > 0) {
 The Access Control SDK exports the full 93-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```ts
-import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/access-control-sdk";
+import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@cuilabs/qnsp-access-control-sdk";
 
 // Convert internal to NIST name
 const nistName = toNistAlgorithmName("dilithium-3"); // "ML-DSA-65"

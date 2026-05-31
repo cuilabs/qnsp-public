@@ -56,7 +56,7 @@ Data never in plaintext on server.
 
 ### Browser-side PQC encryption
 
-The `@qnsp/browser-sdk` package provides client-side PQC encryption directly in the browser using `@noble/post-quantum` (pure JavaScript, zero native dependencies). This enables true end-to-end encryption where data is encrypted before it leaves the browser.
+The `@cuilabs/qnsp-browser` package provides client-side PQC encryption directly in the browser using `@noble/post-quantum` (pure JavaScript, zero native dependencies). This enables true end-to-end encryption where data is encrypted before it leaves the browser.
 
 Supported algorithms (18 FIPS-standardized):
 - **ML-KEM** (FIPS 203): kyber-512, kyber-768, kyber-1024 — key encapsulation
@@ -69,4 +69,4 @@ CSE workflow:
 3. Upload encrypted envelope to QNSP storage
 4. Download and decrypt with `decryptAfterDownload(envelope, privateKey)`
 
-See the [`@qnsp/browser-sdk` documentation](/sdk/browser-sdk) for full API reference and integration examples.
+See the [`@cuilabs/qnsp-browser` documentation](/sdk/browser-sdk) for full API reference and integration examples.

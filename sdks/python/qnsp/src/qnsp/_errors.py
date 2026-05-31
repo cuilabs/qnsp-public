@@ -1,6 +1,6 @@
 """Typed error hierarchy for the QNSP Python SDK.
 
-Mirrors the structure used by the official @qnsp/* TypeScript SDKs so that
+Mirrors the structure used by the official @cuilabs/qnsp-* TypeScript SDKs so that
 log analysis and error-handling code can be consistent across runtimes.
 """
 

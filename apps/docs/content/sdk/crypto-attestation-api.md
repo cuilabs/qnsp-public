@@ -1,5 +1,5 @@
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/crypto-inventory-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-crypto-inventory-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -343,7 +343,7 @@ GET /platform/v1/crypto/policy/presets
 ### TypeScript/Node.js
 
 ```typescript
-import { CryptoInventoryClient } from '@qnsp/crypto-inventory-sdk';
+import { CryptoInventoryClient } from '@cuilabs/qnsp-crypto-inventory-sdk';
 
 const client = new CryptoInventoryClient({
   apiKey: process.env.QNSP_API_KEY,

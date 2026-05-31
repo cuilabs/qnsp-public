@@ -9,4 +9,4 @@ export {
 	TIER_LIMITS,
 	TierError,
 	type TierLimits,
-} from "@qnsp/shared-kernel";
+} from "@cuilabs/qnsp-shared-kernel";

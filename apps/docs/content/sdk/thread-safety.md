@@ -5,7 +5,7 @@ last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -17,7 +17,7 @@ copyright: © 2025-2026 CUI Labs. All rights reserved.
 
 # Thread Safety
 
-QNSP ships SDKs in four languages: TypeScript/Node.js, Python, Go, and Rust. Each language has its own concurrency model — the guarantees below describe what each official SDK gives you.
+QNSP ships SDKs in five languages: TypeScript/Node.js, Python, Go, Rust, and JVM/Android. Each language has its own concurrency model — the guarantees below describe what each official SDK gives you.
 
 ## Node.js / TypeScript
 
@@ -25,7 +25,7 @@ QNSP ships SDKs in four languages: TypeScript/Node.js, Python, Go, and Rust. Eac
 - One client instance per application is the recommended pattern.
 
 ```typescript
-import { VaultClient } from "@qnsp/vault-sdk";
+import { VaultClient } from "@cuilabs/qnsp-vault-sdk";
 
 // Good: shared client
 const client = new VaultClient({ baseUrl: "https://api.qnsp.cuilabs.io/proxy/vault", apiKey: "<token>" });
@@ -83,14 +83,26 @@ let c2 = c.clone();
 tokio::spawn(async move { c2.vault().create_secret(req, None).await });
 ```
 
+## JVM / Android (`io.cuilabs:qnsp` v0.1.0+)
+
+- `QnspClient` is thread-safe and built to be shared. It owns one OkHttp `OkHttpClient` (an internally pooled, thread-safe HTTP client) and one activation cache guarded by a `synchronized` block.
+- Recommended pattern: construct one `QnspClient` at startup (e.g. a Spring singleton `@Bean`) and inject it everywhere. `OkHttpClient` is explicitly designed to be shared across threads.
+
+```kotlin
+val qnsp = QnspClient(System.getenv("QNSP_API_KEY"))
+// share the single instance across threads / coroutines:
+executor.submit { qnsp.vault.createSecret(req) }
+```
+
 ## Connection pooling
 
-All four SDKs reuse a single underlying HTTP connection pool per client instance:
+All SDKs reuse a single underlying HTTP connection pool per client instance:
 
 - TypeScript: native `fetch` (Undici under Node) reuses keep-alive connections.
 - Python: `httpx.Client` keeps a connection pool per host.
 - Go: `*http.Client` reuses connections via the default `Transport`.
 - Rust: `reqwest::Client` keeps a connection pool per host (Hyper underneath).
+- JVM/Android: `OkHttpClient` keeps a shared, thread-safe connection pool per client instance.
 
 Construct one client and reuse it; do not build a fresh client per request.
 
@@ -98,7 +110,7 @@ Construct one client and reuse it; do not build a fresh client per request.
 
 Each SDK runs the activation handshake on first use and caches the result with a near-expiry buffer (60 seconds before the server-issued `expiresAt`). On a `401`, the cache is invalidated and the originating request retried once.
 
-In all four SDKs the refresh is **not** strictly serialised across concurrent callers — concurrent goroutines / threads / async tasks may both observe a refresh in flight. This is intentional: the activation endpoint is idempotent, the response is identical, and serialising would block on lock contention. If you observe duplicate handshakes in your load tests, that is the expected behaviour.
+In all SDKs the refresh is **not** strictly serialised across concurrent callers — concurrent goroutines / threads / async tasks may both observe a refresh in flight. This is intentional: the activation endpoint is idempotent, the response is identical, and serialising would block on lock contention. If you observe duplicate handshakes in your load tests, that is the expected behaviour.
 
 ## Cleanup
 
@@ -106,3 +118,4 @@ In all four SDKs the refresh is **not** strictly serialised across concurrent ca
 - Python: `QnspClient` is a context manager; use `with QnspClient(...) as q:` or call `.close()` to release the `httpx.Client` connection pool.
 - Go: call `Client.Close()` (currently a no-op but reserved).
 - Rust: `Drop` releases the `Arc`-shared state automatically.
+- JVM/Android: no explicit cleanup required; the underlying OkHttp connection pool idles out automatically.

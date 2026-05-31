@@ -1,6 +1,6 @@
 """KMS client — server-side PQC key management.
 
-Mirrors the most-used methods of ``@qnsp/kms-client`` from the TypeScript
+Mirrors the most-used methods of ``@cuilabs/qnsp-kms-client`` from the TypeScript
 SDK family. Routes verified against ``apps/kms-service/src/routes/keys.ts``:
 
   POST   /kms/v1/keys                 — createKey

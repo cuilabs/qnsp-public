@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"ignoreDeprecations": "6.0",
+		"composite": true,
+		"tsBuildInfoFile": "tsconfig.tsbuildinfo",
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"checkJs": false
+	},
+	"include": ["src/**/*.ts"]
+}

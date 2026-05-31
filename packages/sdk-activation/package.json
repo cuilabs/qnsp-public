@@ -1,5 +1,5 @@
 {
-	"name": "@qnsp/sdk-activation",
+	"name": "@cuilabs/qnsp-sdk-activation",
 	"version": "0.1.7",
 	"publishConfig": {
 		"access": "public"

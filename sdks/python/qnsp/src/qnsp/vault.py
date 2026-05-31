@@ -1,6 +1,6 @@
 """Vault client — PQC-encrypted secret storage.
 
-Mirrors the public surface of the TypeScript ``@qnsp/vault-sdk`` for the
+Mirrors the public surface of the TypeScript ``@cuilabs/qnsp-vault-sdk`` for the
 methods most-used by Python LLM workloads: create, get, rotate, delete.
 
 Wire paths come from ``apps/vault-service/src/routes/secrets.ts`` and the

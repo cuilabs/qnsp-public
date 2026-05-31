@@ -1,6 +1,6 @@
 /**
- * Inlined copy of @qnsp/sdk-activation (workspace package, not published).
- * Bundled here so @cuilabs/qnsp has no external @qnsp/* dependencies.
+ * Inlined copy of @cuilabs/qnsp-sdk-activation (workspace package, not published).
+ * Bundled here so @cuilabs/qnsp has no external @cuilabs/qnsp-* dependencies.
  * Keep this folder in sync with packages/sdk-activation/src/ when changes
  * land upstream — both files are minimal (activation-client.ts +
  * types.ts) so a manual diff is tractable.

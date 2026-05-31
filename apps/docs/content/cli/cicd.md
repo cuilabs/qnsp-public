@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install QNSP CLI
-        run: pnpm add -g @qnsp/cli
+        run: pnpm add -g @cuilabs/qnsp-cli
       
       - name: Configure QNSP
         env:
@@ -44,7 +44,7 @@ jobs:
 deploy:
   image: node:20
   before_script:
-    - corepack enable && corepack prepare pnpm@10.25.0 --activate && pnpm add -g @qnsp/cli
+    - corepack enable && corepack prepare pnpm@10.25.0 --activate && pnpm add -g @cuilabs/qnsp-cli
   script:
     - qnsp vault secrets get $QNSP_SECRET_ID --output json > api-key.json
   variables:
@@ -65,7 +65,7 @@ pipeline {
         stage('Setup') {
             steps {
                 sh 'corepack enable && corepack prepare pnpm@10.25.0 --activate'
-                sh 'pnpm add -g @qnsp/cli'
+                sh 'pnpm add -g @cuilabs/qnsp-cli'
                 sh 'qnsp auth token --service-id $QNSP_SERVICE_ID --service-secret $QNSP_SERVICE_SECRET --output json'
             }
         }
@@ -94,7 +94,7 @@ jobs:
           command: |
             corepack enable
             corepack prepare pnpm@10.25.0 --activate
-            pnpm add -g @qnsp/cli
+            pnpm add -g @cuilabs/qnsp-cli
       - run:
           name: Fetch secrets
           command: |

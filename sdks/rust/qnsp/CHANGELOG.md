@@ -32,7 +32,7 @@ Initial release. The SDK is general-purpose — every QNSP customer uses the sam
 - `qnsp::crypto_inventory::Client` — Cryptographic Bill of Materials: asset listing, discovery runs, PQC readiness score.
 - `qnsp::storage::Client` — PQC-encrypted object storage (SSE-X): `put_object`, `get_object`, `delete_object`, `list_objects`, `list_buckets`.
 - `qnsp::search::Client` — encrypted vector search: index lifecycle, `upsert_vectors`, `query`.
-- `qnsp::crypto` (feature-gated on `crypto`) — local PQC primitives wrapping `oqs` 0.11. Covers ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), Falcon, plus HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS. Algorithm names mirror `@qnsp/cryptography` (TypeScript), `qnsp.crypto` (Python), and `qnsp/crypto` (Go).
+- `qnsp::crypto` (feature-gated on `crypto`) — local PQC primitives wrapping `oqs` 0.11. Covers ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), Falcon, plus HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS. Algorithm names mirror `@cuilabs/qnsp-cryptography` (TypeScript), `qnsp.crypto` (Python), and `qnsp/crypto` (Go).
 - `qnsp::Activation` — one-shot handshake against `/billing/v1/sdk/activate` with `sdkId="qnsp-rust"`, cached with a 60 s near-expiry buffer.
 - `qnsp::parse_webhook` and `qnsp::verify_webhook_signature` — HMAC-SHA-256 verify, replay protection (`qnsp::MAX_WEBHOOK_SKEW = chrono::Duration::minutes(5)`), typed `qnsp::WebhookEvent`.
 - Top-level introspection: `Client::tenant_id`, `Client::tier`, `Client::limits`, `Client::has_feature`.

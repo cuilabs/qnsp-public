@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { getRequestContext } from "@cuilabs/qnsp-observability";
 import { trace } from "@opentelemetry/api";
-import { getRequestContext } from "@qnsp/observability";
 import type { EventMetadata } from "./envelope.js";
 
 export interface ProvenanceOptions {

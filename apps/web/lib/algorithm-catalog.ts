@@ -304,7 +304,7 @@ export const ALGORITHM_CATALOG: readonly AlgorithmFamily[] = [
 		fipsStandard: "FIPS 206 (pending)",
 		fipsStatus: "FIPS-pending",
 		summary:
-			"NIST's fourth standardised PQC signature scheme, formally FN-DSA under FIPS 206 (initial public draft pending as of May 2026, per direct correspondence with Dr. Dustin Moody, NIST PQC lead). Falcon's signatures are the most compact of the lattice-based PQC schemes, making it preferred for size-constrained transport.",
+			"NIST's fourth standardised PQC signature scheme, formally FN-DSA under FIPS 206 — the initial public draft is still pending as of mid-2026. Falcon's signatures are the most compact of the lattice-based PQC schemes, making it preferred for size-constrained transport.",
 		mechanism:
 			"Falcon uses the GPV trapdoor framework over NTRU lattices, with signatures generated via a discrete Gaussian sampler over the lattice. The result is signatures roughly 1/4 the size of equivalent-security ML-DSA signatures. The implementation complexity is higher than ML-DSA (floating-point Gaussian sampling requires care to avoid side-channels and rounding errors), which is why ML-DSA shipped first.",
 		variants: [

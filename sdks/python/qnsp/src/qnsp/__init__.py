@@ -1,6 +1,6 @@
 """QNSP — official Python SDK for the Quantum-Native Security Platform.
 
-Mirrors the surface of the ``@qnsp/*`` TypeScript SDK family for the Python
+Mirrors the surface of the ``@cuilabs/qnsp-*`` TypeScript SDK family for the Python
 ecosystem. Same wire contracts, same algorithm names, same FIPS 203/204/205
 posture — pick whichever language fits your stack and the byte-for-byte
 outputs round-trip.

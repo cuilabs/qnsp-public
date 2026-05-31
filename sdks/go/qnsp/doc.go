@@ -3,7 +3,7 @@
 //
 // QNSP provides post-quantum cryptography (ML-KEM, ML-DSA, SLH-DSA, Falcon
 // via liboqs), a PQC-encrypted vault, server-side KMS, and an immutable
-// audit trail. This module mirrors the surface of the @qnsp/* TypeScript and
+// audit trail. This module mirrors the surface of the @cuilabs/qnsp-* TypeScript and
 // `qnsp` Python SDK families: same wire contracts, same algorithm names,
 // same FIPS 203/204/205 posture.
 //

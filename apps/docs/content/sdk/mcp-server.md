@@ -1,5 +1,5 @@
 ---
-title: MCP Server (@qnsp/mcp-server)
+title: MCP Server (@cuilabs/qnsp-mcp)
 version: 0.1.3
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
@@ -11,7 +11,7 @@ source_files:
   - /apps/cloud/app/api/mcp/route.ts
 ---
 
-# MCP Server (`@qnsp/mcp-server`)
+# MCP Server (`@cuilabs/qnsp-mcp`)
 
 QNSP ships an official Model Context Protocol server for AI assistants. It exposes tenant-scoped tools for KMS, vault, audit, crypto posture, search, billing, and platform health using the same billing-backed entitlement model as the rest of the platform.
 
@@ -19,7 +19,7 @@ The MCP server is not just a convenience wrapper. It is one of the supported con
 
 ## Package
 
-- npm package: `@qnsp/mcp-server`
+- npm package: `@cuilabs/qnsp-mcp`
 - binary: `qnsp-mcp`
 - current version: `0.1.3`
 - runtime: Node.js `>= 24.12.0`
@@ -31,7 +31,7 @@ The MCP server is not just a convenience wrapper. It is one of the supported con
 Use this when connecting a local MCP-compatible client such as Codex, Claude Desktop, Cursor, or other MCP-capable tooling.
 
 ```bash
-pnpm add -g @qnsp/mcp-server
+pnpm add -g @cuilabs/qnsp-mcp
 
 export QNSP_API_KEY="qnsp_pqc_api_..."
 export QNSP_PLATFORM_URL="https://api.qnsp.cuilabs.io"
@@ -156,8 +156,8 @@ Authentication is still tenant-scoped and must use a valid QNSP API key or sessi
 Build and test the MCP package locally:
 
 ```bash
-pnpm --filter @qnsp/mcp-server build
-pnpm --filter @qnsp/mcp-server test
+pnpm --filter @cuilabs/qnsp-mcp build
+pnpm --filter @cuilabs/qnsp-mcp test
 ```
 
 ## Related docs

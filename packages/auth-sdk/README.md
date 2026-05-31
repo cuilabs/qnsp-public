@@ -1,4 +1,4 @@
-# @qnsp/auth-sdk
+# @cuilabs/qnsp-auth-sdk
 
 TypeScript SDK client for the QNSP auth-service API; equivalent shapes ship in Python, Go, and Rust. Provides authentication, token management, WebAuthn, MFA, and federation.
 
@@ -7,13 +7,13 @@ Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 ## Installation
 
 ```bash
-pnpm add @qnsp/auth-sdk
+pnpm add @cuilabs/qnsp-auth-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { AuthClient } from "@qnsp/auth-sdk";
+import { AuthClient } from "@cuilabs/qnsp-auth-sdk";
 
 const auth = new AuthClient({
   baseUrl: "https://api.qnsp.cuilabs.io",

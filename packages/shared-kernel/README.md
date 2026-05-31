@@ -1,4 +1,4 @@
-# @qnsp/shared-kernel
+# @cuilabs/qnsp-shared-kernel
 
 Shared domain primitives, schemas, and utilities used across the Quantum-Native Security Platform (QNSP).
 
@@ -12,7 +12,7 @@ Shared domain primitives, schemas, and utilities used across the Quantum-Native 
 
 ### Error hierarchy
 
-- `ApplicationError`, `DomainError`, `UnauthorizedError`, `ForbiddenError` — standardized error hierarchy used by every `@qnsp/*` SDK.
+- `ApplicationError`, `DomainError`, `UnauthorizedError`, `ForbiddenError` — standardized error hierarchy used by every `@cuilabs/qnsp-*` SDK.
 
 ### Health
 
@@ -32,7 +32,7 @@ Shared domain primitives, schemas, and utilities used across the Quantum-Native 
 Example:
 
 ```ts
-import { isFeatureEnabled, TierError } from "@qnsp/shared-kernel";
+import { isFeatureEnabled, TierError } from "@cuilabs/qnsp-shared-kernel";
 
 if (!isFeatureEnabled("enclaves", currentTier)) {
   throw new TierError("enclaves", currentTier, "enterprise-standard");
@@ -40,7 +40,7 @@ if (!isFeatureEnabled("enclaves", currentTier)) {
 ```
 
 The tier catalogue is **inlined** in this package. It has no runtime dependency
-on the internal `@qnsp/pricing` commercial model; drift between the two is
+on the internal `@cuilabs/qnsp-pricing` commercial model; drift between the two is
 prevented at build time by `src/tier-limits.drift.test.ts`, which asserts
 byte-exact equality against the internal source of truth.
 

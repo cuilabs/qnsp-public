@@ -5,7 +5,7 @@ last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -158,26 +158,26 @@ QNSP provides 15 public developer packages across SDKs and tooling, with 12 core
 
 **Core service SDKs**
 
-1. **@qnsp/auth-sdk** - Authentication, FIDO2 passkeys, Personal Access Tokens (PATs), session management
-2. **@qnsp/vault-sdk** - Secrets management, credential storage, lease rotation
-3. **@qnsp/storage-sdk** - Document upload/download, lifecycle management, compliance controls
-4. **@qnsp/search-sdk** - Full-text search, SSE token filtering, index optimization
-5. **@qnsp/ai-sdk** - AI workload orchestration, enclave management, GPU scheduling
-6. **@qnsp/kms-client** - PQC envelope encryption client, BYOK workflows, signing helpers
-7. **@qnsp/tenant-sdk** - Tenant management, subscription, metadata operations
-8. **@qnsp/billing-sdk** - Invoice management, usage tracking, payment processing
-9. **@qnsp/access-control-sdk** - Policy management, capability tokens, authorization flows
-10. **@qnsp/audit-sdk** - Audit log querying, compliance reporting, event retrieval
-11. **@qnsp/crypto-inventory-sdk** - Crypto asset discovery, PQC migration tracking, inventory management
-12. **@qnsp/browser-sdk** - Browser-compatible PQC encryption: client-side encryption, signing, key encapsulation
+1. **@cuilabs/qnsp-auth-sdk** - Authentication, FIDO2 passkeys, Personal Access Tokens (PATs), session management
+2. **@cuilabs/qnsp-vault-sdk** - Secrets management, credential storage, lease rotation
+3. **@cuilabs/qnsp-storage-sdk** - Document upload/download, lifecycle management, compliance controls
+4. **@cuilabs/qnsp-search-sdk** - Full-text search, SSE token filtering, index optimization
+5. **@cuilabs/qnsp-ai-sdk** - AI workload orchestration, enclave management, GPU scheduling
+6. **@cuilabs/qnsp-kms-client** - PQC envelope encryption client, BYOK workflows, signing helpers
+7. **@cuilabs/qnsp-tenant-sdk** - Tenant management, subscription, metadata operations
+8. **@cuilabs/qnsp-billing-sdk** - Invoice management, usage tracking, payment processing
+9. **@cuilabs/qnsp-access-control-sdk** - Policy management, capability tokens, authorization flows
+10. **@cuilabs/qnsp-audit-sdk** - Audit log querying, compliance reporting, event retrieval
+11. **@cuilabs/qnsp-crypto-inventory-sdk** - Crypto asset discovery, PQC migration tracking, inventory management
+12. **@cuilabs/qnsp-browser** - Browser-compatible PQC encryption: client-side encryption, signing, key encapsulation
 
 **Developer tooling and agent surfaces**
 
-13. **@qnsp/cli** - CLI automation, CI/CD, operator workflows
-14. **@qnsp/mcp-server** - Official MCP server for AI assistants and agent frameworks
-15. **@qnsp/agent** - Host-based discovery agent for private and on-prem environments
+13. **@cuilabs/qnsp-cli** - CLI automation, CI/CD, operator workflows
+14. **@cuilabs/qnsp-mcp** - Official MCP server for AI assistants and agent frameworks
+15. **@cuilabs/qnsp-agent** - Host-based discovery agent for private and on-prem environments
 
-All SDKs are free and included with every tier. View them at [npmjs.com/org/qnsp](https://www.npmjs.com/org/qnsp).
+All SDKs are free and included with every tier. View them at [npmjs.com/package/@cuilabs/qnsp](https://www.npmjs.com/package/@cuilabs/qnsp).
 
 ### What are the tier storage and API limits?
 
@@ -406,7 +406,7 @@ Multi-region deployments allow you to enforce EU data residency for GDPR complia
 
 ### Is QNSP FedRAMP authorized?
 
-QNSP follows FedRAMP roadmap requirements and supports IL5/FedRAMP High alignment for deployment-specific configurations. For classified or sensitive government workloads, we offer:
+No — QNSP is not currently FedRAMP authorized; FedRAMP is on our compliance roadmap. The platform is architected to align with FedRAMP controls. For classified or sensitive government workloads, we offer:
 - Private/VPC deployments
 - Air-gapped installations
 - Customer-controlled HSM integration
@@ -581,7 +581,7 @@ Yes. QNSP supports Kubernetes deployments:
 
 1. **Sign up**: [cloud.qnsp.cuilabs.io/auth](https://cloud.qnsp.cuilabs.io/auth)
 2. **Create tenant**: Provision your workspace
-3. **Install SDK**: `pnpm add @qnsp/storage-sdk` (or any SDK)
+3. **Install SDK**: `pnpm add @cuilabs/qnsp-storage-sdk` (or any SDK)
 4. **Authenticate**: Get API token from cloud portal
 5. **First API call**: Upload a document or create a secret
 

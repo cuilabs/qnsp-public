@@ -1,4 +1,4 @@
-import { clearActivationCache } from "@qnsp/sdk-activation";
+import { clearActivationCache } from "@cuilabs/qnsp-sdk-activation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HttpKmsServiceClient } from "./index.js";
 

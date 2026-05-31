@@ -28,7 +28,7 @@ Returns access token + refresh token.
 3. `POST /auth/webauthn/authenticate/complete` — verify and get tokens
 
 ### OAuth / Social Sign-In
-One-click sign-up and sign-in via GitHub, Google, Microsoft, GitLab, or Bitbucket. Handled entirely by the Cloud Portal BFF — no direct auth-service API calls required from the client.
+One-click sign-up and sign-in via GitHub, Google, LinkedIn, or Microsoft. Handled entirely by the Cloud Portal BFF — no direct auth-service API calls required from the client.
 
 1. User navigates to `GET /api/auth/oauth/{provider}`
 2. BFF generates a CSRF state (HMAC-SHA256 nonce) and sets `qnsp_oauth_state` cookie (HttpOnly, SameSite=Lax, 10 min TTL)
@@ -38,9 +38,8 @@ One-click sign-up and sign-in via GitHub, Google, Microsoft, GitLab, or Bitbucke
 4. BFF redirects to the provider's authorization endpoint:
    - **GitHub**: `https://github.com/login/oauth/authorize` — scopes `user:email read:user`
    - **Google**: `https://accounts.google.com/o/oauth2/v2/auth` — scopes `openid email profile`
-   - **Microsoft**: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize`
-   - **GitLab**: `https://gitlab.com/oauth/authorize`
-   - **Bitbucket**: `https://bitbucket.org/site/oauth2/authorize`
+   - **LinkedIn**: `https://www.linkedin.com/oauth/v2/authorization` — scopes `openid profile email`
+   - **Microsoft**: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize` — scopes `openid profile email User.Read`
 5. Provider redirects to `GET /api/auth/oauth/{provider}/callback?code=…&state=…`
 6. BFF verifies the CSRF state against the cookie, exchanges the `code` for an access token, and fetches the user profile from the provider API
 7. **Returning user**: identity lookup via `GET /auth/oauth/identity` → session issued
@@ -58,15 +57,12 @@ One-click sign-up and sign-in via GitHub, Google, Microsoft, GitLab, or Bitbucke
 | `CLOUD_OAUTH_GOOGLE_CLIENT_ID` | Google OAuth app client ID |
 | `CLOUD_OAUTH_GOOGLE_CLIENT_SECRET` | Google OAuth app client secret |
 | `CLOUD_OAUTH_GOOGLE_CALLBACK_URL` | Optional Google callback override |
+| `CLOUD_OAUTH_LINKEDIN_CLIENT_ID` | LinkedIn OAuth app client ID |
+| `CLOUD_OAUTH_LINKEDIN_CLIENT_SECRET` | LinkedIn OAuth app client secret |
+| `CLOUD_OAUTH_LINKEDIN_CALLBACK_URL` | Optional LinkedIn callback override |
 | `CLOUD_OAUTH_MICROSOFT_CLIENT_ID` | Microsoft OAuth app client ID |
 | `CLOUD_OAUTH_MICROSOFT_CLIENT_SECRET` | Microsoft OAuth app client secret |
 | `CLOUD_OAUTH_MICROSOFT_CALLBACK_URL` | Optional Microsoft callback override |
-| `CLOUD_OAUTH_GITLAB_CLIENT_ID` | GitLab OAuth app client ID |
-| `CLOUD_OAUTH_GITLAB_CLIENT_SECRET` | GitLab OAuth app client secret |
-| `CLOUD_OAUTH_GITLAB_CALLBACK_URL` | Optional GitLab callback override |
-| `CLOUD_OAUTH_BITBUCKET_CLIENT_ID` | Bitbucket OAuth app client ID |
-| `CLOUD_OAUTH_BITBUCKET_CLIENT_SECRET` | Bitbucket OAuth app client secret |
-| `CLOUD_OAUTH_BITBUCKET_CALLBACK_URL` | Optional Bitbucket callback override |
 | `CLOUD_OAUTH_SESSION_SECRET` | HMAC secret for CSRF state signing |
 | `CLOUD_PORTAL_URL` | Callback base URL (default: `https://cloud.qnsp.cuilabs.io`) |
 
@@ -94,7 +90,7 @@ Flow:
 Authenticated users can manage linked identities from **Profile → Linked Accounts** in the Cloud Portal.
 
 Supported linking paths:
-- Social OAuth: GitHub, Google, Microsoft, GitLab, Bitbucket
+- Social OAuth: GitHub, Google, LinkedIn, Microsoft
 - Workforce SSO: Entra ID, Okta, Auth0, Google Workspace, AWS IAM Identity Center, and configured tenant SAML/OIDC providers
 
 Unlinking removes the external identity binding without deleting the QNSP user account or tenant membership.

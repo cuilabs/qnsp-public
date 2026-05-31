@@ -1,4 +1,4 @@
-# @qnsp/billing-sdk
+# @cuilabs/qnsp-billing-sdk
 
 TypeScript SDK client for the QNSP billing-service API; equivalent shapes ship in Python, Go, and Rust. Provides usage meter ingestion and invoice management.
 
@@ -7,13 +7,13 @@ Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 ## Installation
 
 ```bash
-pnpm add @qnsp/billing-sdk
+pnpm add @cuilabs/qnsp-billing-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { BillingClient } from "@qnsp/billing-sdk";
+import { BillingClient } from "@cuilabs/qnsp-billing-sdk";
 
 const billing = new BillingClient({
   baseUrl: "https://api.qnsp.cuilabs.io",

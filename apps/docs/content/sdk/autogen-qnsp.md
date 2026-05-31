@@ -1,5 +1,5 @@
 ---
-title: AutoGen Integration (@qnsp/autogen-qnsp)
+title: AutoGen Integration (@cuilabs/qnsp-autogen-qnsp)
 version: 0.2.5
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
@@ -10,20 +10,20 @@ source_files:
   - /packages/autogen-qnsp/src/executor.ts
 ---
 
-# AutoGen Integration (`@qnsp/autogen-qnsp`)
+# AutoGen Integration (`@cuilabs/qnsp-autogen-qnsp`)
 
 QNSP provides an AutoGen-oriented executor that submits code workloads to QNSP AI orchestration endpoints with tenant-scoped activation.
 
 ## Install
 
 ```bash
-pnpm add @qnsp/autogen-qnsp autogen
+pnpm add @cuilabs/qnsp-autogen-qnsp autogen
 ```
 
 ## Usage
 
 ```ts
-import { QnspExecutor } from "@qnsp/autogen-qnsp";
+import { QnspExecutor } from "@cuilabs/qnsp-autogen-qnsp";
 
 const executor = new QnspExecutor({
 	apiKey: process.env.QNSP_API_KEY!,

@@ -6,9 +6,9 @@
 		"composite": true,
 		"tsBuildInfoFile": "tsconfig.tsbuildinfo",
 		"paths": {
-			"@qnsp/observability": ["packages/observability/dist/index.d.ts"],
-			"@qnsp/*": ["packages/*/src"],
-			"@qnsp/app/*": ["apps/*/src"]
+			"@cuilabs/qnsp-observability": ["packages/observability/dist/index.d.ts"],
+			"@cuilabs/qnsp-*": ["packages/*/src"],
+			"@cuilabs/qnsp-app/*": ["apps/*/src"]
 		}
 	},
 	"include": ["src/**/*.ts"],

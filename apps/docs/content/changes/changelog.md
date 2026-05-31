@@ -30,7 +30,7 @@ Earlier iterations of the platform existed in prior internal repositories and de
 
 - Bootstrap the monorepo and initial workspace structure
 - Introduce automated versioning with Changesets
-- Establish package naming and scope conventions (including the `@qnsp/*` namespace)
+- Establish package naming and scope conventions (including the `@cuilabs/qnsp-*` namespace)
 
 ## Versioning
 

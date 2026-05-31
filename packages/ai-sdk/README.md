@@ -1,4 +1,4 @@
-# @qnsp/ai-sdk
+# @cuilabs/qnsp-ai-sdk
 
 TypeScript SDK client for the QNSP AI orchestration service; equivalent shapes ship in Python, Go, and Rust. Provides secure AI workload management, enclave inference, and encrypted training.
 
@@ -7,13 +7,13 @@ Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 ## Installation
 
 ```bash
-pnpm add @qnsp/ai-sdk
+pnpm add @cuilabs/qnsp-ai-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { AiOrchestratorClient } from "@qnsp/ai-sdk";
+import { AiOrchestratorClient } from "@cuilabs/qnsp-ai-sdk";
 
 const ai = new AiOrchestratorClient({
   baseUrl: "https://api.qnsp.cuilabs.io",

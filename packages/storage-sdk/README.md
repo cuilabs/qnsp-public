@@ -1,4 +1,4 @@
-# @qnsp/storage-sdk
+# @cuilabs/qnsp-storage-sdk
 
 TypeScript SDK client for the QNSP storage-service API; equivalent shapes ship in Python, Go, and Rust.
 
@@ -7,13 +7,13 @@ Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 ## Installation
 
 ```bash
-pnpm add @qnsp/storage-sdk
+pnpm add @cuilabs/qnsp-storage-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { StorageClient } from "@qnsp/storage-sdk";
+import { StorageClient } from "@cuilabs/qnsp-storage-sdk";
 
 const storage = new StorageClient({
   baseUrl: "https://api.qnsp.cuilabs.io",

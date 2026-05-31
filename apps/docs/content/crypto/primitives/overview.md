@@ -11,7 +11,7 @@ source_files:
 
 # PQC Primitives Overview
 
-QNSP implements NIST-standardized post-quantum cryptographic primitives via the `@qnsp/cryptography` package.
+QNSP implements NIST-standardized post-quantum cryptographic primitives via the `@cuilabs/qnsp-cryptography` package.
 
 ## Supported Algorithms
 

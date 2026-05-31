@@ -19,7 +19,7 @@
  * the library implementation. The vectors below are *determinism vectors*
  * tied to a specific noble version.
  *
- * Run:  pnpm --filter @qnsp/web-portal run bench:gen-conformance
+ * Run:  pnpm --filter @cuilabs/qnsp-web-portal run bench:gen-conformance
  *
  * Re-run only when intentionally upgrading @noble/post-quantum and
  * commit the new JSON together with the package.json bump.

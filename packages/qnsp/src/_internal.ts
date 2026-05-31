@@ -11,7 +11,9 @@ import { activateSdk, type SdkActivationResponse } from "./_activation/index.js"
 import { QnspApiError, QnspAuthError, QnspNetworkError } from "./errors.js";
 
 export const SDK_ID = "qnsp";
-export const SDK_VERSION = "0.1.0";
+// Bump in lockstep with packages/qnsp/package.json `version` (activation
+// telemetry label). Same release contract as browser/sdk-package-version.ts.
+export const SDK_VERSION = "0.3.0";
 
 const DEFAULT_BASE_URL = "https://api.qnsp.cuilabs.io";
 const DEFAULT_TIMEOUT_MS = 15_000;

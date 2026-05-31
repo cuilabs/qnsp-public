@@ -71,15 +71,12 @@ This document lists all environment variables used across QNSP services.
 - `CLOUD_OAUTH_GOOGLE_CLIENT_ID` - Google OAuth app client ID
 - `CLOUD_OAUTH_GOOGLE_CLIENT_SECRET` - Google OAuth app client secret
 - `CLOUD_OAUTH_GOOGLE_CALLBACK_URL` - Optional Google callback override
+- `CLOUD_OAUTH_LINKEDIN_CLIENT_ID` - LinkedIn OAuth app client ID
+- `CLOUD_OAUTH_LINKEDIN_CLIENT_SECRET` - LinkedIn OAuth app client secret
+- `CLOUD_OAUTH_LINKEDIN_CALLBACK_URL` - Optional LinkedIn callback override
 - `CLOUD_OAUTH_MICROSOFT_CLIENT_ID` - Microsoft OAuth app client ID
 - `CLOUD_OAUTH_MICROSOFT_CLIENT_SECRET` - Microsoft OAuth app client secret
 - `CLOUD_OAUTH_MICROSOFT_CALLBACK_URL` - Optional Microsoft callback override
-- `CLOUD_OAUTH_GITLAB_CLIENT_ID` - GitLab OAuth app client ID
-- `CLOUD_OAUTH_GITLAB_CLIENT_SECRET` - GitLab OAuth app client secret
-- `CLOUD_OAUTH_GITLAB_CALLBACK_URL` - Optional GitLab callback override
-- `CLOUD_OAUTH_BITBUCKET_CLIENT_ID` - Bitbucket OAuth app client ID
-- `CLOUD_OAUTH_BITBUCKET_CLIENT_SECRET` - Bitbucket OAuth app client secret
-- `CLOUD_OAUTH_BITBUCKET_CALLBACK_URL` - Optional Bitbucket callback override
 
 ## Billing Service (`apps/billing-service`)
 

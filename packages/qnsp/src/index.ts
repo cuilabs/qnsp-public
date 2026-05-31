@@ -1,5 +1,5 @@
 /**
- * `@qnsp/qnsp` — official Node.js / TypeScript SDK for the
+ * `@cuilabs/qnsp` — official Node.js / TypeScript SDK for the
  * Quantum-Native Security Platform.
  *
  * Single package covering vault, kms, audit, auth, tenant, access,
@@ -9,7 +9,7 @@
  *
  * @example
  * ```ts
- * import { QnspClient } from "@qnsp/qnsp";
+ * import { QnspClient } from "@cuilabs/qnsp";
  *
  * const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
  *

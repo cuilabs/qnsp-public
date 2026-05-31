@@ -1,5 +1,5 @@
 ---
-title: Auth SDK (@qnsp/auth-sdk)
+title: Auth SDK (@cuilabs/qnsp-auth-sdk)
 version: 0.3.6
 last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
@@ -8,7 +8,7 @@ source_files:
   - /packages/auth-sdk/src/index.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,20 +19,20 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Auth SDK (`@qnsp/auth-sdk`)
+# Auth SDK (`@cuilabs/qnsp-auth-sdk`)
 
-The TypeScript client for `auth-service`; equivalent shapes ship in Python, Go, and Rust. All tokens are signed with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `auth-service`; equivalent shapes ship in Python, Go, Rust, and JVM/Android. All tokens are signed with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 
 ```bash
-pnpm install @qnsp/auth-sdk
+pnpm install @cuilabs/qnsp-auth-sdk
 ```
 
 ## Create a client
 
 ```ts
-import { AuthClient } from "@qnsp/auth-sdk";
+import { AuthClient } from "@cuilabs/qnsp-auth-sdk";
 
 const auth = new AuthClient({
 	baseUrl: "https://api.qnsp.cuilabs.io",
@@ -148,7 +148,7 @@ const oidcResult = await auth.federateOIDC({
 For internal services to authenticate with each other:
 
 ```ts
-import { requestServiceToken, getServiceAuthHeader } from "@qnsp/auth-sdk";
+import { requestServiceToken, getServiceAuthHeader } from "@cuilabs/qnsp-auth-sdk";
 
 // Get service token
 const token = await requestServiceToken({
@@ -176,7 +176,7 @@ fetch(url, {
 The Auth SDK exports the full 93-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```ts
-import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/auth-sdk";
+import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@cuilabs/qnsp-auth-sdk";
 
 // Convert internal to NIST name
 const nistName = toNistAlgorithmName("dilithium-3"); // "ML-DSA-65"

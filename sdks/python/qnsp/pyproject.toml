@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "qnsp"
 version = "0.3.0"
-description = "Official Python SDK for the QNSP Quantum-Native Security Platform — post-quantum cryptography (ML-KEM, ML-DSA, SLH-DSA, Falcon via liboqs), PQC-encrypted vault, KMS, and immutable audit trails. Mirrors the @qnsp/* TypeScript SDKs."
+description = "Official Python SDK for the QNSP Quantum-Native Security Platform — post-quantum cryptography (ML-KEM, ML-DSA, SLH-DSA, Falcon via liboqs), PQC-encrypted vault, KMS, and immutable audit trails. Mirrors the @cuilabs/qnsp-* TypeScript SDKs."
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.10"

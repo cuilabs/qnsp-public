@@ -6,7 +6,7 @@ algorithm surface — ML-KEM, ML-DSA, SLH-DSA, Falcon, plus the round-2 NIST
 additional signatures (HQC, MAYO, CROSS, UOV, SNOVA) — without needing to
 write `oqs` calls themselves.
 
-The same liboqs C library that backs the TypeScript `@qnsp/cryptography`
+The same liboqs C library that backs the TypeScript `@cuilabs/qnsp-cryptography`
 package powers this module. Outputs are byte-identical between languages —
 a Python keypair encapsulated by Python decapsulates correctly in TypeScript
 on the other side, and vice versa.

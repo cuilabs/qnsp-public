@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks";
 
-import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+import { activateSdk, type SdkActivationConfig } from "@cuilabs/qnsp-sdk-activation";
 import { type RequestInit as UndiciRequestInit, fetch as undiciFetch } from "undici";
 
 import type { SearchClientTelemetry, SearchClientTelemetryConfig } from "./observability.js";

@@ -1,8 +1,8 @@
-# @qnsp/mcp-server
+# @cuilabs/qnsp-mcp
 
-[![npm version](https://img.shields.io/npm/v/@qnsp/mcp-server.svg)](https://www.npmjs.com/package/@qnsp/mcp-server)
-[![npm downloads](https://img.shields.io/npm/dm/@qnsp/mcp-server.svg)](https://www.npmjs.com/package/@qnsp/mcp-server)
-[![license](https://img.shields.io/npm/l/@qnsp/mcp-server.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@cuilabs/qnsp-mcp.svg)](https://www.npmjs.com/package/@cuilabs/qnsp-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/@cuilabs/qnsp-mcp.svg)](https://www.npmjs.com/package/@cuilabs/qnsp-mcp)
+[![license](https://img.shields.io/npm/l/@cuilabs/qnsp-mcp.svg)](./LICENSE)
 
 **Official QNSP Model Context Protocol server** — give Claude, Cursor, Windsurf,
 and any MCP-compatible agent first-class access to a production post-quantum
@@ -43,7 +43,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`
   "mcpServers": {
     "qnsp": {
       "command": "npx",
-      "args": ["-y", "@qnsp/mcp-server"],
+      "args": ["-y", "@cuilabs/qnsp-mcp"],
       "env": {
         "QNSP_API_KEY": "qnsp_pqc_api_..."
       }
@@ -61,7 +61,7 @@ Add to `~/.cursor/mcp.json`:
   "mcpServers": {
     "qnsp": {
       "command": "npx",
-      "args": ["-y", "@qnsp/mcp-server"],
+      "args": ["-y", "@cuilabs/qnsp-mcp"],
       "env": { "QNSP_API_KEY": "qnsp_pqc_api_..." }
     }
   }
@@ -77,7 +77,7 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
   "mcpServers": {
     "qnsp": {
       "command": "npx",
-      "args": ["-y", "@qnsp/mcp-server"],
+      "args": ["-y", "@cuilabs/qnsp-mcp"],
       "env": { "QNSP_API_KEY": "qnsp_pqc_api_..." }
     }
   }
@@ -94,7 +94,7 @@ Add to `.vscode/mcp.json` (workspace) or the user-level MCP config:
     "qnsp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@qnsp/mcp-server"],
+      "args": ["-y", "@cuilabs/qnsp-mcp"],
       "env": { "QNSP_API_KEY": "qnsp_pqc_api_..." }
     }
   }
@@ -104,7 +104,7 @@ Add to `.vscode/mcp.json` (workspace) or the user-level MCP config:
 ### CLI (any MCP client)
 
 ```bash
-npm install -g @qnsp/mcp-server
+npm install -g @cuilabs/qnsp-mcp
 export QNSP_API_KEY="qnsp_pqc_api_..."
 qnsp-mcp
 ```
@@ -150,7 +150,7 @@ message with a deep link to <https://cloud.qnsp.cuilabs.io/billing>.
 
 ## How it works
 
-On start, the server calls `@qnsp/sdk-activation` to resolve the API key into a
+On start, the server calls `@cuilabs/qnsp-sdk-activation` to resolve the API key into a
 tenant, tier, and feature-flag set. Every tool invocation is:
 
 1. **Gated client-side** by the resolved tier (fails fast with a human-readable

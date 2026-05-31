@@ -1,11 +1,11 @@
-# @qnsp/events
+# @cuilabs/qnsp-events
 
 Canonical event contracts and envelope schemas for messaging inside the Quantum-Native Security Platform (QNSP).
 
 ## Usage
 
 ```ts
-import { eventEnvelopeSchema, createEventEnvelope } from "@qnsp/events";
+import { eventEnvelopeSchema, createEventEnvelope } from "@cuilabs/qnsp-events";
 
 const envelope = createEventEnvelope({
   topic: "auth.user.created",

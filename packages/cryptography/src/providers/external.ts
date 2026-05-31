@@ -1,4 +1,4 @@
-import { activateSdk } from "@qnsp/sdk-activation";
+import { activateSdk } from "@cuilabs/qnsp-sdk-activation";
 
 import type { PqcAlgorithm, PqcProvider } from "../provider.js";
 
@@ -83,7 +83,7 @@ export async function initializeExternalPqcProvider(
 
 	if (!isInternal && !hasApiKey) {
 		throw new Error(
-			"@qnsp/cryptography v0.2.0+ requires `options.apiKey`. " +
+			"@cuilabs/qnsp-cryptography v0.2.0+ requires `options.apiKey`. " +
 				"Get a free API key (no credit card, free-forever tier — 10 GB storage, " +
 				"50,000 API calls/month, 20 KMS keys, 25 vault secrets) at " +
 				"https://cloud.qnsp.cuilabs.io/auth. " +

@@ -1,4 +1,4 @@
-# @qnsp/observability
+# @cuilabs/qnsp-observability
 
 Observability primitives for the Quantum-Native Security Platform (QNSP), including metrics, tracing, context helpers, and integrity hooks.
 
@@ -40,7 +40,7 @@ Services can optionally include PQC signature metadata:
 Services automatically enrich metrics when using wrapped counters/histograms:
 
 ```typescript
-import { enrichMetricAttributes } from "@qnsp/observability";
+import { enrichMetricAttributes } from "@cuilabs/qnsp-observability";
 
 function wrapCounter(counter) {
   return {
@@ -61,7 +61,7 @@ function wrapCounter(counter) {
 **Log Enrichment:**
 
 ```typescript
-import { createIntegrityLogger } from "@qnsp/observability";
+import { createIntegrityLogger } from "@cuilabs/qnsp-observability";
 
 const logger = createIntegrityLogger(fastifyLogger, {
   sourceService: "my-service",

@@ -1,6 +1,6 @@
 {
 	"name": "@cuilabs/qnsp",
-	"version": "0.1.2",
+	"version": "0.3.0",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -14,7 +14,30 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		},
+		"./activation": {
+			"types": "./dist/_activation/index.d.ts",
+			"import": "./dist/_activation/index.js"
+		},
+		"./browser": {
+			"types": "./dist/browser/index.d.ts",
+			"import": "./dist/browser/index.js"
+		},
+		"./langchain": {
+			"types": "./dist/langchain/index.d.ts",
+			"import": "./dist/langchain/index.js"
+		},
+		"./llamaindex": {
+			"types": "./dist/llamaindex/index.d.ts",
+			"import": "./dist/llamaindex/index.js"
+		},
+		"./autogen": {
+			"types": "./dist/autogen/index.d.ts",
+			"import": "./dist/autogen/index.js"
+		},
 		"./package.json": "./package.json"
+	},
+	"bin": {
+		"qnsp": "./dist/cli/index.js"
 	},
 	"scripts": {
 		"build": "tsc --project tsconfig.build.json",
@@ -23,9 +46,30 @@
 		"typecheck": "tsc --project tsconfig.json --noEmit"
 	},
 	"dependencies": {
+		"@noble/hashes": "^2.0.1",
+		"@noble/post-quantum": "^0.6.0",
+		"commander": "^14.0.3",
+		"dotenv": "^17.4.0",
 		"zod": "^4.3.6"
 	},
+	"peerDependencies": {
+		"@langchain/core": ">=0.3.0",
+		"autogen": ">=0.0.1",
+		"llamaindex": ">=0.5.0"
+	},
+	"peerDependenciesMeta": {
+		"@langchain/core": {
+			"optional": true
+		},
+		"autogen": {
+			"optional": true
+		},
+		"llamaindex": {
+			"optional": true
+		}
+	},
 	"devDependencies": {
+		"@langchain/core": "^0.3.80",
 		"@types/node": "^25.5.2",
 		"typescript": "^6.0.2",
 		"vitest": "4.1.2"

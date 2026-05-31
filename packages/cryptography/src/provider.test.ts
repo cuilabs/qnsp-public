@@ -9,7 +9,7 @@ import {
 } from "./provider.js";
 import { createDeterministicTestPqcProvider, createTestPqcProvider } from "./testing/providers.js";
 
-describe("@qnsp/cryptography", () => {
+describe("@cuilabs/qnsp-cryptography", () => {
 	it("registers and retrieves providers", async () => {
 		const provider = createTestPqcProvider();
 		registerPqcProvider("test-provider", provider);

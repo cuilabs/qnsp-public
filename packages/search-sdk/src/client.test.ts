@@ -1,4 +1,4 @@
-import { clearActivationCache } from "@qnsp/sdk-activation";
+import { clearActivationCache } from "@cuilabs/qnsp-sdk-activation";
 import type { fetch as undiciFetch } from "undici";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

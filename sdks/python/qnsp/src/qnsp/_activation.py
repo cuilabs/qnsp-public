@@ -9,7 +9,7 @@ cloud portal. The SDK calls `/billing/v1/sdk/activate`, which:
 3. Issues a short-lived activation token cached in memory; subsequent calls
    reuse the same token until ~1 minute before its stated expiry.
 
-This mirrors `@qnsp/sdk-activation`'s `activateSdk()` in the TypeScript SDKs.
+This mirrors `@cuilabs/qnsp-sdk-activation`'s `activateSdk()` in the TypeScript SDKs.
 """
 
 from __future__ import annotations

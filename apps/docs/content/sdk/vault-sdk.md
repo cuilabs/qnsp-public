@@ -1,5 +1,5 @@
 ---
-title: Vault SDK (@qnsp/vault-sdk)
+title: Vault SDK (@cuilabs/qnsp-vault-sdk)
 version: 0.3.1
 last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
@@ -8,7 +8,7 @@ source_files:
   - /packages/vault-sdk/src/index.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,7 +19,7 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Vault SDK (`@qnsp/vault-sdk`)
+# Vault SDK (`@cuilabs/qnsp-vault-sdk`)
 
 TypeScript client for `vault-service`. All secrets are encrypted with tenant-specific PQC algorithms based on crypto policy.
 
@@ -28,13 +28,13 @@ TypeScript client for `vault-service`. All secrets are encrypted with tenant-spe
 ## Install
 
 ```bash
-pnpm install @qnsp/vault-sdk
+pnpm install @cuilabs/qnsp-vault-sdk
 ```
 
 ## Create a client
 
 ```ts
-import { VaultClient } from "@qnsp/vault-sdk";
+import { VaultClient } from "@cuilabs/qnsp-vault-sdk";
 
 const vault = new VaultClient({
 	baseUrl: "http://localhost:8090",
@@ -435,7 +435,7 @@ console.log(stats);
 The Vault SDK exports the full 93-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```ts
-import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/vault-sdk";
+import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@cuilabs/qnsp-vault-sdk";
 
 // Convert internal to NIST name
 const nistName = toNistAlgorithmName("kyber-768"); // "ML-KEM-768"
@@ -472,7 +472,7 @@ console.log(ALGORITHM_TO_NIST);
 The SDK validates tier access when configured:
 
 ```ts
-import { VaultClient, TierError } from "@qnsp/vault-sdk";
+import { VaultClient, TierError } from "@cuilabs/qnsp-vault-sdk";
 
 try {
 	const vault = new VaultClient({

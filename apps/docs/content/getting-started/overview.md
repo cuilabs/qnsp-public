@@ -15,12 +15,12 @@ QNSP is an API-first platform providing tenant-scoped security primitives: ident
 
 QNSP was conceived, architected, and engineered starting in Dec 2020. The current monorepo was bootstrapped in Nov 2025.
 
-> **Monorepo**: `@qnsp/monorepo` v0.0.1  
+> **Monorepo**: `@cuilabs/qnsp-monorepo` v0.0.1  
 > **Node.js**: ≥24.12.0 | **pnpm**: ≥10.25.0
 
 ## What QNSP Provides
 
-- **Identity & Auth**: PQC-signed JWTs (ML-DSA), refresh tokens, service accounts, RBAC, WebAuthn passkeys, social OAuth (GitHub, Google, Microsoft, GitLab, Bitbucket), enterprise OIDC/SAML federation, linked external identities
+- **Identity & Auth**: PQC-signed JWTs (ML-DSA), refresh tokens, service accounts, RBAC, WebAuthn passkeys, social OAuth (GitHub, Google, LinkedIn, Microsoft), enterprise OIDC/SAML federation, linked external identities
 - **KMS**: Key generation, rotation, BYOK import
 - **Secrets**: Secure storage with TTL and rotation
 - **Storage**: Encryption at rest

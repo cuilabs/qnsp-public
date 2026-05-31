@@ -1,7 +1,7 @@
 /**
  * Typed error hierarchy for the QNSP SDK.
  *
- * Every method in `@qnsp/qnsp` rejects with an instance of one of these
+ * Every method in `@cuilabs/qnsp` rejects with an instance of one of these
  * classes — never with a bare `Error` or a string. Callers can branch on
  * the failure mode without parsing error messages.
  */

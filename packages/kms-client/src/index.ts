@@ -1,5 +1,5 @@
 /**
- * @qnsp/kms-client
+ * @cuilabs/qnsp-kms-client
  *
  * TypeScript client for the QNSP kms-service API.
  * Provides key wrapping and unwrapping operations with tenant-specific PQC algorithms.
@@ -8,7 +8,7 @@
 
 import { performance } from "node:perf_hooks";
 
-import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+import { activateSdk, type SdkActivationConfig } from "@cuilabs/qnsp-sdk-activation";
 
 import type { KmsClientTelemetry, KmsClientTelemetryConfig } from "./observability.js";
 import { createKmsClientTelemetry, isKmsClientTelemetry } from "./observability.js";
@@ -18,7 +18,7 @@ import { validateUUID } from "./validation.js";
 /**
  * Mapping from internal algorithm names to NIST/standards display names.
  * Covers all 90 PQC algorithms supported by QNSP.
- * Canonical source: @qnsp/cryptography pqc-standards.ts ALGORITHM_NIST_NAMES
+ * Canonical source: @cuilabs/qnsp-cryptography pqc-standards.ts ALGORITHM_NIST_NAMES
  */
 export const ALGORITHM_TO_NIST: Record<string, string> = {
 	// FIPS 203 — ML-KEM

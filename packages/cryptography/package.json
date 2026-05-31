@@ -1,5 +1,5 @@
 {
-	"name": "@qnsp/cryptography",
+	"name": "@cuilabs/qnsp-cryptography",
 	"version": "0.2.0",
 	"license": "Apache-2.0",
 	"publishConfig": {
@@ -59,7 +59,7 @@
 	"dependencies": {
 		"@noble/hashes": "^2.0.1",
 		"@noble/post-quantum": "^0.6.0",
-		"@qnsp/sdk-activation": "workspace:*",
+		"@cuilabs/qnsp-sdk-activation": "workspace:*",
 		"zod": "^4.3.6"
 	},
 	"optionalDependencies": {

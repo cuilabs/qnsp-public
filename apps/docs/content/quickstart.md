@@ -1,6 +1,6 @@
 ---
 title: "Quickstart"
-description: "Get started with QNSP in under 10 minutes — create a tenant, obtain an API token, and make your first secure API call from TypeScript, Python, Go, or Rust."
+description: "Get started with QNSP in under 10 minutes — create a tenant, obtain an API token, and make your first secure API call from TypeScript, Python, Go, Rust, or JVM/Android."
 version: 0.2.0
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
@@ -15,7 +15,7 @@ Get from zero to a working QNSP integration in under 10 minutes.
 Sign up at [cloud.qnsp.cuilabs.io/auth](https://cloud.qnsp.cuilabs.io/auth).
 
 Available paths today:
-- One-click social sign-in with **GitHub**, **Google**, **Microsoft**, **GitLab**, or **Bitbucket**
+- One-click social sign-in with **GitHub**, **Google**, **LinkedIn**, or **Microsoft**
 - Email + password signup for a new workspace
 - Enterprise SSO with **Microsoft Entra ID**, **Okta**, **Auth0**, **Google Workspace**, **AWS IAM Identity Center**, or a tenant-configured **SAML 2.0 / OIDC** provider
 
@@ -51,7 +51,7 @@ Pick the SDK for your language. All four families share the same wire contracts,
 
 ```bash
 pnpm add @cuilabs/qnsp
-pnpm add -g @qnsp/cli      # CLI for scripting / CI
+pnpm add -g @cuilabs/qnsp-cli      # CLI for scripting / CI
 ```
 
 ```typescript
@@ -133,11 +133,32 @@ let secret = c.vault().create_secret(CreateSecretRequest {
 }, None).await?;
 ```
 
+### JVM / Android
+
+```kotlin
+// Gradle (Kotlin DSL): build.gradle.kts
+dependencies {
+    implementation("io.cuilabs:qnsp:0.1.0")
+}
+```
+
+```kotlin
+import io.cuilabs.qnsp.QnspClient
+import io.cuilabs.qnsp.CreateSecretRequest
+import okio.ByteString.Companion.encodeUtf8
+
+val qnsp = QnspClient(System.getenv("QNSP_API_KEY"))
+val secret = qnsp.vault.createSecret(
+    CreateSecretRequest(name = "db-password", payloadB64 = "s3cr3t".encodeUtf8().base64()),
+)
+println(secret["id"])
+```
+
 ## Next Steps
 
 - [API Reference](./api) — Full endpoint listing
-- [SDK Overview](./sdk/overview) — All available SDKs across four languages
-- [Supported Languages](./sdk/languages) — Feature matrix: TypeScript / Python / Go / Rust
+- [SDK Overview](./sdk/overview) — All available SDKs across five languages
+- [Supported Languages](./sdk/languages) — Feature matrix: TypeScript / Python / Go / Rust / JVM-Android
 - [MCP Server](./sdk/mcp-server) — Connect AI assistants to QNSP
 - [Getting Started Guide](./getting-started/overview) — Deeper walkthrough including auth flows
 - [cURL Quickstart](./getting-started/quickstart-curl) — Step-by-step API calls without an SDK

@@ -1,17 +1,17 @@
-# @qnsp/resilience
+# @cuilabs/qnsp-resilience
 
 Production-grade resilience primitives used across QNSP services and SDKs.
 
 ## Install
 
 ```bash
-pnpm add @qnsp/resilience
+pnpm add @cuilabs/qnsp-resilience
 ```
 
 ## Usage
 
 ```ts
-import { CircuitBreaker } from "@qnsp/resilience";
+import { CircuitBreaker } from "@cuilabs/qnsp-resilience";
 ```
 
 Exports include circuit breakers, retries, timeout controls, and related helpers used by the platform's service-client layer.

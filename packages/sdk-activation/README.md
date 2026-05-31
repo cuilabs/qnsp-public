@@ -1,21 +1,21 @@
-# @qnsp/sdk-activation
+# @cuilabs/qnsp-sdk-activation
 
 SDK activation and usage metering for QNSP platform SDKs. Ensures all SDK usage is tied to a registered QNSP account.
 
 Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 
-> **Note:** This is an internal package used by other `@qnsp/*` SDKs. You typically do not need to install or use it directly.
+> **Note:** This is an internal package used by other `@cuilabs/qnsp-*` SDKs. You typically do not need to install or use it directly.
 
 ## Installation
 
 ```bash
-pnpm add @qnsp/sdk-activation
+pnpm add @cuilabs/qnsp-sdk-activation
 ```
 
 ## Quick Start
 
 ```typescript
-import { activateSdk } from "@qnsp/sdk-activation";
+import { activateSdk } from "@cuilabs/qnsp-sdk-activation";
 
 // Called internally by QNSP SDKs during initialization
 await activateSdk({

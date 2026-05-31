@@ -1,4 +1,4 @@
-# @qnsp/ai-sdk
+# @cuilabs/qnsp-ai-sdk
 
 ## 0.1.6
 
@@ -18,7 +18,7 @@
 - dbfd5fd: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
 - d588b14: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
 - e88fb5d: Automated changeset generated for staged code updates to keep release workflows fully synchronized.
-- aaa11cc: docs: add GitHub and Google OAuth sign-up links and update platform sign-in references across all published SDKs; add OAuth/Social Sign-In section to @qnsp/auth-sdk; add README to @qnsp/agent
+- aaa11cc: docs: add GitHub and Google OAuth sign-up links and update platform sign-in references across all published SDKs; add OAuth/Social Sign-In section to @cuilabs/qnsp-auth-sdk; add README to @cuilabs/qnsp-agent
 - Updated dependencies [1ac5429]
 - Updated dependencies [1ac5429]
 - Updated dependencies [59ec933]
@@ -29,7 +29,7 @@
 - Updated dependencies [dbfd5fd]
 - Updated dependencies [e88fb5d]
 - Updated dependencies [aaa11cc]
-  - @qnsp/sdk-activation@0.1.3
+  - @cuilabs/qnsp-sdk-activation@0.1.3
 
 ## 0.1.2
 
@@ -68,7 +68,7 @@
 
   **SDK fixes:**
 
-  - Add `"./package.json": "./package.json"` export to `@qnsp/ai-sdk` and `@qnsp/kms-client`
+  - Add `"./package.json": "./package.json"` export to `@cuilabs/qnsp-ai-sdk` and `@cuilabs/qnsp-kms-client`
 
   **Tests:**
 
@@ -105,40 +105,40 @@
 
 - Add tenant crypto policy integration and PQC algorithm utilities to all SDKs.
 
-  ### @qnsp/tenant-sdk
+  ### @cuilabs/qnsp-tenant-sdk
 
   - Added crypto policy management APIs: `getTenantCryptoPolicy()`, `upsertTenantCryptoPolicy()`
   - Added algorithm query methods: `getAllowedKemAlgorithms()`, `getAllowedSignatureAlgorithms()`, `getDefaultKemAlgorithm()`, `getDefaultSignatureAlgorithm()`
   - Added `CRYPTO_POLICY_ALGORITHMS` tier configurations
   - Added `toNistAlgorithmName()` and `ALGORITHM_TO_NIST` utilities
 
-  ### @qnsp/storage-sdk
+  ### @cuilabs/qnsp-storage-sdk
 
   - Added `PqcMetadata` interface with `algorithmNist` field
   - `initiateUpload()` now returns NIST algorithm name
   - Added `toNistAlgorithmName()` utility
 
-  ### @qnsp/auth-sdk
+  ### @cuilabs/qnsp-auth-sdk
 
   - Added `PqcSignatureMetadata` interface
   - Added `toNistAlgorithmName()` and `ALGORITHM_TO_NIST` for signature algorithms
 
-  ### @qnsp/vault-sdk
+  ### @cuilabs/qnsp-vault-sdk
 
   - Enhanced `VaultSecretPqcMetadata` with `algorithmNist` field
   - Added `toNistAlgorithmName()` utility
 
-  ### @qnsp/kms-client
+  ### @cuilabs/qnsp-kms-client
 
   - Added `KmsPqcMetadata` interface
   - `wrapKey()` now returns `algorithmNist` field
   - Added `toNistAlgorithmName()` utility
 
-  ### @qnsp/audit-sdk
+  ### @cuilabs/qnsp-audit-sdk
 
   - Added `toNistAlgorithmName()` and `ALGORITHM_TO_NIST` for signature algorithms
 
-  ### @qnsp/access-control-sdk
+  ### @cuilabs/qnsp-access-control-sdk
 
   - Added `toNistAlgorithmName()` and `ALGORITHM_TO_NIST` for signature algorithms
 

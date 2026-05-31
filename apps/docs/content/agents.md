@@ -77,7 +77,7 @@ Response:
 ### 2. Install the agent
 
 ```bash
-npm install -g @qnsp/agent
+npm install -g @cuilabs/qnsp-agent
 ```
 
 Requires Node.js 20+. The package installs the `qnsp-agent` binary globally.

@@ -5,7 +5,7 @@ last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -49,8 +49,8 @@ Production includes the following services, all accessible via edge-gateway:
 
 ### SDK
 ```typescript
-import { AuthClient } from "@qnsp/auth-sdk";
-import { VaultClient } from "@qnsp/vault-sdk";
+import { AuthClient } from "@cuilabs/qnsp-auth-sdk";
+import { VaultClient } from "@cuilabs/qnsp-vault-sdk";
 
 const auth = new AuthClient({
   baseUrl: "https://api.qnsp.cuilabs.io",

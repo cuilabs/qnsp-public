@@ -1,5 +1,5 @@
 ---
-title: Billing SDK (@qnsp/billing-sdk)
+title: Billing SDK (@cuilabs/qnsp-billing-sdk)
 version: 0.2.6
 last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
@@ -8,7 +8,7 @@ source_files:
   - /packages/billing-sdk/src/index.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/billing-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-billing-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,20 +19,20 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Billing SDK (`@qnsp/billing-sdk`)
+# Billing SDK (`@cuilabs/qnsp-billing-sdk`)
 
-The TypeScript client for `billing-service`; equivalent shapes ship in Python, Go, and Rust. Provides usage metering, invoice management, revenue analytics, and payment recovery.
+The TypeScript client for `billing-service`; equivalent shapes ship in Python, Go, Rust, and JVM/Android. Provides usage metering, invoice management, revenue analytics, and payment recovery.
 
 ## Install
 
 ```bash
-pnpm install @qnsp/billing-sdk
+pnpm install @cuilabs/qnsp-billing-sdk
 ```
 
 ## Create a client
 
 ```ts
-import { BillingClient } from "@qnsp/billing-sdk";
+import { BillingClient } from "@cuilabs/qnsp-billing-sdk";
 
 const billing = new BillingClient({
 	baseUrl: "https://api.qnsp.cuilabs.io",

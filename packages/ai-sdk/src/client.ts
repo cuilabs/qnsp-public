@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { performance } from "node:perf_hooks";
 
-import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+import { activateSdk, type SdkActivationConfig } from "@cuilabs/qnsp-sdk-activation";
 
 import type { AiClientTelemetry, AiClientTelemetryConfig } from "./observability.js";
 import { createAiClientTelemetry, isAiClientTelemetry } from "./observability.js";

@@ -1,5 +1,5 @@
 {
-	"name": "@qnsp/observability",
+	"name": "@cuilabs/qnsp-observability",
 	"version": "0.1.4",
 	"license": "Apache-2.0",
 	"engines": {
@@ -54,7 +54,7 @@
 		"@opentelemetry/resources": "^2.6.1",
 		"@opentelemetry/sdk-metrics": "^2.6.1",
 		"@opentelemetry/sdk-trace-node": "^2.6.1",
-		"@qnsp/shared-kernel": "workspace:*",
+		"@cuilabs/qnsp-shared-kernel": "workspace:*",
 		"fastify": "^5.8.5"
 	},
 	"devDependencies": {

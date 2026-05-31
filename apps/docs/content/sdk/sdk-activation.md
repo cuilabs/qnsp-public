@@ -7,7 +7,7 @@ copyright: © 2025 CUI Labs. All rights reserved.
 license: BSL-1.1
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,13 +19,13 @@ license: BSL-1.1
 
 # SDK Activation
 
-All `@qnsp/*` SDKs perform a lightweight activation handshake when first initialised. This ties SDK usage to a registered QNSP account and enforces entitlement checks without requiring any additional code from the developer.
+All `@cuilabs/qnsp-*` SDKs perform a lightweight activation handshake when first initialised. This ties SDK usage to a registered QNSP account and enforces entitlement checks without requiring any additional code from the developer.
 
 This matters operationally because QNSP treats SDK use as part of the migration and consumption path. Activation is how the platform binds SDK traffic to a real tenant, plan, and entitlement set instead of allowing anonymous or untracked trust operations.
 
 ## How it works
 
-When you call `new VaultClient(config)` (or any other SDK constructor), the SDK internally calls `activateSdk()` from `@qnsp/sdk-activation`:
+When you call `new VaultClient(config)` (or any other SDK constructor), the SDK internally calls `activateSdk()` from `@cuilabs/qnsp-sdk-activation`:
 
 1. Validates the API key format
 2. Sends a lightweight activation request to `https://api.qnsp.cuilabs.io`
@@ -39,7 +39,7 @@ This happens **once per SDK instance** and adds less than 50 ms on a cold start.
 No code changes required. The activation is transparent:
 
 ```typescript
-import { VaultClient } from "@qnsp/vault-sdk";
+import { VaultClient } from "@cuilabs/qnsp-vault-sdk";
 
 // Activation happens here automatically
 const vault = new VaultClient({
@@ -64,7 +64,7 @@ If activation fails, the SDK constructor throws an `ActivationError` with a `cod
 | `ACTIVATION_FAILED` | Unexpected activation failure — retry or contact support |
 
 ```typescript
-import { ActivationError } from "@qnsp/sdk-activation";
+import { ActivationError } from "@cuilabs/qnsp-sdk-activation";
 
 try {
   const vault = new VaultClient({ apiKey, tenantId });

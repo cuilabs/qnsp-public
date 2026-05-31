@@ -1,7 +1,7 @@
 // Package crypto provides local PQC primitives via liboqs-go 0.12.0.
 //
 // The algorithm names exposed here are the canonical QNSP names that
-// match @qnsp/cryptography (TypeScript) and qnsp.crypto (Python). Internally
+// match @cuilabs/qnsp-cryptography (TypeScript) and qnsp.crypto (Python). Internally
 // they are mapped to the liboqs-go enabled-algorithm strings for the
 // installed liboqs version.
 //
@@ -13,7 +13,7 @@ package crypto
 // kemCandidates is the canonical-name → ordered-list-of-liboqs-candidate-names
 // mapping. The first candidate that liboqs-go reports as enabled is used.
 //
-// The mapping mirrors the equivalent structure in the @qnsp/cryptography
+// The mapping mirrors the equivalent structure in the @cuilabs/qnsp-cryptography
 // liboqs provider and qnsp.crypto._registry, so an algorithm string that
 // works in TypeScript or Python also works here.
 var kemCandidates = map[string][]string{

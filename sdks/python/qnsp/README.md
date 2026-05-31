@@ -4,7 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/qnsp.svg)](https://pypi.org/project/qnsp/)
 [![License](https://img.shields.io/pypi/l/qnsp.svg)](./LICENSE)
 
-Typed Python client for QNSP — post-quantum cryptography (ML-KEM, ML-DSA, SLH-DSA, Falcon via liboqs), PQC-encrypted vault, server-side KMS, immutable audit trails. Same wire contracts as the official `@qnsp/*` TypeScript SDKs — pick whichever language fits your stack and the byte-for-byte outputs round-trip.
+Typed Python client for QNSP — post-quantum cryptography (ML-KEM, ML-DSA, SLH-DSA, Falcon via liboqs), PQC-encrypted vault, server-side KMS, immutable audit trails. Same wire contracts as the official `@cuilabs/qnsp-*` TypeScript SDKs — pick whichever language fits your stack and the byte-for-byte outputs round-trip.
 
 > **Free tier available.** Free-forever account at <https://cloud.qnsp.cuilabs.io/auth> — 60-second signup, no credit card. Includes 10 GB PQC storage, 50 000 API calls/month, 20 KMS keys, 25 vault secrets.
 

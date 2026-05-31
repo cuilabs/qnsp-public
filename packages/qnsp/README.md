@@ -9,17 +9,17 @@ The official **single-package** Node.js / TypeScript SDK for QNSP. Covers the fu
 
 ## Why one package?
 
-Previous TypeScript consumers had to install up to 11 separate `@qnsp/*-sdk` packages and keep their versions in sync. `@cuilabs/qnsp` collapses that into a single dependency with sub-namespaces:
+Previous TypeScript consumers had to install up to 11 separate `@cuilabs/qnsp-*-sdk` packages and keep their versions in sync. `@cuilabs/qnsp` collapses that into a single dependency with sub-namespaces:
 
 ```ts
 import { QnspClient } from "@cuilabs/qnsp";
 
 const qnsp = new QnspClient({ apiKey: process.env.QNSP_API_KEY! });
 
-await qnsp.vault.createSecret({ ... });   // was @qnsp/vault-sdk
-await qnsp.kms.sign(keyId, data);          // was @qnsp/kms-client
-await qnsp.audit.logEvent({ ... });        // was @qnsp/audit-sdk
-await qnsp.tenant.getTenant(tenantId);     // was @qnsp/tenant-sdk
+await qnsp.vault.createSecret({ ... });   // was @cuilabs/qnsp-vault-sdk
+await qnsp.kms.sign(keyId, data);          // was @cuilabs/qnsp-kms-client
+await qnsp.audit.logEvent({ ... });        // was @cuilabs/qnsp-audit-sdk
+await qnsp.tenant.getTenant(tenantId);     // was @cuilabs/qnsp-tenant-sdk
 // ...
 ```
 
@@ -158,29 +158,29 @@ If the activation token is rotated server-side, the SDK invalidates its cache an
 
 ## Migration from per-service SDKs
 
-The per-service `@qnsp/*-sdk` packages on npm are now **deprecated** in favour of `@cuilabs/qnsp`. They continue to install and work, but new code should use this package.
+The per-service `@cuilabs/qnsp-*-sdk` packages on npm are now **deprecated** in favour of `@cuilabs/qnsp`. They continue to install and work, but new code should use this package.
 
 | Before | After |
 |---|---|
-| `import { VaultClient } from "@qnsp/vault-sdk"` | `import { QnspClient } from "@cuilabs/qnsp"` then `qnsp.vault` |
-| `import { KmsClient } from "@qnsp/kms-client"` | `qnsp.kms` |
-| `import { AuthClient } from "@qnsp/auth-sdk"` | `qnsp.auth` |
-| `import { TenantClient } from "@qnsp/tenant-sdk"` | `qnsp.tenant` |
-| `import { AccessControlClient } from "@qnsp/access-control-sdk"` | `qnsp.access` |
-| `import { BillingClient } from "@qnsp/billing-sdk"` | `qnsp.billing` |
-| `import { CryptoInventoryClient } from "@qnsp/crypto-inventory-sdk"` | `qnsp.cryptoInventory` |
-| `import { StorageClient } from "@qnsp/storage-sdk"` | `qnsp.storage` |
-| `import { SearchClient } from "@qnsp/search-sdk"` | `qnsp.search` |
-| `import { AiOrchestratorClient } from "@qnsp/ai-sdk"` | `qnsp.ai` |
-| `import { AuditClient } from "@qnsp/audit-sdk"` | `qnsp.audit` |
+| `import { VaultClient } from "@cuilabs/qnsp-vault-sdk"` | `import { QnspClient } from "@cuilabs/qnsp"` then `qnsp.vault` |
+| `import { KmsClient } from "@cuilabs/qnsp-kms-client"` | `qnsp.kms` |
+| `import { AuthClient } from "@cuilabs/qnsp-auth-sdk"` | `qnsp.auth` |
+| `import { TenantClient } from "@cuilabs/qnsp-tenant-sdk"` | `qnsp.tenant` |
+| `import { AccessControlClient } from "@cuilabs/qnsp-access-control-sdk"` | `qnsp.access` |
+| `import { BillingClient } from "@cuilabs/qnsp-billing-sdk"` | `qnsp.billing` |
+| `import { CryptoInventoryClient } from "@cuilabs/qnsp-crypto-inventory-sdk"` | `qnsp.cryptoInventory` |
+| `import { StorageClient } from "@cuilabs/qnsp-storage-sdk"` | `qnsp.storage` |
+| `import { SearchClient } from "@cuilabs/qnsp-search-sdk"` | `qnsp.search` |
+| `import { AiOrchestratorClient } from "@cuilabs/qnsp-ai-sdk"` | `qnsp.ai` |
+| `import { AuditClient } from "@cuilabs/qnsp-audit-sdk"` | `qnsp.audit` |
 
 The constructor signature is simpler — one `apiKey` for everything, instead of a per-service config:
 
 ```ts
 // Before — 11 packages, 11 activation handshakes, 11 versions to keep in sync
-import { VaultClient } from "@qnsp/vault-sdk";
-import { KmsClient } from "@qnsp/kms-client";
-import { AuditClient } from "@qnsp/audit-sdk";
+import { VaultClient } from "@cuilabs/qnsp-vault-sdk";
+import { KmsClient } from "@cuilabs/qnsp-kms-client";
+import { AuditClient } from "@cuilabs/qnsp-audit-sdk";
 
 const vault = new VaultClient({ apiKey, baseUrl: "https://api.qnsp.cuilabs.io/proxy/vault", tier });
 const kms   = new KmsClient({   apiKey, baseUrl: "https://api.qnsp.cuilabs.io/proxy/kms",   tier });

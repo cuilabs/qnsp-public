@@ -5,7 +5,7 @@ last_updated: 2026-05-05
 copyright: © 2026 CUI Labs. All rights reserved.
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -17,7 +17,7 @@ copyright: © 2026 CUI Labs. All rights reserved.
 
 # Node.js SDK
 
-The official QNSP TypeScript / Node.js SDK ships as a single package — `@cuilabs/qnsp` — covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, and ai-orchestrator, plus webhook signature verification. It mirrors the `qnsp` Python / Go / Rust SDKs byte-for-byte over the same wire contracts.
+The official QNSP TypeScript / Node.js SDK ships as a single package — `@cuilabs/qnsp` — covering vault, kms, audit, auth, tenant, access-control, billing, crypto-inventory, storage, search, and ai-orchestrator, plus webhook signature verification. It mirrors the `qnsp` Python / Go / Rust / JVM SDKs byte-for-byte over the same wire contracts.
 
 ## Installation
 
@@ -119,4 +119,4 @@ const isValid = verifyWebhookSignature({
 
 ## Migration from per-service SDKs
 
-Earlier releases shipped per-service packages (`@qnsp/vault-sdk`, `@qnsp/kms-sdk`, etc.). Those are deprecated on npm; `@cuilabs/qnsp` is the single canonical entry point. The wire contract is unchanged — only the import surface and field names have been unified across languages (`payloadB64`, `payload_b64`, `PayloadB64`).
+Earlier releases shipped per-service packages (`@cuilabs/qnsp-vault-sdk`, `@cuilabs/qnsp-kms-sdk`, etc.). Those are deprecated on npm; `@cuilabs/qnsp` is the single canonical entry point. The wire contract is unchanged — only the import surface and field names have been unified across languages (`payloadB64`, `payload_b64`, `PayloadB64`).

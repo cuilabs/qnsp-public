@@ -17,7 +17,7 @@ source_files:
   - /sdks/rust/qnsp/Cargo.toml
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -30,15 +30,15 @@ source_files:
 
 # SDK Overview
 
-QNSP provides official SDKs in **four languages** — TypeScript/Node.js, Python, Go, and Rust — all built on the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture. Pick whichever fits your stack and the byte-for-byte outputs round-trip across languages.
+QNSP provides official SDKs in **five languages** — TypeScript/Node.js, Python, Go, Rust, and JVM/Android (Kotlin + Java) — all built on the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture. Pick whichever fits your stack and the byte-for-byte outputs round-trip across languages.
 
-As of **2026-04-30**, all four language families ship as a **single package per language** with the same 11-service surface. The 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@cuilabs/qnsp` (they continue to install but are no longer the recommended entry point). See [Supported Languages](./languages) for the full feature matrix and [the @cuilabs/qnsp README](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks) for the import-by-import migration guide.
+All language families ship as a **single package per language** with the same 11-service surface. The 11 per-service `@cuilabs/qnsp-*-sdk` packages on npm are deprecated in favour of `@cuilabs/qnsp` (they continue to install but are no longer the recommended entry point). See [Supported Languages](./languages) for the full feature matrix and [the @cuilabs/qnsp README](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks) for the import-by-import migration guide.
 
 The SDKs include tenant crypto policy integration, NIST algorithm name utilities, and support for the latest platform capabilities including risk-based authentication, JIT access, AI orchestration, and real-time streaming.
 
 For migration work, the SDKs are the application cutover surface. Discovery typically starts with cloud/API connectors or QNSP agents, but migration is only complete when production trust calls move onto QNSP SDKs, APIs, or governed platform services.
 
-## Single-package SDKs (recommended for all four languages)
+## Single-package SDKs (recommended for all languages)
 
 | Language | Package | Version | Source | Activation `sdkId` |
 |---|---|---|---|---|
@@ -46,6 +46,7 @@ For migration work, the SDKs are the application cutover surface. Discovery typi
 | Python | [`qnsp`](https://pypi.org/project/qnsp/) | 0.3.0 | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
 | Go | `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | 0.2.0 | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
 | Rust | [`qnsp`](https://crates.io/crates/qnsp) | 0.2.0 | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
+| JVM / Android (Kotlin + Java) | [`io.cuilabs:qnsp`](https://central.sonatype.com/artifact/io.cuilabs/qnsp) | 0.1.0 | [`sdks/jvm/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/jvm) | `qnsp-jvm` |
 
 Each package exposes the same 11 service modules — vault, kms, audit, auth, tenant, access, billing, crypto-inventory, storage, search, ai — plus webhook signature verification and (where the language supports it) local PQC primitives via the language's liboqs binding.
 
@@ -55,18 +56,18 @@ These were the original split before consolidation. They remain installable for 
 
 | Package | Last version | Status |
 |---------|---|---|
-| `@qnsp/auth-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.auth` |
-| `@qnsp/vault-sdk` | 0.3.9 | Deprecated → `@cuilabs/qnsp.vault` |
-| `@qnsp/kms-client` | 0.2.6 | Deprecated → `@cuilabs/qnsp.kms` |
-| `@qnsp/storage-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.storage` |
-| `@qnsp/audit-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.audit` |
-| `@qnsp/access-control-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.access` |
-| `@qnsp/billing-sdk` | 0.2.6 | Deprecated → `@cuilabs/qnsp.billing` |
-| `@qnsp/search-sdk` | 0.2.10 | Deprecated → `@cuilabs/qnsp.search` |
-| `@qnsp/tenant-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.tenant` |
-| `@qnsp/ai-sdk` | 0.1.11 | Deprecated → `@cuilabs/qnsp.ai` |
-| `@qnsp/crypto-inventory-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.cryptoInventory` |
-| `@qnsp/browser-sdk` | 0.1.4 | **Not deprecated** — browser-side PQC primitives, distinct purpose from `@cuilabs/qnsp` (which is Node.js-only) |
+| `@cuilabs/qnsp-auth-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.auth` |
+| `@cuilabs/qnsp-vault-sdk` | 0.3.9 | Deprecated → `@cuilabs/qnsp.vault` |
+| `@cuilabs/qnsp-kms-client` | 0.2.6 | Deprecated → `@cuilabs/qnsp.kms` |
+| `@cuilabs/qnsp-storage-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.storage` |
+| `@cuilabs/qnsp-audit-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.audit` |
+| `@cuilabs/qnsp-access-control-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.access` |
+| `@cuilabs/qnsp-billing-sdk` | 0.2.6 | Deprecated → `@cuilabs/qnsp.billing` |
+| `@cuilabs/qnsp-search-sdk` | 0.2.10 | Deprecated → `@cuilabs/qnsp.search` |
+| `@cuilabs/qnsp-tenant-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.tenant` |
+| `@cuilabs/qnsp-ai-sdk` | 0.1.11 | Deprecated → `@cuilabs/qnsp.ai` |
+| `@cuilabs/qnsp-crypto-inventory-sdk` | 0.3.6 | Deprecated → `@cuilabs/qnsp.cryptoInventory` |
+| `@cuilabs/qnsp-browser` | 0.1.4 | **Not deprecated** — browser-side PQC primitives, distinct purpose from `@cuilabs/qnsp` (which is Node.js-only) |
 
 ## Developer tooling
 
@@ -74,12 +75,12 @@ These packages are part of the public integration surface, but they are not the 
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `@qnsp/cli` | 0.1.12 | Command-line automation and CI/CD workflows |
-| `@qnsp/mcp-server` | 0.1.3 | Official MCP server for AI assistants using QNSP tools |
-| `@qnsp/sdk-activation` | 0.1.5 | Shared activation and entitlement bootstrap used by SDK packages |
-| `@qnsp/langchain-qnsp` | 0.1.7 | LangChain integration package |
-| `@qnsp/llamaindex-qnsp` | 0.2.5 | LlamaIndex integration package |
-| `@qnsp/autogen-qnsp` | 0.2.5 | AutoGen integration package |
+| `@cuilabs/qnsp-cli` | 0.1.12 | Command-line automation and CI/CD workflows |
+| `@cuilabs/qnsp-mcp` | 0.1.3 | Official MCP server for AI assistants using QNSP tools |
+| `@cuilabs/qnsp-sdk-activation` | 0.1.5 | Shared activation and entitlement bootstrap used by SDK packages |
+| `@cuilabs/qnsp-langchain-qnsp` | 0.1.7 | LangChain integration package |
+| `@cuilabs/qnsp-llamaindex-qnsp` | 0.2.5 | LlamaIndex integration package |
+| `@cuilabs/qnsp-autogen-qnsp` | 0.2.5 | AutoGen integration package |
 
 ## How SDKs fit into the migration journey
 
@@ -98,23 +99,23 @@ If workloads are still calling the old KMS, old secret store, or old certificate
 
 ## Individual SDK docs
 
-- [`@qnsp/auth-sdk`](./auth-sdk) — Risk-based auth, federated audit, WebAuthn
-- [`@qnsp/vault-sdk`](./vault-sdk) — Dynamic secrets, leakage detection, versioned secrets
-- [`@qnsp/storage-sdk`](./storage-sdk) — Data classification, retention, cross-region replication
-- [`@qnsp/kms-client`](./kms-client) — BYOHSM, key escrow, usage analytics
-- [`@qnsp/search-sdk`](./search-sdk) — Query analytics, synonym management, isolation
-- [`@qnsp/audit-sdk`](./audit-sdk) — Real-time streaming, retention automation
-- [`@qnsp/access-control-sdk`](./access-control-sdk) — Policy simulation, JIT access
-- [`@qnsp/billing-sdk`](./billing-sdk) — Revenue analytics, dunning, credits
-- [`@qnsp/tenant-sdk`](./tenant-sdk) — Health dashboard, quota forecasting
-- [`@qnsp/ai-sdk`](./ai-sdk) — Model registry, bias monitoring, prompt injection
-- [`@qnsp/crypto-inventory-sdk`](./crypto-inventory-sdk) — Certificate lifecycle, PQC readiness
-- [`@qnsp/browser-sdk`](./browser-sdk) — Browser-side PQC operations
-- [`@qnsp/mcp-server`](./mcp-server) — MCP integration for AI assistants
-- [`@qnsp/langchain-qnsp`](./langchain-qnsp) — LangChain toolkit for vault, KMS, and audit
-- [`@qnsp/llamaindex-qnsp`](./llamaindex-qnsp) — LlamaIndex vector-store adapter for encrypted search
-- [`@qnsp/autogen-qnsp`](./autogen-qnsp) — AutoGen executor for QNSP AI orchestration
-- [`@qnsp/resilience`](./resilience) — Shared resilience primitives used by QNSP clients
+- [`@cuilabs/qnsp-auth-sdk`](./auth-sdk) — Risk-based auth, federated audit, WebAuthn
+- [`@cuilabs/qnsp-vault-sdk`](./vault-sdk) — Dynamic secrets, leakage detection, versioned secrets
+- [`@cuilabs/qnsp-storage-sdk`](./storage-sdk) — Data classification, retention, cross-region replication
+- [`@cuilabs/qnsp-kms-client`](./kms-client) — BYOHSM, key escrow, usage analytics
+- [`@cuilabs/qnsp-search-sdk`](./search-sdk) — Query analytics, synonym management, isolation
+- [`@cuilabs/qnsp-audit-sdk`](./audit-sdk) — Real-time streaming, retention automation
+- [`@cuilabs/qnsp-access-control-sdk`](./access-control-sdk) — Policy simulation, JIT access
+- [`@cuilabs/qnsp-billing-sdk`](./billing-sdk) — Revenue analytics, dunning, credits
+- [`@cuilabs/qnsp-tenant-sdk`](./tenant-sdk) — Health dashboard, quota forecasting
+- [`@cuilabs/qnsp-ai-sdk`](./ai-sdk) — Model registry, bias monitoring, prompt injection
+- [`@cuilabs/qnsp-crypto-inventory-sdk`](./crypto-inventory-sdk) — Certificate lifecycle, PQC readiness
+- [`@cuilabs/qnsp-browser`](./browser-sdk) — Browser-side PQC operations
+- [`@cuilabs/qnsp-mcp`](./mcp-server) — MCP integration for AI assistants
+- [`@cuilabs/qnsp-langchain-qnsp`](./langchain-qnsp) — LangChain toolkit for vault, KMS, and audit
+- [`@cuilabs/qnsp-llamaindex-qnsp`](./llamaindex-qnsp) — LlamaIndex vector-store adapter for encrypted search
+- [`@cuilabs/qnsp-autogen-qnsp`](./autogen-qnsp) — AutoGen executor for QNSP AI orchestration
+- [`@cuilabs/qnsp-resilience`](./resilience) — Shared resilience primitives used by QNSP clients
 
 ## Requirements
 
@@ -155,6 +156,12 @@ cargo add qnsp                  # base
 cargo add qnsp --features crypto   # with local PQC primitives via oqs 0.11
 ```
 
+### JVM / Android
+```kotlin
+// Gradle (Kotlin DSL) — JVM (Spring/Java/Kotlin) + Android (API 21+)
+implementation("io.cuilabs:qnsp:0.1.0")
+```
+
 ## Quick start
 
 ```typescript
@@ -179,7 +186,7 @@ await qnsp.kms.createKey({ algorithm: "ml-dsa-65", purpose: "signing" });
 await qnsp.audit.logEvent({ eventType: "model.inference", payload: { modelId: "gpt-4o" } });
 ```
 
-Same shape in Python, Go, and Rust:
+Same shape in Python, Go, Rust, and JVM/Android:
 
 ```python
 # Python
@@ -198,6 +205,12 @@ c.Vault().CreateSecret(ctx, vault.CreateSecretRequest{Name: "example-secret", Pa
 // Rust
 let c = qnsp::Client::new(qnsp::ClientOptions::with_api_key(std::env::var("QNSP_API_KEY")?))?;
 c.vault().create_secret(qnsp::vault::CreateSecretRequest { name: "example-secret".into(), payload_b64: "...".into(), algorithm: None, metadata: None }, None).await?;
+```
+
+```kotlin
+// JVM / Android (Kotlin)
+val qnsp = QnspClient(System.getenv("QNSP_API_KEY"))
+qnsp.vault.createSecret(CreateSecretRequest(name = "example-secret", payloadB64 = "..."))
 ```
 
 ## Authentication model for SDK consumers
@@ -263,7 +276,7 @@ All SDKs now support tenant crypto policy integration. This allows services to:
 All SDKs export the full 93-algorithm NIST name mapping covering 14 PQC families: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```typescript
-import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/tenant-sdk";
+import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@cuilabs/qnsp-tenant-sdk";
 
 // Convert internal name to NIST name
 const nistName = toNistAlgorithmName("kyber-768"); // "ML-KEM-768"
@@ -311,34 +324,34 @@ See the [Tenant Crypto Policy Guide](/architecture/tenant-crypto-policy) for det
 
 ### Authentication & Access
 
-- **Risk-Based Auth** (`@qnsp/auth-sdk`): Adaptive MFA based on behavioral analytics, device fingerprinting, and geolocation
-- **Federated Audit** (`@qnsp/auth-sdk`): Cross-IdP session correlation and unified audit trails
-- **JIT Access** (`@qnsp/access-control-sdk`): Time-bound privilege elevation with automatic revocation
-- **Policy Simulation** (`@qnsp/access-control-sdk`): Test policy changes against historical patterns
+- **Risk-Based Auth** (`@cuilabs/qnsp-auth-sdk`): Adaptive MFA based on behavioral analytics, device fingerprinting, and geolocation
+- **Federated Audit** (`@cuilabs/qnsp-auth-sdk`): Cross-IdP session correlation and unified audit trails
+- **JIT Access** (`@cuilabs/qnsp-access-control-sdk`): Time-bound privilege elevation with automatic revocation
+- **Policy Simulation** (`@cuilabs/qnsp-access-control-sdk`): Test policy changes against historical patterns
 
 ### Key & Secret Management
 
-- **BYOHSM** (`@qnsp/kms-client`): Connect external HSMs via PKCS#11
-- **Key Escrow** (`@qnsp/kms-client`): M-of-N threshold recovery schemes
-- **Dynamic Secrets** (`@qnsp/vault-sdk`): On-demand credential generation
-- **Leakage Detection** (`@qnsp/vault-sdk`): Real-time scanning for exposed secrets
+- **BYOHSM** (`@cuilabs/qnsp-kms-client`): Connect external HSMs via PKCS#11
+- **Key Escrow** (`@cuilabs/qnsp-kms-client`): M-of-N threshold recovery schemes
+- **Dynamic Secrets** (`@cuilabs/qnsp-vault-sdk`): On-demand credential generation
+- **Leakage Detection** (`@cuilabs/qnsp-vault-sdk`): Real-time scanning for exposed secrets
 
 ### AI & ML Operations
 
-- **Model Registry** (`@qnsp/ai-sdk`): Versioned model catalog with deployment tracking
-- **Bias Monitoring** (`@qnsp/ai-sdk`): Fairness metrics and incident reporting
-- **Cost Optimization** (`@qnsp/ai-sdk`): Token usage analytics and budget alerts
-- **Prompt Injection** (`@qnsp/ai-sdk`): Real-time attack detection and blocking
+- **Model Registry** (`@cuilabs/qnsp-ai-sdk`): Versioned model catalog with deployment tracking
+- **Bias Monitoring** (`@cuilabs/qnsp-ai-sdk`): Fairness metrics and incident reporting
+- **Cost Optimization** (`@cuilabs/qnsp-ai-sdk`): Token usage analytics and budget alerts
+- **Prompt Injection** (`@cuilabs/qnsp-ai-sdk`): Real-time attack detection and blocking
 
 ### AI Tooling & Automation
 
-- **MCP Server** (`@qnsp/mcp-server`): Expose tenant-scoped QNSP tools to AI assistants
-- **CLI Automation** (`@qnsp/cli`): Script CI/CD workflows and operational tasks
-- **Framework Integrations** (`@qnsp/langchain-qnsp`, `@qnsp/llamaindex-qnsp`, `@qnsp/autogen-qnsp`): Connect QNSP services into agent frameworks
+- **MCP Server** (`@cuilabs/qnsp-mcp`): Expose tenant-scoped QNSP tools to AI assistants
+- **CLI Automation** (`@cuilabs/qnsp-cli`): Script CI/CD workflows and operational tasks
+- **Framework Integrations** (`@cuilabs/qnsp-langchain-qnsp`, `@cuilabs/qnsp-llamaindex-qnsp`, `@cuilabs/qnsp-autogen-qnsp`): Connect QNSP services into agent frameworks
 
 ### Billing & Tenant Management
 
-- **Revenue Analytics** (`@qnsp/billing-sdk`): Real-time dashboards by tenant/product
-- **Usage Forecasting** (`@qnsp/billing-sdk`): ML-powered consumption predictions
-- **Health Dashboard** (`@qnsp/tenant-sdk`): Consolidated tenant health metrics
-- **Isolation Audit** (`@qnsp/tenant-sdk`): Continuous verification of data isolation
+- **Revenue Analytics** (`@cuilabs/qnsp-billing-sdk`): Real-time dashboards by tenant/product
+- **Usage Forecasting** (`@cuilabs/qnsp-billing-sdk`): ML-powered consumption predictions
+- **Health Dashboard** (`@cuilabs/qnsp-tenant-sdk`): Consolidated tenant health metrics
+- **Isolation Audit** (`@cuilabs/qnsp-tenant-sdk`): Continuous verification of data isolation

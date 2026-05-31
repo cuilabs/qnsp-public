@@ -1,5 +1,5 @@
 ---
-title: KMS Client (@qnsp/kms-client)
+title: KMS Client (@cuilabs/qnsp-kms-client)
 version: 0.2.6
 last_updated: 2026-04-30
 copyright: © 2025 CUI Labs. All rights reserved.
@@ -8,7 +8,7 @@ source_files:
   - /packages/kms-client/src/index.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/kms-client` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-kms-client` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -19,20 +19,20 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# KMS Client (`@qnsp/kms-client`)
+# KMS Client (`@cuilabs/qnsp-kms-client`)
 
-The TypeScript client for `kms-service`; equivalent shapes ship in Python, Go, and Rust. Provides key wrapping and unwrapping operations with tenant-specific PQC algorithms based on crypto policy.
+The TypeScript client for `kms-service`; equivalent shapes ship in Python, Go, Rust, and JVM/Android. Provides key wrapping and unwrapping operations with tenant-specific PQC algorithms based on crypto policy.
 
 ## Install
 
 ```bash
-pnpm install @qnsp/kms-client
+pnpm install @cuilabs/qnsp-kms-client
 ```
 
 ## Create a client
 
 ```ts
-import { HttpKmsServiceClient } from "@qnsp/kms-client";
+import { HttpKmsServiceClient } from "@cuilabs/qnsp-kms-client";
 
 // With static API token
 const kms = new HttpKmsServiceClient("http://localhost:8095", "<access_token>");
@@ -88,7 +88,7 @@ const dataKey = Buffer.from(result.dataKey, "base64");
 The KMS Client exports the full 93-algorithm NIST name mapping covering all PQC families supported by QNSP: ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), FN-DSA (FIPS 206 draft), HQC, BIKE, Classic McEliece, FrodoKEM, NTRU, NTRU-Prime, MAYO, CROSS, UOV, and SNOVA.
 
 ```ts
-import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@qnsp/kms-client";
+import { toNistAlgorithmName, ALGORITHM_TO_NIST } from "@cuilabs/qnsp-kms-client";
 
 // Convert internal to NIST name
 const nistName = toNistAlgorithmName("kyber-768"); // "ML-KEM-768"

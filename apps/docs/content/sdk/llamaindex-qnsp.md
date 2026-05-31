@@ -1,5 +1,5 @@
 ---
-title: LlamaIndex Integration (@qnsp/llamaindex-qnsp)
+title: LlamaIndex Integration (@cuilabs/qnsp-llamaindex-qnsp)
 version: 0.2.5
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
@@ -10,20 +10,20 @@ source_files:
   - /packages/llamaindex-qnsp/src/vector-store.ts
 ---
 
-# LlamaIndex Integration (`@qnsp/llamaindex-qnsp`)
+# LlamaIndex Integration (`@cuilabs/qnsp-llamaindex-qnsp`)
 
 QNSP exposes an encrypted vector-store adapter for LlamaIndex backed by QNSP search and storage services.
 
 ## Install
 
 ```bash
-pnpm add @qnsp/llamaindex-qnsp llamaindex
+pnpm add @cuilabs/qnsp-llamaindex-qnsp llamaindex
 ```
 
 ## Usage
 
 ```ts
-import { QnspVectorStore } from "@qnsp/llamaindex-qnsp";
+import { QnspVectorStore } from "@cuilabs/qnsp-llamaindex-qnsp";
 
 const store = new QnspVectorStore({
 	apiKey: process.env.QNSP_API_KEY!,
@@ -38,7 +38,7 @@ const store = new QnspVectorStore({
 
 ## Authentication
 
-The adapter activates through `@qnsp/sdk-activation`, derives tenant identity from the API key, and uses billing as the source of truth for availability and limits.
+The adapter activates through `@cuilabs/qnsp-sdk-activation`, derives tenant identity from the API key, and uses billing as the source of truth for availability and limits.
 
 ## Related docs
 

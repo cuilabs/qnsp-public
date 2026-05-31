@@ -76,7 +76,7 @@ class MlKem:
 
     Wraps liboqs-python's ``KeyEncapsulation`` so QNSP customers get a
     minimal, typed surface that mirrors the TypeScript ``MlKem`` class in
-    ``@qnsp/cryptography``.
+    ``@cuilabs/qnsp-cryptography``.
 
     Args:
         algorithm: One of ``"ML-KEM-512"``, ``"ML-KEM-768"`` (default for

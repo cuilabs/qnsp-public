@@ -50,12 +50,12 @@ with QnspClient(api_key=...) as q:
 
 ### Added
 
-- `qnsp.crypto` — local PQC primitives via `liboqs-python` 0.12.0, opt-in via the `qnsp[crypto]` extra. Covers ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), Falcon, plus the full liboqs 0.12.0 algorithm surface (HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS). Algorithm names mirror `@qnsp/cryptography` and the new Go/Rust SDKs.
+- `qnsp.crypto` — local PQC primitives via `liboqs-python` 0.12.0, opt-in via the `qnsp[crypto]` extra. Covers ML-KEM (FIPS 203), ML-DSA (FIPS 204), SLH-DSA (FIPS 205), Falcon, plus the full liboqs 0.12.0 algorithm surface (HQC, BIKE, FrodoKEM, Classic-McEliece, MAYO, CROSS). Algorithm names mirror `@cuilabs/qnsp-cryptography` and the new Go/Rust SDKs.
 - `qnsp.vault` — `VaultClient` with create / get / get-version / rotate / delete / list-versions.
 - `qnsp.kms` — `KmsClient` with create-key / list-keys / get-key / rotate / delete plus sign / verify / wrap / unwrap.
 - `qnsp.audit` — `AuditClient` with log-event, ingest-events (batch), and list-events.
 - `_service.py` — shared HTTP plumbing for service clients, including 401-triggered token refresh + retry.
-- `_activation.py` — `ApiKeyActivation` flow that mirrors `@qnsp/sdk-activation` from the TypeScript family. Handshake hits `/billing/v1/sdk/activate` with `sdkId="qnsp-python"`, caches the result with a 60 s near-expiry buffer.
+- `_activation.py` — `ApiKeyActivation` flow that mirrors `@cuilabs/qnsp-sdk-activation` from the TypeScript family. Handshake hits `/billing/v1/sdk/activate` with `sdkId="qnsp-python"`, caches the result with a 60 s near-expiry buffer.
 - Generic `parse_qnsp_webhook()` and `verify_qnsp_webhook_signature()` — every QNSP webhook consumer needs these regardless of integration.
 - Top-level introspection: `client.tenant_id`, `client.tier`, `client.limits`, `client.has_feature("sseEnabled")`.
 

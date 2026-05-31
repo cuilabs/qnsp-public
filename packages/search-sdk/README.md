@@ -1,4 +1,4 @@
-# @qnsp/search-sdk
+# @cuilabs/qnsp-search-sdk
 
 TypeScript SDK for QNSP search-service (indexing, querying, SSE token helpers); equivalent shapes ship in Python, Go, and Rust.
 
@@ -7,13 +7,13 @@ Part of the [Quantum-Native Security Platform (QNSP)](https://qnsp.cuilabs.io).
 ## Installation
 
 ```bash
-pnpm add @qnsp/search-sdk
+pnpm add @cuilabs/qnsp-search-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { SearchClient } from "@qnsp/search-sdk";
+import { SearchClient } from "@cuilabs/qnsp-search-sdk";
 
 const search = new SearchClient({
   baseUrl: "https://api.qnsp.cuilabs.io",

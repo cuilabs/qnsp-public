@@ -339,7 +339,7 @@ function resolveImportedModule(imported: LiboqsModule | DefaultModuleNamespace):
 
 const LIBOQS_MISSING_MESSAGE =
 	"@cuilabs/liboqs-native is not installed. " +
-	"It is an optional dependency of @qnsp/cryptography that is only distributed via GitHub Packages. " +
+	"It is an optional dependency of @cuilabs/qnsp-cryptography that is only distributed via GitHub Packages. " +
 	"To enable the native liboqs provider, configure an .npmrc scope mapping " +
 	"(echo '@cuilabs:registry=https://npm.pkg.github.com' >> .npmrc) and run " +
 	"`npm install @cuilabs/liboqs-native`. " +

@@ -13,7 +13,7 @@
  * Output: `apps/web/public/pqc-benchmarks/pqc-latest.json` plus historical
  * snapshot `pqc-<UTC>.json`.
  *
- * Run:  pnpm --filter @qnsp/web-portal run bench:pqc
+ * Run:  pnpm --filter @cuilabs/qnsp-web-portal run bench:pqc
  *
  * Multi-process mode: the same script forks itself with
  * `PQC_BENCH_CHILD_MODE=1` to spawn workers; each child runs N ops then

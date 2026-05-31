@@ -1,7 +1,7 @@
 //! Local PQC primitives via the `oqs` crate (0.11).
 //!
 //! Available only with the `crypto` feature enabled. The algorithm-name
-//! surface mirrors `@qnsp/cryptography` (TypeScript), `qnsp.crypto`
+//! surface mirrors `@cuilabs/qnsp-cryptography` (TypeScript), `qnsp.crypto`
 //! (Python), and `qnsp/crypto` (Go), so an algorithm string that works
 //! in one SDK works everywhere.
 

@@ -1,4 +1,4 @@
-import { clearActivationCache } from "@qnsp/sdk-activation";
+import { clearActivationCache } from "@cuilabs/qnsp-sdk-activation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthClient } from "./index.js";
 
@@ -158,7 +158,7 @@ describe("AuthClient Security Tests", () => {
 		});
 
 		it("should not expose sensitive data in error messages", async () => {
-			// activation mock (first network call per client instance)
+			// activation network call (first call per client instance)
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				status: 200,
@@ -246,7 +246,7 @@ describe("AuthClient Security Tests", () => {
 		});
 
 		it("should retry on 429 with Retry-After header", async () => {
-			// activation mock consumed before mockImplementation kicks in
+			// activation network call consumed before mockImplementation kicks in
 			mockFetch.mockResolvedValueOnce({
 				ok: true,
 				status: 200,

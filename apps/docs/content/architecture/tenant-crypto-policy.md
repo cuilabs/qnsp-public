@@ -28,7 +28,7 @@ QNSP currently supports **two policy models**:
 - **v0 tiers** (legacy): default/strict/maximum/government
 - **v1 profiles + tiers** (evidence-first): profile constraints plus tier gates
 
-Services still use the v0 policy via `@qnsp/security` tenant-crypto-policy-client while migration completes. The v1 policy is stored in `tenant_crypto_policy` and is returned by `/platform/v1/crypto/policy` when an `X-Tenant-Id` header is supplied.
+Services still use the v0 policy via `@cuilabs/qnsp-security` tenant-crypto-policy-client while migration completes. The v1 policy is stored in `tenant_crypto_policy` and is returned by `/platform/v1/crypto/policy` when an `X-Tenant-Id` header is supplied.
 
 ## Crypto Policy V1 (Profiles + Tiers)
 
@@ -113,7 +113,7 @@ The system supports both internal and NIST standardized algorithm names:
 Services create a crypto policy client from environment variables:
 
 ```typescript
-import { createTenantCryptoPolicyClientFromEnv } from '@qnsp/security';
+import { createTenantCryptoPolicyClientFromEnv } from '@cuilabs/qnsp-security';
 
 const cryptoPolicyClient = createTenantCryptoPolicyClientFromEnv();
 ```

@@ -228,7 +228,7 @@ describe("Property 3: Production error sanitization", () => {
 		);
 	});
 
-	it("suppresses plain Error messages in production mode", () => {
+	it("suppresses plain Error messages when NODE_ENV=production", () => {
 		fc.assert(
 			fc.property(plainErrorArb, (error) => {
 				const response = mapStandardError(error, productionOptions);
@@ -240,7 +240,7 @@ describe("Property 3: Production error sanitization", () => {
 		);
 	});
 
-	it("suppresses non-Error throwable messages in production mode", () => {
+	it("suppresses non-Error throwable messages when NODE_ENV=production", () => {
 		fc.assert(
 			fc.property(nonErrorArb, (error) => {
 				const response = mapStandardError(error, productionOptions);
@@ -251,7 +251,7 @@ describe("Property 3: Production error sanitization", () => {
 		);
 	});
 
-	it("does not include stack traces in production mode without exposeStack", () => {
+	it("does not include stack traces when NODE_ENV=production without exposeStack", () => {
 		fc.assert(
 			fc.property(anyErrorArb, (error) => {
 				const response = mapStandardError(error, productionOptions);
@@ -327,7 +327,7 @@ describe("Property 4: Zod validation rejection", () => {
 		);
 	});
 
-	it("ZodError response is identical in production and dev modes", () => {
+	it("ZodError response is identical when NODE_ENV=production vs dev", () => {
 		fc.assert(
 			fc.property(zodErrorArb, (error) => {
 				const prodResponse = mapStandardError(error, productionOptions);

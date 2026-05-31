@@ -1,5 +1,5 @@
 ---
-title: LangChain Integration (@qnsp/langchain-qnsp)
+title: LangChain Integration (@cuilabs/qnsp-langchain-qnsp)
 version: 0.1.7
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
@@ -10,20 +10,20 @@ source_files:
   - /packages/langchain-qnsp/src/toolkit.ts
 ---
 
-# LangChain Integration (`@qnsp/langchain-qnsp`)
+# LangChain Integration (`@cuilabs/qnsp-langchain-qnsp`)
 
 QNSP provides a LangChain toolkit that wraps tenant-scoped vault, KMS, and audit operations behind billing-backed SDK activation.
 
 ## Install
 
 ```bash
-pnpm add @qnsp/langchain-qnsp @langchain/core
+pnpm add @cuilabs/qnsp-langchain-qnsp @langchain/core
 ```
 
 ## Usage
 
 ```ts
-import { QnspToolkit } from "@qnsp/langchain-qnsp";
+import { QnspToolkit } from "@cuilabs/qnsp-langchain-qnsp";
 
 const toolkit = new QnspToolkit({
 	apiKey: process.env.QNSP_API_KEY!,
@@ -40,7 +40,7 @@ const tools = toolkit.getTools();
 
 ## Authentication
 
-The toolkit activates with `@qnsp/sdk-activation`, resolves tenant context from the API key, and respects billing entitlements before tools are used.
+The toolkit activates with `@cuilabs/qnsp-sdk-activation`, resolves tenant context from the API key, and respects billing entitlements before tools are used.
 
 ## Related docs
 

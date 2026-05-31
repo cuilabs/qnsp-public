@@ -1,8 +1,8 @@
+import type { PqcAlgorithm, PqcProvider } from "@cuilabs/qnsp-cryptography";
+import { listPqcProviders, resolvePqcProvider } from "@cuilabs/qnsp-cryptography";
 import { metrics } from "@opentelemetry/api";
-import type { PqcAlgorithm, PqcProvider } from "@qnsp/cryptography";
-import { listPqcProviders, resolvePqcProvider } from "@qnsp/cryptography";
 
-const meter = metrics.getMeter("@qnsp/shared-kernel");
+const meter = metrics.getMeter("@cuilabs/qnsp-shared-kernel");
 const jwtVerificationsCounter = meter.createCounter("pqc_jwt_verifications_total", {
 	description: "Total PQC JWT verification attempts by algorithm and outcome",
 });

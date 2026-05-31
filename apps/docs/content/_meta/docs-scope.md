@@ -13,7 +13,7 @@ source_files:
 
 This documentation covers the **Quantum-Native Security Platform (QNSP)** developer-facing APIs, SDKs, and integration patterns.
 
-> **Monorepo**: `@qnsp/monorepo` v0.0.1  
+> **Monorepo**: `@cuilabs/qnsp-monorepo` v0.0.1  
 > **Node.js**: ≥24.12.0 | **pnpm**: ≥10.25.0
 
 ## In scope

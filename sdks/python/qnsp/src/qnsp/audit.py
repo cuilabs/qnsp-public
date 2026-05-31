@@ -1,6 +1,6 @@
 """Audit client — append immutable, hash-chained audit events.
 
-Mirrors the most-used methods of ``@qnsp/audit-sdk``. Routes verified
+Mirrors the most-used methods of ``@cuilabs/qnsp-audit-sdk``. Routes verified
 against ``apps/audit-service/src/routes/events.ts`` and the TypeScript
 SDK's ``ingestEvents`` / ``listEvents`` paths:
 

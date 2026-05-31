@@ -5,7 +5,7 @@ last_updated: 2026-04-23
 copyright: © 2025 CUI Labs. All rights reserved.
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -22,10 +22,10 @@ SDKs authenticate by sending `Authorization: Bearer <token>`.
 ## Credential types
 
 ### User login (auth-service)
-Use `@qnsp/auth-sdk` to obtain an access token.
+Use `@cuilabs/qnsp-auth-sdk` to obtain an access token.
 
 ```typescript
-import { AuthClient } from "@qnsp/auth-sdk";
+import { AuthClient } from "@cuilabs/qnsp-auth-sdk";
 
 const auth = new AuthClient({
 	baseUrl: "http://localhost:8081",
@@ -53,7 +53,7 @@ For server-to-server integrations that need a durable machine identity, request 
 use it as a Bearer token.
 
 ```typescript
-import { requestServiceToken } from "@qnsp/auth-sdk";
+import { requestServiceToken } from "@cuilabs/qnsp-auth-sdk";
 
 const token = await requestServiceToken({
 	authServiceUrl: "http://localhost:8081",
@@ -66,7 +66,7 @@ const token = await requestServiceToken({
 ### Using a token with other SDKs
 
 ```typescript
-import { VaultClient } from "@qnsp/vault-sdk";
+import { VaultClient } from "@cuilabs/qnsp-vault-sdk";
 
 const vault = new VaultClient({
 	baseUrl: "http://localhost:8090",

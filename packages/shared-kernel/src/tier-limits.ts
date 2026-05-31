@@ -6,13 +6,13 @@
  *
  * Architecture note:
  *   This catalogue is deliberately **inlined** rather than imported from the
- *   internal `@qnsp/pricing` package. `@qnsp/pricing` is a private workspace
+ *   internal `@cuilabs/qnsp-pricing` package. `@cuilabs/qnsp-pricing` is a private workspace
  *   package that contains the full commercial model (Stripe product ids,
  *   per-cycle prices in cents, add-on SKUs, sales-motion signals) which must
  *   NOT leak onto the public npm registry.
  *
- *   Drift with `@qnsp/pricing` is prevented at build time by
- *   `tier-limits.drift.test.ts`, which imports `@qnsp/pricing` as a
+ *   Drift with `@cuilabs/qnsp-pricing` is prevented at build time by
+ *   `tier-limits.drift.test.ts`, which imports `@cuilabs/qnsp-pricing` as a
  *   devDependency and asserts every value in `TIER_LIMITS` matches the
  *   internal source of truth. If marketing tweaks a tier flag there, the
  *   drift test fails until this file is updated in lockstep.
@@ -45,7 +45,7 @@ export interface TierLimits {
 }
 
 /**
- * Inlined projection of the internal `@qnsp/pricing` TIER_PRICING catalogue.
+ * Inlined projection of the internal `@cuilabs/qnsp-pricing` TIER_PRICING catalogue.
  * Only the 7 fields SDK consumers need to reason about feature availability.
  * Drift-guarded by `tier-limits.drift.test.ts` at build time.
  */

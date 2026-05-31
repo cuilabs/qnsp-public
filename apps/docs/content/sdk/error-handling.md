@@ -12,7 +12,7 @@ source_files:
   - /sdks/rust/qnsp/src/errors.rs
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -39,8 +39,8 @@ The class names differ per language but the taxonomy is identical, so the same `
 ## TypeScript / Node.js
 
 ```typescript
-import { VaultClient } from "@qnsp/vault-sdk";
-import { QnspApiError, QnspNetworkError } from "@qnsp/vault-sdk/errors";
+import { VaultClient } from "@cuilabs/qnsp-vault-sdk";
+import { QnspApiError, QnspNetworkError } from "@cuilabs/qnsp-vault-sdk/errors";
 
 const vault = new VaultClient({ baseUrl: "https://api.qnsp.cuilabs.io/proxy/vault", apiKey: "<token>" });
 
@@ -53,7 +53,7 @@ try {
 }
 ```
 
-Each `@qnsp/*-sdk` package exports its own typed error classes from `./errors`.
+Each `@cuilabs/qnsp-*-sdk` package exports its own typed error classes from `./errors`.
 
 ## Python
 
@@ -113,6 +113,29 @@ match c.vault().get_secret("missing").await {
 
 All errors flow through the `qnsp::Error` enum. See [`sdks/rust/qnsp/src/errors.rs`](https://github.com/cuilabs/qnsp-public/blob/main/sdks/rust/qnsp/src/errors.rs).
 
+## JVM / Android
+
+```kotlin
+import io.cuilabs.qnsp.QnspApiException
+import io.cuilabs.qnsp.QnspAuthException
+import io.cuilabs.qnsp.QnspNetworkException
+import io.cuilabs.qnsp.QnspWebhookException
+
+try {
+    val secret = qnsp.vault.getSecret("missing")
+} catch (e: QnspApiException) {
+    if (e.statusCode == 404) println("not found") else println("api error ${e.statusCode} ${e.code}")
+} catch (e: QnspNetworkException) {
+    println("could not reach QNSP: ${e.message}")
+} catch (e: QnspAuthException) {
+    println("api key rejected: ${e.code}")
+} catch (e: QnspWebhookException) {
+    println("webhook: ${e.message}")
+}
+```
+
+All SDK errors extend the unchecked `QnspException` base class — catch `QnspException` to handle any failure uniformly. `QnspApiException` exposes `statusCode`, the stable `code` string, and the raw `body`. See [`sdks/jvm/src/main/kotlin/io/cuilabs/qnsp/QnspErrors.kt`](https://github.com/cuilabs/qnsp-public/blob/main/sdks/jvm/src/main/kotlin/io/cuilabs/qnsp/QnspErrors.kt).
+
 ## Status-code mapping
 
 QNSP services map to standard HTTP semantics:
@@ -134,7 +157,7 @@ Each SDK surfaces the structured body of an API error so you can act on `code` (
 
 ## Webhook errors
 
-Webhook verification helpers (`parse_qnsp_webhook` in Python, `qnsp.ParseWebhook` in Go, `qnsp::parse_webhook` in Rust, per-service equivalents in TypeScript) return a typed error whose `.reason` field describes which check failed:
+Webhook verification helpers (`parse_qnsp_webhook` in Python, `qnsp.ParseWebhook` in Go, `qnsp::parse_webhook` in Rust, `QnspWebhooks.parse` on JVM, per-service equivalents in TypeScript) return a typed error whose `.reason` field describes which check failed:
 
 - `signature header must start with 'sha256='`
 - `signature mismatch` — HMAC verification failed

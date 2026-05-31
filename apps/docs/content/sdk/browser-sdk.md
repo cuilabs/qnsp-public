@@ -1,5 +1,5 @@
 ---
-title: Browser SDK (@qnsp/browser-sdk)
+title: Browser SDK (@cuilabs/qnsp-browser)
 version: 0.1.4
 last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
@@ -11,7 +11,7 @@ source_files:
   - /packages/browser-sdk/src/provider-setup.ts
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/storage-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-storage-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -22,7 +22,7 @@ source_files:
 > See [SDK overview](../sdk/) for the consolidated package. The per-service shapes documented below remain accurate at the wire level (REST/gRPC) and are kept for reference.
 
 
-# Browser SDK (`@qnsp/browser-sdk`)
+# Browser SDK (`@cuilabs/qnsp-browser`)
 
 Browser-compatible PQC encryption SDK for the QNSP platform. Provides client-side encryption (CSE), digital signatures, and key management using NIST FIPS 203/204/205 standards via `@noble/post-quantum`.
 
@@ -31,7 +31,7 @@ No native dependencies. No `node:` imports. Works in browsers, Deno, Bun, and No
 ## Install
 
 ```bash
-pnpm add @qnsp/browser-sdk
+pnpm add @cuilabs/qnsp-browser
 ```
 
 ## Supported Algorithms
@@ -52,7 +52,7 @@ import {
   encryptBeforeUpload,
   decryptAfterDownload,
   generateEncryptionKeyPair,
-} from "@qnsp/browser-sdk";
+} from "@cuilabs/qnsp-browser";
 
 // Initialize the PQC provider with your QNSP API key
 await initializePqcProvider({ apiKey: "YOUR_API_KEY" });
@@ -80,7 +80,7 @@ import {
   detectRuntime,
   getSupportedAlgorithms,
   resetProvider,
-} from "@qnsp/browser-sdk";
+} from "@cuilabs/qnsp-browser";
 
 // Detect runtime environment
 const runtime = detectRuntime(); // "browser" | "edge" | "node"
@@ -112,7 +112,7 @@ import {
   serializeCseEnvelope,
   deserializeCseEnvelope,
   type CseEnvelope,
-} from "@qnsp/browser-sdk";
+} from "@cuilabs/qnsp-browser";
 
 // Encrypt
 const envelope: CseEnvelope = await encryptBeforeUpload(
@@ -152,7 +152,7 @@ import {
   generateSigningKeyPair,
   generateEncryptionKeyPair,
   type SignedEnvelope,
-} from "@qnsp/browser-sdk";
+} from "@cuilabs/qnsp-browser";
 
 // Generate ML-DSA signing key pair
 const sigKeyPair = await generateSigningKeyPair("dilithium-3");
@@ -190,8 +190,8 @@ The noble provider uses `@noble/post-quantum` which is a pure JavaScript impleme
 ## Integration with Storage SDK
 
 ```ts
-import { initializePqcProvider, encryptBeforeUpload, generateEncryptionKeyPair } from "@qnsp/browser-sdk";
-import { StorageClient } from "@qnsp/storage-sdk";
+import { initializePqcProvider, encryptBeforeUpload, generateEncryptionKeyPair } from "@cuilabs/qnsp-browser";
+import { StorageClient } from "@cuilabs/qnsp-storage-sdk";
 
 await initializePqcProvider({ apiKey: "YOUR_API_KEY" });
 
@@ -243,6 +243,6 @@ const upload = await storage.initiateUpload({
 - `CseEnvelope` — Client-side encryption envelope
 - `SignedEnvelope` — Signed data envelope
 - `RuntimeEnvironment` — `"browser" | "edge" | "node"`
-- `PqcAlgorithm` — Re-exported from `@qnsp/cryptography`
-- `PqcKeyPair` — Re-exported from `@qnsp/cryptography`
-- `PqcProvider` — Re-exported from `@qnsp/cryptography`
+- `PqcAlgorithm` — Re-exported from `@cuilabs/qnsp-cryptography`
+- `PqcKeyPair` — Re-exported from `@cuilabs/qnsp-cryptography`
+- `PqcProvider` — Re-exported from `@cuilabs/qnsp-cryptography`

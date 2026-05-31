@@ -1,5 +1,5 @@
-import { registerPqcProvider, unregisterPqcProvider } from "@qnsp/cryptography";
-import { createDeterministicTestPqcProvider } from "@qnsp/cryptography/testing/providers";
+import { registerPqcProvider, unregisterPqcProvider } from "@cuilabs/qnsp-cryptography";
+import { createDeterministicTestPqcProvider } from "@cuilabs/qnsp-cryptography/testing/providers";
 import { describe, expect, it } from "vitest";
 
 import { createAuthSubject } from "./auth.js";

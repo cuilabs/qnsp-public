@@ -1,5 +1,5 @@
 {
-	"name": "@qnsp/events",
+	"name": "@cuilabs/qnsp-events",
 	"version": "0.1.4",
 	"license": "Apache-2.0",
 	"engines": {
@@ -57,7 +57,7 @@
 	},
 	"dependencies": {
 		"@opentelemetry/api": "^1.9.1",
-		"@qnsp/observability": "workspace:*",
+		"@cuilabs/qnsp-observability": "workspace:*",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {

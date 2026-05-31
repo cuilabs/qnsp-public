@@ -5,7 +5,7 @@ last_updated: 2026-04-23
 copyright: © 2025–2026 CUI Labs (Pte.) Ltd. All rights reserved.
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-vault-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -111,7 +111,7 @@ A complete bug report should include:
 ```
 
 ## SDK Version (if applicable)
-[e.g., @qnsp/vault-sdk@1.2.3]
+[e.g., @cuilabs/qnsp-vault-sdk@1.2.3]
 
 ## Additional Context
 [Any other relevant information]

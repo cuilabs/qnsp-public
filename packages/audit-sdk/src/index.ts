@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks";
 
-import { activateSdk, type SdkActivationConfig } from "@qnsp/sdk-activation";
+import { activateSdk, type SdkActivationConfig } from "@cuilabs/qnsp-sdk-activation";
 
 import type {
 	AuditClientTelemetry,
@@ -12,7 +12,7 @@ import { SDK_PACKAGE_VERSION } from "./sdk-package-version.js";
 import { validateUUID } from "./validation.js";
 
 /**
- * @qnsp/audit-sdk
+ * @cuilabs/qnsp-audit-sdk
  *
  * TypeScript SDK client for the QNSP audit-service API.
  * Provides a high-level interface for querying audit logs and compliance reporting.
@@ -22,7 +22,7 @@ import { validateUUID } from "./validation.js";
 /**
  * Mapping from internal algorithm names to NIST/standards display names.
  * Covers all 90 PQC algorithms supported by QNSP.
- * Canonical source: @qnsp/cryptography pqc-standards.ts ALGORITHM_NIST_NAMES
+ * Canonical source: @cuilabs/qnsp-cryptography pqc-standards.ts ALGORITHM_NIST_NAMES
  */
 export const ALGORITHM_TO_NIST: Record<string, string> = {
 	// FIPS 203 — ML-KEM

@@ -209,7 +209,7 @@ describe("CrossVerificationService", () => {
 		});
 
 		it("returns verified=false when secondary provider throws", async () => {
-			const errorMessage = "Simulated verification failure";
+			const errorMessage = "Forced verification failure";
 			const throwingProvider = createDeterministicTestPqcProvider({
 				seed,
 				name: "throwing-provider",
@@ -274,6 +274,22 @@ describe("CrossVerificationService", () => {
 			expect(result.attestation.crossVerified).toBe(true);
 			expect(result.attestation.crossVerificationResult).toBe("match");
 			expect(result.error).toBeUndefined();
+		});
+
+		it("returns verified=false with error for non-cross-verifiable algorithm", async () => {
+			const algorithm = "falcon-512" satisfies PqcAlgorithm;
+			const data = new TextEncoder().encode("verify-unsupported-data");
+
+			const result = await service.crossVerifyVerification({
+				algorithm,
+				data,
+				signature: new Uint8Array(64),
+				publicKey: new Uint8Array(32),
+			});
+
+			expect(result.verified).toBe(false);
+			expect(result.error).toBeDefined();
+			expect(result.error).toContain("not supported");
 		});
 
 		it("returns verified=true when both providers reject tampered data", async () => {

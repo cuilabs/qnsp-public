@@ -5,7 +5,7 @@ last_updated: 2026-04-30
 copyright: © 2025-2026 CUI Labs. All rights reserved.
 ---
 
-> **Note** — As of 2026-04-30, the per-service `@qnsp/auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
+> **Note** — As of 2026-04-30, the per-service `@cuilabs/qnsp-auth-sdk` package is consolidated into the unified `@cuilabs/qnsp` SDK (one package per language). New integrations should use:
 >
 > ```typescript
 > import { QnspClient } from "@cuilabs/qnsp";
@@ -17,7 +17,7 @@ copyright: © 2025-2026 CUI Labs. All rights reserved.
 
 # Supported Languages
 
-QNSP ships first-party SDKs for **TypeScript / Node.js**, **Python**, **Go**, and **Rust**. All four share the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture — pick whichever fits your stack and the byte-for-byte outputs round-trip.
+QNSP ships first-party SDKs for **TypeScript / Node.js**, **Python**, **Go**, **Rust**, and **JVM / Android** (Kotlin + Java). All five share the same wire contracts, the same algorithm names, and the same FIPS 203 / 204 / 205 posture — pick whichever fits your stack and the byte-for-byte outputs round-trip.
 
 | Language | Package | Where it lives | Activation SDK ID |
 |---|---|---|---|
@@ -25,8 +25,9 @@ QNSP ships first-party SDKs for **TypeScript / Node.js**, **Python**, **Go**, an
 | Python | `qnsp` (single package) | [`sdks/python/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/python/qnsp) | `qnsp-python` |
 | Go | `github.com/cuilabs/qnsp-public/sdks/go/qnsp` | [`sdks/go/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/go/qnsp) | `qnsp-go` |
 | Rust | `qnsp` on crates.io | [`sdks/rust/qnsp/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/rust/qnsp) | `qnsp-rust` |
+| JVM / Android (Kotlin + Java) | `io.cuilabs:qnsp` on Maven Central | [`sdks/jvm/`](https://github.com/cuilabs/qnsp-public/tree/main/sdks/jvm) | `qnsp-jvm` |
 
-> **TypeScript SDK consolidated 2026-04-30.** The previous 11 per-service `@qnsp/*-sdk` packages on npm are deprecated in favour of `@cuilabs/qnsp`. They continue to install and work, but new code should use the unified package. See [migration guide](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks).
+> **TypeScript SDK consolidated 2026-04-30.** The previous 11 per-service `@cuilabs/qnsp-*-sdk` packages on npm are deprecated in favour of `@cuilabs/qnsp`. They continue to install and work, but new code should use the unified package. See [migration guide](https://github.com/cuilabs/qnsp-public/blob/main/packages/qnsp/README.md#migration-from-per-service-sdks).
 
 ## Node.js / TypeScript
 
@@ -51,7 +52,7 @@ await qnsp.audit.logEvent({ eventType: "model.inference", payload: { modelId: "g
 - One activation handshake on first call, shared across all 11 sub-clients
 - One `npm install` line, one version, one CHANGELOG, one telemetry surface
 
-For browser apps, `@qnsp/browser-sdk` is still the right choice (it bundles the noble PQC primitives for client-side use). The per-service `@qnsp/*-sdk` packages on npm are deprecated as of 2026-04-30 — they continue to install but are no longer the recommended entry point. See the [Node.js page](./node/README.md) for full quick-start and migration details.
+For browser apps, `@cuilabs/qnsp-browser` is still the right choice (it bundles the noble PQC primitives for client-side use). The per-service `@cuilabs/qnsp-*-sdk` packages on npm are deprecated as of 2026-04-30 — they continue to install but are no longer the recommended entry point. See the [Node.js page](./node/README.md) for full quick-start and migration details.
 
 ## Python
 
@@ -117,33 +118,47 @@ let secret = c.vault().create_secret(CreateSecretRequest { ... }, None).await?;
 
 See the [Rust page](./rust/README.md) for full quick-start.
 
-## Java
+## JVM / Android
 
-Java SDK is **not yet planned**. Java consumers should call the QNSP REST API via the edge gateway (`https://api.qnsp.cuilabs.io`) directly, or use the [QNSP CLI](https://github.com/cuilabs/qnsp-public/tree/main/packages/cli) from a Java service via `Runtime.exec`.
+`io.cuilabs:qnsp` on Maven Central — one artifact for server-side JVM (Spring / Java / Kotlin) and native Android (API 21+):
 
-If a Java SDK would change your decision to adopt QNSP, write to engineering@cuilabs.io and we'll prioritise.
+```kotlin
+// Gradle (Kotlin DSL)
+dependencies {
+    implementation("io.cuilabs:qnsp:0.1.0")
+}
+```
+
+```kotlin
+val qnsp = QnspClient(System.getenv("QNSP_API_KEY"))
+val secret = qnsp.vault.createSecret(
+    CreateSecretRequest(name = "db-password", payloadB64 = payloadB64),
+)
+```
+
+Built on OkHttp; Java-interop-clean API (from Java: `qnsp.getVault()...`). On-device PQC via Bouncy Castle or OS-native (Android Keystore PQC). See the [JVM / Android page](./java/README.md) for the full quick-start.
 
 ## Feature matrix
 
-All four SDKs cover the same set of customer-facing services. Module names differ slightly per language (snake_case vs camelCase vs PascalCase) but the wire contract is identical.
+All SDKs cover the same set of customer-facing services. Module names differ slightly per language (snake_case vs camelCase vs PascalCase) but the wire contract is identical.
 
-| Service | TypeScript | Python | Go | Rust |
-|---|---|---|---|---|
-| Vault (`/vault/v1`) | `@qnsp/vault-sdk` | `qnsp.vault` | `qnsp/vault` | `qnsp::vault` |
-| KMS (`/kms/v1`) | `@qnsp/kms-client` | `qnsp.kms` | `qnsp/kms` | `qnsp::kms` |
-| Audit (`/audit/v1`) | `@qnsp/audit-sdk` | `qnsp.audit` | `qnsp/audit` | `qnsp::audit` |
-| Auth (`/auth/v1`) | `@qnsp/auth-sdk` | `qnsp.auth` | `qnsp/auth` | `qnsp::auth` |
-| Tenant (`/tenant/v1`) | `@qnsp/tenant-sdk` | `qnsp.tenant` | `qnsp/tenant` | `qnsp::tenant` |
-| Access (`/access/v1`) | `@qnsp/access-control-sdk` | `qnsp.access` | `qnsp/access` | `qnsp::access` |
-| Billing (`/billing/v1`) | `@qnsp/billing-sdk` | `qnsp.billing` | `qnsp/billing` | `qnsp::billing` |
-| Crypto Inventory (`/crypto/v1`) | `@qnsp/crypto-inventory-sdk` | `qnsp.crypto_inventory` | `qnsp/cryptoinventory` | `qnsp::crypto_inventory` |
-| Storage (`/storage/storage/v1`) | `@qnsp/storage-sdk` | `qnsp.storage` | `qnsp/storage` | `qnsp::storage` |
-| Search (`/search/v1`) | `@qnsp/search-sdk` | `qnsp.search` | `qnsp/search` | `qnsp::search` |
-| AI Orchestrator (`/ai/v1`) | `@qnsp/ai-sdk` | `qnsp.ai` | `qnsp/ai` | `qnsp::ai` |
-| Local PQC primitives | `@qnsp/cryptography` (via `@cuilabs/liboqs-native`) | `qnsp.crypto` (via `liboqs-python`) | `qnsp/crypto` (via `liboqs-go`) | `qnsp::crypto` (via `oqs` 0.11) |
-| Webhook signature verify + parse | per-service | `qnsp.parse_qnsp_webhook` | `qnsp.ParseWebhook` | `qnsp::parse_webhook` |
+| Service | TypeScript | Python | Go | Rust | JVM / Android |
+|---|---|---|---|---|---|
+| Vault (`/vault/v1`) | `@cuilabs/qnsp-vault-sdk` | `qnsp.vault` | `qnsp/vault` | `qnsp::vault` | `qnsp.vault` |
+| KMS (`/kms/v1`) | `@cuilabs/qnsp-kms-client` | `qnsp.kms` | `qnsp/kms` | `qnsp::kms` | `qnsp.kms` |
+| Audit (`/audit/v1`) | `@cuilabs/qnsp-audit-sdk` | `qnsp.audit` | `qnsp/audit` | `qnsp::audit` | `qnsp.audit` |
+| Auth (`/auth/v1`) | `@cuilabs/qnsp-auth-sdk` | `qnsp.auth` | `qnsp/auth` | `qnsp::auth` | `qnsp.auth` |
+| Tenant (`/tenant/v1`) | `@cuilabs/qnsp-tenant-sdk` | `qnsp.tenant` | `qnsp/tenant` | `qnsp::tenant` | `qnsp.tenant` |
+| Access (`/access/v1`) | `@cuilabs/qnsp-access-control-sdk` | `qnsp.access` | `qnsp/access` | `qnsp::access` | `qnsp.access` |
+| Billing (`/billing/v1`) | `@cuilabs/qnsp-billing-sdk` | `qnsp.billing` | `qnsp/billing` | `qnsp::billing` | `qnsp.billing` |
+| Crypto Inventory (`/crypto/v1`) | `@cuilabs/qnsp-crypto-inventory-sdk` | `qnsp.crypto_inventory` | `qnsp/cryptoinventory` | `qnsp::crypto_inventory` | `qnsp.cryptoInventory` |
+| Storage (`/storage/storage/v1`) | `@cuilabs/qnsp-storage-sdk` | `qnsp.storage` | `qnsp/storage` | `qnsp::storage` | `qnsp.storage` |
+| Search (`/search/v1`) | `@cuilabs/qnsp-search-sdk` | `qnsp.search` | `qnsp/search` | `qnsp::search` | `qnsp.search` |
+| AI Orchestrator (`/ai/v1`) | `@cuilabs/qnsp-ai-sdk` | `qnsp.ai` | `qnsp/ai` | `qnsp::ai` | `qnsp.ai` |
+| Local PQC primitives | `@cuilabs/qnsp-cryptography` (via `@cuilabs/liboqs-native`) | `qnsp.crypto` (via `liboqs-python`) | `qnsp/crypto` (via `liboqs-go`) | `qnsp::crypto` (via `oqs` 0.11) | Bouncy Castle / OS-native |
+| Webhook signature verify + parse | per-service | `qnsp.parse_qnsp_webhook` | `qnsp.ParseWebhook` | `qnsp::parse_webhook` | `QnspWebhooks` |
 
-All four SDKs ship the same **11 customer-facing service modules** plus local PQC primitives and webhook verification. The Python SDK at v0.3.0 (2026-04-30) reached parity with the Go and Rust v0.2.0 surface; all three single-package families now match the TypeScript per-service split byte-for-byte on the wire.
+All SDKs ship the same **11 customer-facing service modules** plus local PQC primitives and webhook verification. The Python SDK at v0.3.0 (2026-04-30) reached parity with the Go and Rust v0.2.0 surface; all four single-package families now match the TypeScript per-service split byte-for-byte on the wire.
 
 ## Activation
 

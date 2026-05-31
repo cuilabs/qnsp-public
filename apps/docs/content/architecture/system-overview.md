@@ -44,7 +44,7 @@ QNSP now integrates with XIIS as an external assurance and trust-verification co
 
 ## Tenant Crypto Policy Integration
 
-Services use the shared `@qnsp/security` tenant-crypto-policy-client to:
+Services use the shared `@cuilabs/qnsp-security` tenant-crypto-policy-client to:
 - Fetch tenant-specific crypto policies from tenant-service
 - Select appropriate PQC algorithms based on billing tier (v0 tiers)
 - Apply custom algorithm allowlists and forbidden lists
