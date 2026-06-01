@@ -20,7 +20,7 @@ QNSP is listed in the Cloud Security Alliance (CSA) STAR Registry at Level 1 (CA
 ### Scope
 QNSP cloud service as listed in CSA STAR. Controls vary by deployment model (cloud/private/air-gapped).
 
-[View CSA STAR Service Listing →](https://cloudsecurityalliance.org/star/registry/qnsp)
+[View CSA STAR Service Listing →](https://cloudsecurityalliance.org/star/registry/cui-labs-pte-ltd/services/quantum-native-security-platform-qnsp)
 
 ## SOC 2
 
