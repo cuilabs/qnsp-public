@@ -410,8 +410,7 @@ No — QNSP is not currently FedRAMP authorized; FedRAMP is on our compliance ro
 - Private/VPC deployments
 - Air-gapped installations
 - Customer-controlled HSM integration
-- ITAR program support (deployment-specific)
-- Data residency guarantees
+- Customer-controlled data residency
 
 Contact qnsp-sales@cuilabs.io for government deployment options.
 
